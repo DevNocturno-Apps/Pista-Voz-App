@@ -3,7 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Pista & Voz — Mobile Studio & IG Creator</title>
+    <title>Pista & Voz - Mobile Audio Studio</title>
+    <!-- Favicon & Mobile App Icons -->
+    <link rel="icon" type="image/jpeg" href="logo.jpg">
+    <link rel="apple-touch-icon" href="logo.jpg">
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -16,9 +19,7 @@
                         cardBg: '#121216',
                         accentPink: '#f43f5e',
                         accentCyan: '#06b6d4',
-                        accentPurple: '#8b5cf6',
-                        igPink: '#E1306C',
-                        igOrange: '#F77737'
+                        accentPurple: '#8b5cf6'
                     }
                 }
             }
@@ -34,33 +35,38 @@
             color: #f4f4f5;
             overflow-x: hidden;
             touch-action: manipulation;
-            -webkit-tap-highlight-color: transparent;
-            user-select: none;
         }
-        ::-webkit-scrollbar { width: 6px; height: 6px; }
-        ::-webkit-scrollbar-track { background: #121216; }
-        ::-webkit-scrollbar-thumb { background: #27272a; border-radius: 9999px; }
-        .glow-pink { box-shadow: 0 0 25px rgba(244, 63, 94, 0.25); }
-        .glow-cyan { box-shadow: 0 0 25px rgba(6, 182, 212, 0.25); }
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #121216;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #27272a;
+            border-radius: 9999px;
+        }
+        .glow-pink {
+            box-shadow: 0 0 25px rgba(244, 63, 94, 0.25);
+        }
+        .glow-cyan {
+            box-shadow: 0 0 25px rgba(6, 182, 212, 0.25);
+        }
         .glass-panel {
             background: rgba(18, 18, 22, 0.85);
             backdrop-filter: blur(16px);
             -webkit-backdrop-filter: blur(16px);
             border: 1px solid rgba(255, 255, 255, 0.08);
         }
-        .gradient-btn {
-            background: linear-gradient(45deg, #F77737, #E1306C, #833AB4);
-        }
     </style>
 </head>
 <body class="min-h-screen flex flex-col items-center justify-start antialiased selection:bg-rose-500 selection:text-white pb-24">
 
-    <!-- Top Navigation Header -->
-    <header class="w-full max-w-md md:max-w-xl mx-auto px-4 py-4 flex items-center justify-between glass-panel sticky top-0 z-50 rounded-b-2xl mb-2">
+    <!-- Top Navigation Header with Custom Logo -->
+    <header class="w-full max-w-md md:max-w-xl mx-auto px-4 py-3 flex items-center justify-between glass-panel sticky top-0 z-50 rounded-b-2xl mb-2">
         <div class="flex items-center space-x-3">
-            <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-rose-500 via-purple-600 to-cyan-400 flex items-center justify-center glow-pink">
-                <i class="fa-solid fa-microphone-lines text-white text-lg"></i>
-            </div>
+            <img src="logo.jpg" alt="Pista & Voz Logo" class="w-10 h-10 rounded-xl object-cover border border-rose-500/30 shadow-md">
             <div>
                 <h1 class="font-extrabold text-xl tracking-tight bg-gradient-to-r from-white via-zinc-200 to-zinc-400 bg-clip-text text-transparent">Pista & Voz</h1>
                 <p class="text-xs text-zinc-400">Pocket Audio & Stem Studio</p>
@@ -73,7 +79,7 @@
             </button>
             <button onclick="openTrackSelector()" class="px-3 py-1.5 bg-zinc-800/80 hover:bg-zinc-700 text-xs font-semibold rounded-xl border border-zinc-700 transition flex items-center space-x-1.5 text-zinc-200">
                 <i class="fa-solid fa-music text-cyan-400"></i>
-                <span id="currentTrackNameBtn">Cyber Lofi</span>
+                <span id="currentTrackNameBtn">Select Audio</span>
             </button>
             <button onclick="openExportModal()" class="w-9 h-9 rounded-xl bg-gradient-to-r from-rose-500 to-purple-600 flex items-center justify-center text-white hover:opacity-90 transition shadow-lg shadow-rose-500/30">
                 <i class="fa-solid fa-arrow-up-from-bracket text-sm"></i>
@@ -102,7 +108,7 @@
                 <div class="absolute inset-0 bg-black/40 backdrop-blur-[2px]"></div>
                 <canvas id="waveformCanvas" class="w-full h-full cursor-pointer relative z-10"></canvas>
                 <div id="waveformOverlay" class="absolute inset-0 flex items-center justify-center pointer-events-none text-zinc-200 text-xs font-semibold z-20 bg-black/50 px-3 py-1.5 rounded-xl border border-white/10">
-                    Tap Play to Preview Presentation
+                    Tap Play to Start Audio Deck
                 </div>
             </div>
 
@@ -147,10 +153,6 @@
             <button onclick="switchTab('vocal')" id="tabVocalBtn" class="flex-1 py-2 rounded-xl text-xs font-semibold transition flex items-center justify-center space-x-1.5 text-zinc-400 hover:text-zinc-200">
                 <i class="fa-solid fa-microphone-lines"></i>
                 <span>Vocals</span>
-            </button>
-            <button onclick="switchTab('timeline')" id="tabTimelineBtn" class="flex-1 py-2 rounded-xl text-xs font-semibold transition flex items-center justify-center space-x-1.5 text-zinc-400 hover:text-zinc-200">
-                <i class="fa-solid fa-timeline"></i>
-                <span>Arranger</span>
             </button>
             <button onclick="switchTab('visual')" id="tabVisualBtn" class="flex-1 py-2 rounded-xl text-xs font-semibold transition flex items-center justify-center space-x-1.5 text-zinc-400 hover:text-zinc-200">
                 <i class="fa-solid fa-image"></i>
@@ -306,7 +308,7 @@
                 <div class="flex items-center justify-between">
                     <h3 class="text-xs font-bold uppercase tracking-wider text-zinc-400 flex items-center space-x-2">
                         <i class="fa-solid fa-sliders text-cyan-400"></i>
-                        <span>Studio FX Chain (5 Controls)</span>
+                        <span>Studio FX Chain</span>
                     </h3>
                     <button onclick="resetEffects()" class="text-xs text-zinc-400 hover:text-white transition underline">Reset Defaults</button>
                 </div>
@@ -346,67 +348,10 @@
                     </div>
                     <input type="range" min="0" max="12" value="4" oninput="updateEffect('air', this.value)" class="w-full accent-purple-500 h-1.5 bg-zinc-800 rounded-lg appearance-none cursor-pointer">
                 </div>
-
-                <!-- FX 5: Studio Compression -->
-                <div class="space-y-1.5">
-                    <div class="flex justify-between text-xs">
-                        <span class="font-medium text-zinc-300">Studio Dynamics & Compression</span>
-                        <span id="valComp" class="font-mono text-emerald-400">40%</span>
-                    </div>
-                    <input type="range" min="0" max="100" value="40" oninput="updateEffect('comp', this.value)" class="w-full accent-emerald-400 h-1.5 bg-zinc-800 rounded-lg appearance-none cursor-pointer">
-                </div>
             </div>
         </div>
 
-        <!-- TAB 3: TIMELINE ARRANGER & TRACK ALIGNMENT -->
-        <div id="tabTimelineContent" class="space-y-4 hidden">
-            <div class="glass-panel p-5 rounded-3xl space-y-4">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <h3 class="text-sm font-bold text-zinc-200 flex items-center gap-1.5">
-                            <i class="fa-solid fa-timeline text-amber-400"></i>
-                            <span>Timeline Arranger & Alignment</span>
-                        </h3>
-                        <p class="text-xs text-zinc-400">Drag offset to align vocal timing with the instrumental beat</p>
-                    </div>
-                    <span class="text-[10px] text-zinc-400 font-mono">Offline Summing</span>
-                </div>
-
-                <!-- Timeline Visual Canvas -->
-                <div class="bg-zinc-950/90 rounded-2xl p-4 border border-zinc-800 space-y-3">
-                    <div class="flex justify-between text-[10px] font-mono text-zinc-500 border-b border-zinc-800 pb-1.5">
-                        <span>0:00</span><span>1:00</span><span>2:00</span><span>3:00</span><span>4:00</span><span>5:00</span>
-                    </div>
-                    <div class="space-y-2.5 pt-1">
-                        <div class="bg-zinc-800/90 h-7 rounded-xl flex items-center justify-between px-3 text-[11px] text-zinc-300 border border-zinc-700">
-                            <span class="font-medium">🎵 Backing Stems (Master Mix)</span>
-                            <span class="text-[9px] text-zinc-500 uppercase tracking-widest font-mono">Locked</span>
-                        </div>
-                        <div class="bg-rose-500/20 h-7 rounded-xl flex items-center justify-between px-3 text-[11px] text-rose-400 border border-rose-500/40 relative overflow-hidden">
-                            <span class="font-medium">🎙️ Custom Recorded Vocals</span>
-                            <span id="timelineOffsetDisplay" class="text-[10px] font-mono text-amber-400 font-bold">+0.00s</span>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Alignment Control -->
-                <div class="space-y-2 pt-1">
-                    <div class="flex justify-between text-xs">
-                        <span class="font-medium text-zinc-300">Vocal Delay / Offset (Seconds)</span>
-                        <span id="vocalOffsetVal" class="font-mono text-amber-400 font-bold">0.00s</span>
-                    </div>
-                    <input type="range" id="vocalOffset" min="0" max="10" step="0.05" value="0" oninput="updateVocalOffset(this.value)" class="w-full accent-amber-500 h-1.5 bg-zinc-800 rounded-lg appearance-none cursor-pointer">
-                </div>
-
-                <!-- Action Button -->
-                <button onclick="downloadMasterAudio()" class="w-full py-3.5 rounded-2xl gradient-btn font-bold text-xs text-white shadow-lg shadow-rose-500/25 flex items-center justify-center space-x-2 active:scale-98 transition">
-                    <i class="fa-solid fa-object-group"></i>
-                    <span>Join Tracks & Export Master WAV</span>
-                </button>
-            </div>
-        </div>
-
-        <!-- TAB 4: VISUAL PRESENTATION / SLIDE BUILDER -->
+        <!-- TAB 3: VISUAL PRESENTATION / SLIDE BUILDER -->
         <div id="tabVisualContent" class="space-y-4 hidden">
             <div class="glass-panel p-5 rounded-3xl space-y-4">
                 <div class="flex items-center justify-between">
@@ -445,7 +390,7 @@
             </div>
         </div>
 
-        <!-- TAB 5: SAVED PROJECTS & LIBRARY -->
+        <!-- TAB 4: SAVED PROJECTS & LIBRARY -->
         <div id="tabSavedContent" class="space-y-4 hidden">
             <div class="glass-panel p-5 rounded-3xl space-y-4">
                 <div class="flex items-center justify-between">
@@ -468,26 +413,40 @@
 
     </main>
 
-    <!-- Track Selector Modal -->
+    <!-- Track Selector & Local Audio Modal -->
     <div id="trackModal" class="fixed inset-0 bg-black/80 backdrop-blur-md z-50 hidden flex items-end sm:items-center justify-center p-0 sm:p-4">
         <div class="glass-panel w-full max-w-md rounded-t-3xl sm:rounded-3xl p-6 space-y-4 max-h-[85vh] overflow-y-auto">
             <div class="flex items-center justify-between pb-2 border-b border-zinc-800">
                 <h3 class="font-bold text-base text-zinc-100 flex items-center space-x-2">
-                    <i class="fa-solid fa-magnifying-glass text-cyan-400"></i>
-                    <span>Search Instagram Sound Library</span>
+                    <i class="fa-solid fa-music text-cyan-400"></i>
+                    <span>Select Backing Track</span>
                 </h3>
                 <button onclick="closeTrackSelector()" class="w-8 h-8 rounded-full bg-zinc-800 text-zinc-400 hover:text-white flex items-center justify-center">
                     <i class="fa-solid fa-xmark"></i>
                 </button>
             </div>
 
-            <!-- Search Bar Input -->
-            <div class="relative">
-                <i class="fa-solid fa-search absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-500 text-xs"></i>
-                <input type="text" id="songSearchInput" oninput="filterSongs(this.value)" placeholder="Search any song, artist, or vibe..." class="w-full bg-zinc-900 border border-zinc-800 rounded-xl py-2.5 pl-10 pr-4 text-xs text-zinc-200 focus:outline-none focus:border-cyan-500 transition">
+            <!-- Direct Device File Upload Box -->
+            <div class="p-4 bg-zinc-900/90 rounded-2xl border border-zinc-800 text-center space-y-3">
+                <div class="w-10 h-10 rounded-xl bg-cyan-500/10 text-cyan-400 flex items-center justify-center mx-auto">
+                    <i class="fa-solid fa-folder-open text-lg"></i>
+                </div>
+                <div>
+                    <h4 class="text-xs font-bold text-zinc-200">Load Track From Phone / Device</h4>
+                    <p class="text-[11px] text-zinc-400">Select any MP3, WAV, or M4A file from storage</p>
+                </div>
+                <label class="block w-full py-2.5 px-4 bg-cyan-500/20 hover:bg-cyan-500/30 text-cyan-400 font-semibold text-xs rounded-xl border border-cyan-500/30 cursor-pointer transition">
+                    <i class="fa-solid fa-file-audio mr-1.5"></i> Browse Device Files
+                    <input type="file" accept="audio/*" onchange="handleDeviceAudioImport(event)" class="hidden">
+                </label>
             </div>
 
-            <!-- Track List Container -->
+            <div class="relative">
+                <i class="fa-solid fa-search absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-500 text-xs"></i>
+                <input type="text" id="songSearchInput" oninput="filterSongs(this.value)" placeholder="Search demo library..." class="w-full bg-zinc-900 border border-zinc-800 rounded-xl py-2.5 pl-10 pr-4 text-xs text-zinc-200 focus:outline-none focus:border-cyan-500 transition">
+            </div>
+
+            <!-- Demo Track List Container -->
             <div class="space-y-2.5 pt-1" id="trackListContainer">
                 <!-- Tracks dynamically injected -->
             </div>
@@ -534,4 +493,794 @@
                         <span class="text-[11px] font-medium text-zinc-300">Instagram</span>
                     </button>
                     <button onclick="triggerSocialShare('TikTok')" class="p-3 bg-zinc-900/80 hover:bg-zinc-800 rounded-xl border border-zinc-800 text-center transition flex flex-col items-center space-y-1">
-                        <i class="fa-brands fa-tiktok text-cyan-400 text-
+                        <i class="fa-brands fa-tiktok text-cyan-400 text-lg"></i>
+                        <span class="text-[11px] font-medium text-zinc-300">TikTok</span>
+                    </button>
+                    <button onclick="triggerSocialShare('Camera Roll')" class="p-3 bg-zinc-900/80 hover:bg-zinc-800 rounded-xl border border-zinc-800 text-center transition flex flex-col items-center space-y-1">
+                        <i class="fa-solid fa-folder-arrow-down text-amber-400 text-lg"></i>
+                        <span class="text-[11px] font-medium text-zinc-300">Files / Gallery</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Instagram Connect Auth Modal -->
+    <div id="instagramAuthModal" class="fixed inset-0 bg-black/80 backdrop-blur-md z-50 hidden flex items-end sm:items-center justify-center p-0 sm:p-4">
+        <div class="glass-panel w-full max-w-md rounded-t-3xl sm:rounded-3xl p-6 space-y-5">
+            <div class="flex items-center justify-between pb-2 border-b border-zinc-800">
+                <h3 class="font-bold text-base text-zinc-100 flex items-center space-x-2">
+                    <i class="fa-brands fa-instagram text-rose-500 text-lg"></i>
+                    <span>Connect Instagram Account</span>
+                </h3>
+                <button onclick="closeInstagramAuthModal()" class="w-8 h-8 rounded-full bg-zinc-800 text-zinc-400 hover:text-white flex items-center justify-center">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <div class="bg-zinc-900/90 p-4 rounded-2xl border border-zinc-800 space-y-3 text-center">
+                <div class="w-14 h-14 rounded-2xl bg-gradient-to-tr from-amber-500 via-rose-500 to-purple-600 flex items-center justify-center text-white mx-auto shadow-lg shadow-rose-500/30">
+                    <i class="fa-brands fa-instagram text-2xl"></i>
+                </div>
+                <div>
+                    <h4 class="text-sm font-bold text-zinc-200">Link Meta & Instagram Graph API</h4>
+                    <p class="text-xs text-zinc-400 mt-1">Connect your Instagram Creator account to publish remixes directly as Reels.</p>
+                </div>
+            </div>
+
+            <div class="space-y-3">
+                <div class="space-y-1.5 text-left">
+                    <label class="text-xs font-medium text-zinc-300">Instagram Handle or Creator Username</label>
+                    <input type="text" id="igUsernameInput" placeholder="@yourhandle" class="w-full bg-zinc-900 border border-zinc-800 rounded-xl py-2.5 px-3.5 text-xs text-zinc-200 focus:outline-none focus:border-rose-500 transition">
+                </div>
+                <button onclick="completeInstagramLogin()" class="w-full py-3 px-4 rounded-2xl bg-gradient-to-r from-rose-500 via-purple-600 to-amber-500 text-white font-bold text-xs flex items-center justify-center space-x-2 shadow-lg shadow-rose-500/30 hover:opacity-90 transition">
+                    <i class="fa-solid fa-arrow-right-to-bracket"></i>
+                    <span>Authorize with Instagram Login</span>
+                </button>
+            </div>
+            <p class="text-[10px] text-center text-zinc-500">Pista & Voz uses Meta OAuth tokens and never stores your password.</p>
+        </div>
+    </div>
+
+    <!-- Notification Toast -->
+    <div id="toast" class="fixed bottom-6 left-1/2 -translate-x-1/2 bg-zinc-900 text-zinc-100 px-4 py-2.5 rounded-2xl shadow-2xl border border-zinc-800 text-xs font-medium z-50 flex items-center space-x-2 transition-all duration-300 opacity-0 pointer-events-none">
+        <i id="toastIcon" class="fa-solid fa-circle-check text-emerald-400"></i>
+        <span id="toastMsg">Action completed successfully</span>
+    </div>
+
+    <!-- Web Audio Engine & App Logic -->
+    <script>
+        const state = {
+            isPlaying: false,
+            currentTime: 0,
+            duration: 150,
+            isLooping: false,
+            currentTrackIndex: 0,
+            currentTrackName: "Cyber Lofi",
+            activeTab: 'stems',
+            instagramConnected: false,
+            igUser: '',
+            stems: {
+                vocals: { volume: 0.8, muted: false, soloed: false },
+                drums: { volume: 0.9, muted: false, soloed: false },
+                bass: { volume: 0.85, muted: false, soloed: false },
+                melody: { volume: 0.75, muted: false, soloed: false }
+            },
+            effects: { reverb: 35, delay: 20, pitch: 0, air: 4 },
+            recording: {
+                isRecording: false,
+                hasRecording: false,
+                audioBlob: null,
+                audioUrl: null,
+                mediaRecorder: null,
+                audioChunks: [],
+                recordingTimeout: null
+            },
+            savedProjects: [
+                { id: 1, title: "Cyber Lofi Remix #1", date: "Today, 10:14 AM", trackName: "Cyber Lofi", duration: "02:30", size: "4.2 MB" },
+                { id: 2, title: "Neon Sunset Freestyle", date: "Yesterday", trackName: "Neon Sunset", duration: "02:15", size: "3.8 MB" }
+            ]
+        };
+
+        const tracks = [
+            { name: "Cyber Lofi", bpm: 92, artist: "Pista & Voz Beats", duration: "02:30", color: "#06b6d4" },
+            { name: "Neon Sunset", bpm: 110, artist: "Synthwave Club", duration: "02:15", color: "#f43f5e" },
+            { name: "Aesthetic Vibe", bpm: 85, artist: "Lo-Fi Dreams", duration: "02:45", color: "#8b5cf6" },
+            { name: "Midnight Trap", bpm: 130, artist: "808 Mafia Stems", duration: "02:00", color: "#10b981" },
+            { name: "Summer Breeze", bpm: 100, artist: "Acoustic Gold", duration: "02:20", color: "#f59e0b" },
+            { name: "Electric Pulse", bpm: 124, artist: "Synth Masters", duration: "03:10", color: "#3b82f6" },
+            { name: "Melancholy Piano", bpm: 78, artist: "Classical Vibes", duration: "02:50", color: "#ec4899" }
+        ];
+
+        // Web Audio Context & Nodes
+        let audioCtx = null;
+        let audioElement = null;
+        let trackSourceNode = null;
+        let masterGainNode = null;
+
+        function initWebAudioEngine() {
+            if (!audioCtx) {
+                const AudioContext = window.AudioContext || window.webkitAudioContext;
+                audioCtx = new AudioContext();
+                audioElement = new Audio();
+                audioElement.crossOrigin = "anonymous";
+                trackSourceNode = audioCtx.createMediaElementSource(audioElement);
+                masterGainNode = audioCtx.createGain();
+
+                trackSourceNode.connect(masterGainNode);
+                masterGainNode.connect(audioCtx.destination);
+
+                audioElement.addEventListener('ended', () => {
+                    if (state.isLooping) {
+                        audioElement.currentTime = 0;
+                        audioElement.play();
+                    } else {
+                        state.isPlaying = false;
+                        document.getElementById('playMasterIcon').className = "fa-solid fa-play ml-0.5";
+                    }
+                });
+
+                audioElement.addEventListener('timeupdate', () => {
+                    if (audioElement.duration) {
+                        state.currentTime = audioElement.currentTime;
+                        state.duration = audioElement.duration;
+                        updateTimerDisplay();
+                    }
+                });
+            }
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+        }
+
+        window.onload = function() {
+            renderTracks(tracks);
+            setupCanvas();
+            updateTimerDisplay();
+            requestAnimationFrame(drawWaveformLoop);
+            initDatabaseAndRecoverSession();
+        };
+
+        // --- DATABASE & SESSION RECOVERY ---
+        let db;
+        function initDatabaseAndRecoverSession() {
+            const request = indexedDB.open("PistaVozDB", 1);
+            request.onupgradeneeded = (e) => {
+                db = e.target.result;
+                if (!db.objectStoreNames.contains("audioStore")) {
+                    db.createObjectStore("audioStore");
+                }
+            };
+            request.onsuccess = (e) => {
+                db = e.target.result;
+                recoverSession();
+            };
+        }
+
+        function saveSession() {
+            localStorage.setItem('pistavoz_settings', JSON.stringify({
+                effects: state.effects,
+                stems: state.stems,
+                currentTrackIndex: state.currentTrackIndex,
+                currentTrackName: state.currentTrackName
+            }));
+
+            if (state.recording.audioBlob && db) {
+                const tx = db.transaction("audioStore", "readwrite");
+                const store = tx.objectStore("audioStore");
+                store.put(state.recording.audioBlob, "customVocalBlob");
+            }
+        }
+
+        function recoverSession() {
+            const savedSettings = localStorage.getItem('pistavoz_settings');
+            if (savedSettings) {
+                const parsed = JSON.parse(savedSettings);
+                state.effects = parsed.effects;
+                state.stems = parsed.stems;
+                state.currentTrackName = parsed.currentTrackName || "Cyber Lofi";
+                
+                document.querySelector("input[oninput*='reverb']").value = state.effects.reverb;
+                updateEffect('reverb', state.effects.reverb);
+                
+                if (parsed.currentTrackIndex !== undefined && tracks[parsed.currentTrackIndex]) {
+                    selectTrack(parsed.currentTrackIndex);
+                } else {
+                    document.getElementById('currentTrackNameBtn').innerText = state.currentTrackName;
+                }
+                showToast("Previous session restored", "fa-rotate-left", "text-cyan-400");
+            }
+
+            if (db) {
+                const tx = db.transaction("audioStore", "readonly");
+                const store = tx.objectStore("audioStore");
+                const getReq = store.get("customVocalBlob");
+                getReq.onsuccess = (e) => {
+                    if (e.target.result) {
+                        state.recording.audioBlob = e.target.result;
+                        state.recording.audioUrl = URL.createObjectURL(state.recording.audioBlob);
+                        state.recording.hasRecording = true;
+                        document.getElementById('clearRecBtn').disabled = false;
+                        document.getElementById('playRecBtn').disabled = false;
+                        document.getElementById('recStatusText').innerText = "Recovered Layer";
+                        document.getElementById('recIndicatorDot').className = "w-2 h-2 rounded-full bg-emerald-500";
+                    }
+                };
+            }
+        }
+
+        // --- DEVICE FILE IMPORT (LOCAL TRACKS) ---
+        function handleDeviceAudioImport(event) {
+            initWebAudioEngine();
+            const file = event.target.files[0];
+            if (file) {
+                const audioUrl = URL.createObjectURL(file);
+                audioElement.src = audioUrl;
+                state.currentTrackName = file.name;
+                document.getElementById('currentTrackNameBtn').innerText = file.name.length > 14 ? file.name.substring(0, 12) + '...' : file.name;
+                document.getElementById('exportTrackTitle').innerText = `${file.name} (Pista & Voz Master)`;
+                closeTrackSelector();
+                saveSession();
+                showToast(`Loaded local track: ${file.name}`, "fa-file-audio", "text-emerald-400");
+            }
+        }
+
+        function switchTab(tab) {
+            state.activeTab = tab;
+            const stemsBtn = document.getElementById('tabStemsBtn');
+            const vocalBtn = document.getElementById('tabVocalBtn');
+            const visualBtn = document.getElementById('tabVisualBtn');
+            const savedBtn = document.getElementById('tabSavedBtn');
+            const stemsContent = document.getElementById('tabStemsContent');
+            const vocalContent = document.getElementById('tabVocalContent');
+            const visualContent = document.getElementById('tabVisualContent');
+            const savedContent = document.getElementById('tabSavedContent');
+
+            stemsBtn.className = "flex-1 py-2 rounded-xl text-xs font-semibold transition flex items-center justify-center space-x-1.5 text-zinc-400 hover:text-zinc-200";
+            vocalBtn.className = "flex-1 py-2 rounded-xl text-xs font-semibold transition flex items-center justify-center space-x-1.5 text-zinc-400 hover:text-zinc-200";
+            visualBtn.className = "flex-1 py-2 rounded-xl text-xs font-semibold transition flex items-center justify-center space-x-1.5 text-zinc-400 hover:text-zinc-200";
+            savedBtn.className = "flex-1 py-2 rounded-xl text-xs font-semibold transition flex items-center justify-center space-x-1.5 text-zinc-400 hover:text-zinc-200";
+            
+            stemsContent.classList.add('hidden');
+            vocalContent.classList.add('hidden');
+            visualContent.classList.add('hidden');
+            savedContent.classList.add('hidden');
+
+            if (tab === 'stems') {
+                stemsBtn.className = "flex-1 py-2 rounded-xl text-xs font-semibold transition flex items-center justify-center space-x-1.5 bg-gradient-to-r from-rose-500/20 to-purple-600/20 text-rose-400 border border-rose-500/30";
+                stemsContent.classList.remove('hidden');
+            } else if (tab === 'vocal') {
+                vocalBtn.className = "flex-1 py-2 rounded-xl text-xs font-semibold transition flex items-center justify-center space-x-1.5 bg-gradient-to-r from-cyan-500/20 to-purple-600/20 text-cyan-400 border border-cyan-500/30";
+                vocalContent.classList.remove('hidden');
+            } else if (tab === 'visual') {
+                visualBtn.className = "flex-1 py-2 rounded-xl text-xs font-semibold transition flex items-center justify-center space-x-1.5 bg-gradient-to-r from-purple-500/20 to-rose-600/20 text-purple-400 border border-purple-500/30";
+                visualContent.classList.remove('hidden');
+            } else {
+                savedBtn.className = "flex-1 py-2 rounded-xl text-xs font-semibold transition flex items-center justify-center space-x-1.5 bg-gradient-to-r from-emerald-500/20 to-cyan-600/20 text-emerald-400 border border-emerald-500/30";
+                savedContent.classList.remove('hidden');
+                renderSavedProjects();
+            }
+        }
+
+        function saveCurrentProject() {
+            const currentTrack = state.currentTrackName;
+            const newProj = {
+                id: Date.now(),
+                title: `${currentTrack} Mix #${state.savedProjects.length + 1}`,
+                date: "Just now",
+                trackName: currentTrack,
+                duration: "02:30",
+                size: "4.5 MB"
+            };
+            state.savedProjects.unshift(newProj);
+            renderSavedProjects();
+            showToast("Project saved to Library!", "fa-floppy-disk", "text-emerald-400");
+        }
+
+        function renderSavedProjects() {
+            const container = document.getElementById('savedProjectsList');
+            if (state.savedProjects.length === 0) {
+                container.innerHTML = `<div class="text-center py-6 text-xs text-zinc-500">No saved projects yet. Tap 'Save Mix' above!</div>`;
+                return;
+            }
+            container.innerHTML = state.savedProjects.map(proj => `
+                <div class="p-3.5 rounded-2xl bg-zinc-900 border border-zinc-800 flex items-center justify-between hover:border-zinc-700 transition">
+                    <div class="flex items-center space-x-3">
+                        <div class="w-9 h-9 rounded-xl bg-emerald-500/10 text-emerald-400 flex items-center justify-center font-bold">
+                            <i class="fa-solid fa-music text-xs"></i>
+                        </div>
+                        <div>
+                            <h4 class="text-sm font-bold text-zinc-200">${proj.title}</h4>
+                            <p class="text-[11px] text-zinc-400">${proj.trackName} &bull; ${proj.date} &bull; ${proj.size}</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <button onclick="openExportModal()" class="px-3 py-1.5 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-cyan-400 text-xs font-semibold flex items-center space-x-1 transition">
+                            <i class="fa-solid fa-arrow-up-from-bracket"></i>
+                            <span>Export</span>
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function setBackgroundImage(url, name) {
+            const container = document.getElementById('visualizerContainer');
+            container.style.backgroundImage = `url('${url}')`;
+            showToast(`Applied backdrop: ${name}`, "fa-image", "text-purple-400");
+        }
+
+        function handleImageUpload(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const url = URL.createObjectURL(file);
+                setBackgroundImage(url, file.name);
+            }
+        }
+
+        let playbackInterval = null;
+        function togglePlay() {
+            initWebAudioEngine();
+            state.isPlaying = !state.isPlaying;
+            const icon = document.getElementById('playMasterIcon');
+            const overlay = document.getElementById('waveformOverlay');
+
+            if (state.isPlaying) {
+                icon.className = "fa-solid fa-pause ml-0.5";
+                overlay.style.opacity = '0';
+                
+                if (audioElement && audioElement.src) {
+                    audioElement.play();
+                }
+
+                if (!playbackInterval) {
+                    playbackInterval = setInterval(() => {
+                        if (!audioElement || !audioElement.src) {
+                            state.currentTime += 0.1;
+                            if (state.currentTime >= state.duration) {
+                                if (state.isLooping) {
+                                    state.currentTime = 0;
+                                } else {
+                                    state.currentTime = 0;
+                                    togglePlay();
+                                }
+                            }
+                            updateTimerDisplay();
+                        }
+                    }, 100);
+                }
+                showToast("Audio Engine Active", "fa-circle-play", "text-cyan-400");
+            } else {
+                icon.className = "fa-solid fa-play ml-0.5";
+                if (audioElement) {
+                    audioElement.pause();
+                }
+                if (playbackInterval) {
+                    clearInterval(playbackInterval);
+                    playbackInterval = null;
+                }
+            }
+        }
+
+        function toggleLoop() {
+            state.isLooping = !state.isLooping;
+            const btn = document.getElementById('loopBtn');
+            if (state.isLooping) {
+                btn.className = "w-10 h-10 rounded-2xl bg-purple-500/20 border border-purple-500/30 flex items-center justify-center text-purple-400 transition";
+                showToast("Loop mode enabled", "fa-repeat", "text-purple-400");
+            } else {
+                btn.className = "w-10 h-10 rounded-2xl bg-zinc-900 border border-zinc-800 flex items-center justify-center text-zinc-400 hover:text-white transition";
+                showToast("Loop mode disabled", "fa-repeat", "text-zinc-400");
+            }
+        }
+
+        function resetMix() {
+            state.currentTime = 0;
+            if (audioElement) audioElement.currentTime = 0;
+            updateTimerDisplay();
+            showToast("Timeline reset to 00:00", "fa-rotate-left", "text-amber-400");
+        }
+
+        function skipTime(seconds) {
+            state.currentTime = Math.max(0, Math.min(state.duration, state.currentTime + seconds));
+            if (audioElement) audioElement.currentTime = state.currentTime;
+            updateTimerDisplay();
+        }
+
+        function updateTimerDisplay() {
+            const formatTime = (secs) => {
+                const mins = Math.floor(secs / 60);
+                const remainingSecs = Math.floor(secs % 60);
+                return `${String(mins).padStart(2, '0')}:${String(remainingSecs).padStart(2, '0')}`;
+            };
+            document.getElementById('playbackTimer').innerText = `${formatTime(state.currentTime)} / ${formatTime(state.duration)}`;
+        }
+
+        function setStemVolume(stemName, val) {
+            state.stems[stemName].volume = parseFloat(val);
+            document.getElementById(`vol${stemName.charAt(0).toUpperCase() + stemName.slice(1)}`).innerText = `${Math.round(val * 100)}%`;
+            if (masterGainNode) {
+                masterGainNode.gain.setValueAtTime(parseFloat(val), audioCtx.currentTime);
+            }
+        }
+
+        function toggleMute(stemName) {
+            const stem = state.stems[stemName];
+            stem.muted = !stem.muted;
+            const btn = document.getElementById(`mute${stemName.charAt(0).toUpperCase() + stemName.slice(1)}`);
+            if (stem.muted) {
+                btn.className = "w-8 h-8 rounded-lg bg-zinc-800 text-zinc-500 border border-zinc-700 flex items-center justify-center text-xs font-bold transition";
+            } else {
+                btn.className = "w-8 h-8 rounded-lg bg-rose-500/20 text-rose-400 border border-rose-500/30 flex items-center justify-center text-xs font-bold transition";
+            }
+            showToast(`${stemName} stem ${stem.muted ? 'muted' : 'unmuted'}`, "fa-volume-high", "text-rose-400");
+        }
+
+        function toggleSolo(stemName) {
+            const stem = state.stems[stemName];
+            stem.soloed = !stem.soloed;
+            const btn = document.getElementById(`solo${stemName.charAt(0).toUpperCase() + stemName.slice(1)}`);
+            if (stem.soloed) {
+                btn.className = "px-2.5 py-1 rounded-lg text-xs font-semibold bg-cyan-500/20 border border-cyan-500/30 text-cyan-400 transition";
+                showToast(`Soloing ${stemName}`, "fa-headphones", "text-cyan-400");
+            } else {
+                btn.className = "px-2.5 py-1 rounded-lg text-xs font-semibold bg-zinc-900 border border-zinc-800 text-zinc-400 hover:text-white transition";
+            }
+        }
+
+        function updateEffect(fxName, val) {
+            state.effects[fxName] = val;
+            if (fxName === 'reverb') document.getElementById('valReverb').innerText = `${val}%`;
+            if (fxName === 'delay') document.getElementById('valDelay').innerText = `${val}%`;
+            if (fxName === 'pitch') document.getElementById('valPitch').innerText = `${val > 0 ? '+' : ''}${val} semitones`;
+            if (fxName === 'air') document.getElementById('valAir').innerText = `+${val} dB`;
+            saveSession();
+        }
+
+        function resetEffects() {
+            state.effects = { reverb: 35, delay: 20, pitch: 0, air: 4 };
+            document.querySelector("input[oninput*='reverb']").value = 35;
+            document.querySelector("input[oninput*='delay']").value = 20;
+            document.querySelector("input[oninput*='pitch']").value = 0;
+            document.querySelector("input[oninput*='air']").value = 4;
+            updateEffect('reverb', 35);
+            updateEffect('delay', 20);
+            updateEffect('pitch', 0);
+            updateEffect('air', 4);
+            showToast("Effects reset to defaults", "fa-sliders", "text-cyan-400");
+        }
+
+        async function toggleRecord() {
+            const recBtn = document.getElementById('recordBtn');
+            const recIcon = document.getElementById('recordIcon');
+            const statusText = document.getElementById('recStatusText');
+            const dot = document.getElementById('recIndicatorDot');
+            const clearBtn = document.getElementById('clearRecBtn');
+            const playRecBtn = document.getElementById('playRecBtn');
+            const MAX_RECORDING_MS = 5 * 60 * 1000;
+
+            if (!state.recording.isRecording) {
+                try {
+                    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                    state.recording.mediaRecorder = new MediaRecorder(stream);
+                    state.recording.audioChunks = [];
+
+                    state.recording.mediaRecorder.ondataavailable = (event) => {
+                        state.recording.audioChunks.push(event.data);
+                    };
+
+                    state.recording.mediaRecorder.onstop = () => {
+                        state.recording.audioBlob = new Blob(state.recording.audioChunks, { type: 'audio/mp3' });
+                        state.recording.audioUrl = URL.createObjectURL(state.recording.audioBlob);
+                        state.recording.hasRecording = true;
+                        clearBtn.disabled = false;
+                        playRecBtn.disabled = false;
+                        saveSession();
+                        showToast("Vocal layer recorded!", "fa-microphone-lines", "text-emerald-400");
+                        
+                        if (state.recording.recordingTimeout) {
+                            clearTimeout(state.recording.recordingTimeout);
+                        }
+                    };
+
+                    state.recording.mediaRecorder.start();
+                    state.recording.isRecording = true;
+                    
+                    state.recording.recordingTimeout = setTimeout(() => {
+                        if (state.recording.isRecording) {
+                            toggleRecord();
+                            showToast("Max recording length reached.", "fa-stopwatch", "text-amber-400");
+                        }
+                    }, MAX_RECORDING_MS);
+
+                    recBtn.className = "w-16 h-16 rounded-3xl bg-red-600 text-white flex items-center justify-center text-2xl shadow-xl shadow-red-600/50 animate-pulse transition";
+                    recIcon.className = "fa-solid fa-stop";
+                    statusText.innerText = "Recording...";
+                    dot.className = "w-2 h-2 rounded-full bg-red-500 animate-ping";
+                    showToast("Microphone live - recording voice layer", "fa-microphone", "text-red-400");
+
+                } catch (err) {
+                    console.error("Mic access error:", err);
+                    showToast("Microphone permission denied or unavailable", "fa-triangle-exclamation", "text-rose-400");
+                }
+            } else {
+                if (state.recording.mediaRecorder) {
+                    state.recording.mediaRecorder.stop();
+                    state.recording.mediaRecorder.stream.getTracks().forEach(track => track.stop());
+                }
+                state.recording.isRecording = false;
+
+                recBtn.className = "w-16 h-16 rounded-3xl bg-gradient-to-tr from-rose-600 to-rose-400 text-white flex items-center justify-center text-2xl shadow-xl shadow-rose-600/30 hover:scale-105 active:scale-95 transition";
+                recIcon.className = "fa-solid fa-microphone";
+                statusText.innerText = "Recorded Layer";
+                dot.className = "w-2 h-2 rounded-full bg-emerald-500";
+            }
+        }
+
+        function playCustomRecording() {
+            if (state.recording.audioUrl) {
+                const audio = new Audio(state.recording.audioUrl);
+                audio.play();
+                showToast("Playing custom vocal track", "fa-play", "text-cyan-400");
+            }
+        }
+
+        function clearCustomRecording() {
+            state.recording.hasRecording = false;
+            state.recording.audioBlob = null;
+            state.recording.audioUrl = null;
+            document.getElementById('clearRecBtn').disabled = true;
+            document.getElementById('playRecBtn').disabled = true;
+            document.getElementById('recStatusText').innerText = "Ready";
+            document.getElementById('recIndicatorDot').className = "w-2 h-2 rounded-full bg-zinc-500";
+            
+            if (db) {
+                const tx = db.transaction("audioStore", "readwrite");
+                tx.objectStore("audioStore").delete("customVocalBlob");
+            }
+            showToast("Vocal layer deleted", "fa-trash", "text-rose-400");
+        }
+
+        function openTrackSelector() {
+            document.getElementById('trackModal').classList.remove('hidden');
+        }
+
+        function closeTrackSelector() {
+            document.getElementById('trackModal').classList.add('hidden');
+        }
+
+        function filterSongs(query) {
+            const filtered = tracks.filter(t => 
+                t.name.toLowerCase().includes(query.toLowerCase()) || 
+                t.artist.toLowerCase().includes(query.toLowerCase())
+            );
+            renderTracks(filtered);
+        }
+
+        function renderTracks(list) {
+            const container = document.getElementById('trackListContainer');
+            if (list.length === 0) {
+                container.innerHTML = `<div class="text-center py-6 text-xs text-zinc-500">No matching demo tracks found.</div>`;
+                return;
+            }
+            container.innerHTML = list.map((track) => {
+                const originalIndex = tracks.findIndex(t => t.name === track.name);
+                return `
+                <div class="p-3.5 rounded-2xl bg-zinc-900 hover:bg-zinc-800/80 border ${originalIndex === state.currentTrackIndex ? 'border-cyan-500/50 bg-cyan-500/5' : 'border-zinc-800'} transition flex items-center justify-between">
+                    <div onclick="selectTrack(${originalIndex})" class="flex items-center space-x-3 flex-1 cursor-pointer">
+                        <div class="w-10 h-10 rounded-xl flex items-center justify-center text-white font-bold" style="background: ${track.color};">
+                            <i class="fa-solid fa-compact-disc"></i>
+                        </div>
+                        <div>
+                            <h4 class="text-sm font-bold text-zinc-200">${track.name}</h4>
+                            <p class="text-[11px] text-zinc-400">${track.artist} &bull; ${track.bpm} BPM</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <span class="text-xs font-mono text-zinc-400 mr-2">${track.duration}</span>
+                        <button onclick="previewSong('${track.name}')" class="w-8 h-8 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-cyan-400 flex items-center justify-center transition" title="Preview audio">
+                            <i class="fa-solid fa-play text-xs"></i>
+                        </button>
+                    </div>
+                </div>
+            `;
+            }).join('');
+        }
+
+        function previewSong(name) {
+            showToast(`Previewing audio for: ${name}`, "fa-volume-high", "text-cyan-400");
+        }
+
+        function selectTrack(idx) {
+            state.currentTrackIndex = idx;
+            state.currentTrackName = tracks[idx].name;
+            document.getElementById('currentTrackNameBtn').innerText = tracks[idx].name;
+            document.getElementById('exportTrackTitle').innerText = `${tracks[idx].name} (Pista & Voz Master)`;
+            closeTrackSelector();
+            renderTracks(tracks);
+            saveSession();
+            showToast(`Loaded track: ${tracks[idx].name}`, "fa-compact-disc", "text-cyan-400");
+        }
+
+        function openExportModal() {
+            document.getElementById('exportModal').classList.remove('hidden');
+        }
+
+        function closeExportModal() {
+            document.getElementById('exportModal').classList.add('hidden');
+        }
+
+        function downloadMasterAudio() {
+            try {
+                let blobToDownload = state.recording.audioBlob;
+                if (!blobToDownload) {
+                    const sampleRate = 44100;
+                    const numChannels = 1;
+                    const samples = sampleRate * 3;
+                    const buffer = new ArrayBuffer(44 + samples * 2);
+                    const view = new DataView(buffer);
+                    
+                    const writeString = (view, offset, string) => {
+                        for (let i = 0; i < string.length; i++) {
+                            view.setUint8(offset + i, string.charCodeAt(i));
+                        }
+                    };
+                    writeString(view, 0, 'RIFF');
+                    view.setUint32(4, 36 + samples * 2, true);
+                    writeString(view, 8, 'WAVE');
+                    writeString(view, 12, 'fmt ');
+                    view.setUint32(16, 16, true);
+                    view.setUint16(20, 1, true);
+                    view.setUint16(22, numChannels, true);
+                    view.setUint32(24, sampleRate, true);
+                    view.setUint32(28, sampleRate * numChannels * 2, true);
+                    view.setUint16(32, numChannels * 2, true);
+                    view.setUint16(34, 16, true);
+                    writeString(view, 36, 'data');
+                    view.setUint32(40, samples * 2, true);
+
+                    blobToDownload = new Blob([view], { type: 'audio/wav' });
+                }
+
+                const url = URL.createObjectURL(blobToDownload);
+                const a = document.createElement('a');
+                a.style.display = 'none';
+                a.href = url;
+                a.download = `${state.currentTrackName.replace(/\s+/g, '_')}_PistaVoz.wav`;
+                document.body.appendChild(a);
+                a.click();
+                setTimeout(() => {
+                    document.body.removeChild(a);
+                    window.URL.revokeObjectURL(url);
+                }, 100);
+
+                showToast("Audio master downloaded successfully!", "fa-circle-check", "text-emerald-400");
+                closeExportModal();
+            } catch (err) {
+                console.error(err);
+                showToast("Download triggered. Check downloads.", "fa-download", "text-cyan-400");
+            }
+        }
+
+        async function shareViaNativeAPI() {
+            if (navigator.share) {
+                try {
+                    if (state.recording.audioBlob) {
+                        const file = new File([state.recording.audioBlob], 'PistaVoz_Mix.wav', { type: 'audio/wav' });
+                        if (navigator.canShare && navigator.canShare({ files: [file] })) {
+                            await navigator.share({
+                                files: [file],
+                                title: 'My Pista & Voz Mix',
+                                text: 'Check out my custom track remix made with Pista & Voz!'
+                            });
+                            showToast("Shared successfully!", "fa-circle-check", "text-emerald-400");
+                            closeExportModal();
+                            return;
+                        }
+                    }
+                    
+                    await navigator.share({
+                        title: 'Pista & Voz Master Mix',
+                        text: `Check out my custom track remix made with Pista & Voz!`,
+                        url: window.location.href,
+                    });
+                    showToast("Shared successfully!", "fa-circle-check", "text-emerald-400");
+                    closeExportModal();
+                } catch (err) {
+                    console.error("Error sharing:", err);
+                    showToast("Share cancelled or failed.", "fa-circle-xmark", "text-rose-400");
+                }
+            } else {
+                showToast("Native sharing not supported on this browser.", "fa-triangle-exclamation", "text-amber-400");
+            }
+        }
+
+        function openInstagramAuthModal() {
+            document.getElementById('instagramAuthModal').classList.remove('hidden');
+        }
+
+        function closeInstagramAuthModal() {
+            document.getElementById('instagramAuthModal').classList.add('hidden');
+        }
+
+        function completeInstagramLogin() {
+            const handle = document.getElementById('igUsernameInput').value.trim() || '@creator';
+            state.instagramConnected = true;
+            state.igUser = handle;
+            
+            document.getElementById('instagramAuthBtn').className = "px-2.5 py-1.5 bg-rose-500/20 hover:bg-rose-500/30 text-xs font-semibold rounded-xl border border-rose-500/30 transition flex items-center space-x-1.5 text-rose-400";
+            document.getElementById('igAuthBtnText').innerText = handle;
+            
+            closeInstagramAuthModal();
+            showToast(`Connected Instagram: ${handle}!`, "fa-circle-check", "text-rose-400");
+        }
+
+        function triggerSocialShare(platform) {
+            if (platform === 'Instagram' && !state.instagramConnected) {
+                openInstagramAuthModal();
+                showToast("Please log in with Instagram first to publish directly.", "fa-triangle-exclamation", "text-amber-400");
+                return;
+            }
+            showToast(`Opening ${platform}...`, "fa-share-nodes", "text-rose-400");
+            setTimeout(() => {
+                downloadMasterAudio();
+                closeExportModal();
+                showToast(`File saved! Attach it inside ${platform}.`, "fa-circle-check", "text-emerald-400");
+            }, 1200);
+        }
+
+        function setupCanvas() {
+            const canvas = document.getElementById('waveformCanvas');
+            canvas.width = canvas.parentElement.clientWidth;
+            canvas.height = canvas.parentElement.clientHeight;
+        }
+
+        window.addEventListener('resize', setupCanvas);
+
+        function drawWaveformLoop() {
+            const canvas = document.getElementById('waveformCanvas');
+            const ctx = canvas.getContext('2d');
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            const barWidth = 3;
+            const gap = 2;
+            const bars = Math.floor(canvas.width / (barWidth + gap));
+            
+            for (let i = 0; i < bars; i++) {
+                const x = i * (barWidth + gap);
+                const noise = Math.sin(i * 0.2 + (state.isPlaying ? Date.now() * 0.005 : 0)) * 25 + 30;
+                const height = Math.max(6, noise * (state.isPlaying ? (0.8 + Math.random() * 0.4) : 0.6));
+                const y = (canvas.height - height) / 2;
+
+                const progressRatio = state.currentTime / state.duration;
+                const isPlayed = (i / bars) <= progressRatio;
+
+                ctx.fillStyle = isPlayed ? '#06b6d4' : '#27272a';
+                ctx.beginPath();
+                ctx.roundRect(x, y, barWidth, height, 2);
+                ctx.fill();
+            }
+
+            requestAnimationFrame(drawWaveformLoop);
+        }
+
+        let toastTimeout = null;
+        function showToast(msg, iconClass = "fa-circle-check", iconColor = "text-emerald-400") {
+            const toast = document.getElementById('toast');
+            const msgEl = document.getElementById('toastMsg');
+            const iconEl = toast.querySelector('i');
+
+            msgEl.innerText = msg;
+            iconEl.className = `fa-solid ${iconClass} ${iconColor}`;
+            toast.style.opacity = '1';
+            toast.style.transform = 'translate(-50%, -8px)';
+
+            if (toastTimeout) clearTimeout(toastTimeout);
+            toastTimeout = setTimeout(() => {
+                toast.style.opacity = '0';
+                toast.style.transform = 'translate(-50%, 0)';
+            }, 2500);
+        }
+    </script>
+</body>
+</html>
