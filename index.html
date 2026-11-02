@@ -192,8 +192,8 @@
                 </div>
             </div>
 
-            <button type="button" onclick="saveMasterToDevice()" class="w-full rounded-xl bg-gradient-to-r from-purple-600 via-pink-600 to-amber-500 py-3 text-xs font-bold text-white shadow-lg transition hover:opacity-90">
-                <i class="fa-solid fa-download mr-2"></i>Save Master to Device
+            <button id="saveMasterVideoMainButton" type="button" onclick="saveMasterVideoToDevice()" class="w-full rounded-xl bg-gradient-to-r from-purple-600 via-pink-600 to-amber-500 py-3 text-xs font-bold text-white shadow-lg transition hover:opacity-90 disabled:opacity-50">
+                <i class="fa-solid fa-download mr-2"></i>Save Master as MP4
             </button>
 
         </div>
@@ -262,7 +262,10 @@
                             <i class="fa-solid fa-box-archive text-cyan-400 text-xs"></i>
                             <span class="text-xs font-bold text-zinc-200">Vocal File Box (Recorded Takes)</span>
                         </div>
-                        <span id="fileBoxCountBadge" class="text-[10px] font-mono text-cyan-400 bg-cyan-500/10 px-2 py-0.5 rounded border border-cyan-500/20">3 Files</span>
+                        <div class="flex items-center space-x-2">
+                            <span id="fileBoxCountBadge" class="text-[10px] font-mono text-cyan-400 bg-cyan-500/10 px-2 py-0.5 rounded border border-cyan-500/20">3 Files</span>
+                            <button id="saveLatestVocalButton" type="button" onclick="downloadLatestVocalTake()" disabled class="rounded-lg bg-cyan-500/10 px-2 py-1 text-[10px] font-bold text-cyan-300 disabled:opacity-40">Save latest</button>
+                        </div>
                     </div>
                     <p class="text-[11px] text-zinc-400">Click a file to select, tune FX, and click <strong>[Drop on Song Timeline]</strong>:</p>
 
@@ -431,8 +434,9 @@
             </div>
             <p id="exportStatus" class="text-xs text-zinc-400" role="status" aria-live="polite">Preparing your audio mix...</p>
             <div class="grid grid-cols-2 gap-3">
-                <button id="saveMixButton" onclick="downloadMaster()" disabled class="py-3 px-3 rounded-2xl bg-white text-black font-bold text-xs shadow-lg disabled:opacity-50">Save to device</button>
-                <button id="shareMixButton" onclick="shareMaster()" disabled class="py-3 px-3 rounded-2xl bg-zinc-900 text-white font-bold text-xs border border-zinc-800 disabled:opacity-50">Share to an app</button>
+                <button id="saveMasterVideoButton" onclick="saveMasterVideoToDevice()" disabled class="col-span-2 py-3 px-3 rounded-2xl bg-gradient-to-r from-purple-600 via-pink-600 to-amber-500 text-white font-bold text-xs shadow-lg disabled:opacity-50">Save Master as MP4</button>
+                <button id="saveMixButton" onclick="downloadMaster()" disabled class="py-3 px-3 rounded-2xl bg-white text-black font-bold text-xs shadow-lg disabled:opacity-50">Save audio (WAV)</button>
+                <button id="shareMixButton" onclick="shareMaster()" disabled class="py-3 px-3 rounded-2xl bg-zinc-900 text-white font-bold text-xs border border-zinc-800 disabled:opacity-50">Share audio</button>
             </div>
             <div class="space-y-2 rounded-2xl border border-zinc-800 bg-black p-3">
                 <div class="flex items-center justify-between gap-2">
@@ -506,6 +510,9 @@
             restoringProject: false,
             exportBlob: null,
             exportName: '',
+            masterVideoBlob: null,
+            masterVideoName: '',
+            masterVideoExporting: false,
             instagramBlob: null,
             instagramName: '',
             instagramFormat: '',
@@ -901,6 +908,7 @@
         function renderFileBoxList() {
             const container = document.getElementById('vocalFileBoxList');
             document.getElementById('fileBoxCountBadge').innerText = `${studioApp.recordedFiles.length} Files`;
+            document.getElementById('saveLatestVocalButton').disabled = studioApp.recordedFiles.length === 0;
             if (studioApp.recordedFiles.length === 0) {
                 container.innerHTML = '<div class="rounded-xl border border-dashed border-zinc-800 p-4 text-center text-xs text-zinc-500">No recordings yet. Record a vocal to start your arrangement.</div>';
                 return;
@@ -926,11 +934,48 @@
                         </div>
                         <div class="flex items-center space-x-2">
                             ${file.isPlaced ? '<span class="text-[9px] bg-emerald-500/20 text-emerald-400 px-2 py-0.5 rounded border border-emerald-500/30 font-bold">Placed</span>' : '<span class="text-[9px] bg-zinc-800 text-zinc-500 px-2 py-0.5 rounded">In Box</span>'}
-                            <button onclick="event.stopPropagation(); deleteTake('${file.id}')" class="text-zinc-500 hover:text-rose-400 p-1"><i class="fa-solid fa-trash text-xs"></i></button>
+                            <button type="button" onclick="event.stopPropagation(); downloadVocalTake('${file.id}')" aria-label="Save ${file.label} to device" class="text-cyan-400 hover:text-cyan-300 p-1"><i class="fa-solid fa-download text-xs"></i></button>
+                            <button type="button" onclick="event.stopPropagation(); deleteTake('${file.id}')" aria-label="Delete ${file.label}" class="text-zinc-500 hover:text-rose-400 p-1"><i class="fa-solid fa-trash text-xs"></i></button>
                         </div>
                     </div>
                 `;
             }).join('');
+        }
+
+        function downloadLatestVocalTake() {
+            const latestTake = studioApp.recordedFiles[studioApp.recordedFiles.length - 1];
+            if (!latestTake) {
+                showToast('Record a vocal take before saving.', 'fa-triangle-exclamation', 'text-rose-400');
+                return;
+            }
+            downloadVocalTake(latestTake.id);
+        }
+
+        function downloadVocalTake(id) {
+            const take = studioApp.recordedFiles.find((file) => file.id === id);
+            if (!take?.blob || !take.blob.size) {
+                showToast('This vocal take is unavailable to save. Record it again and retry.', 'fa-triangle-exclamation', 'text-rose-400');
+                return;
+            }
+
+            const mimeType = take.blob.type.toLowerCase();
+            const extension = mimeType.includes('webm') ? 'webm'
+                : mimeType.includes('mp4') ? 'm4a'
+                : mimeType.includes('ogg') ? 'ogg'
+                : mimeType.includes('wav') ? 'wav'
+                : 'webm';
+            const safeName = `${take.label}-${take.tag}`
+                .replace(/[^a-z0-9_-]+/gi, '-')
+                .replace(/^-+|-+$/g, '') || 'vocal-take';
+            const url = URL.createObjectURL(take.blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `PistaVoz-${safeName}.${extension}`;
+            document.body.append(link);
+            link.click();
+            link.remove();
+            setTimeout(() => URL.revokeObjectURL(url), 30000);
+            showToast(`${take.label} saved to your device.`, 'fa-download', 'text-cyan-400');
         }
 
         function selectTakeFileBox(id) {
@@ -1860,6 +1905,11 @@
         function openExportModal() {
             setActiveStudioStep('export');
             document.getElementById('exportModal').classList.remove('hidden');
+            studioApp.masterVideoBlob = null;
+            studioApp.masterVideoName = '';
+            const masterVideoButton = document.getElementById('saveMasterVideoButton');
+            masterVideoButton.textContent = 'Save Master as MP4';
+            masterVideoButton.disabled = true;
             document.getElementById('instagramOptions').classList.add('hidden');
             document.getElementById('instagramStatus').textContent = 'Choose a format to render a video. No Instagram login or website connection is needed to share or upload it yourself.';
             document.getElementById('saveInstagramVideoButton').disabled = true;
@@ -2053,7 +2103,7 @@
         }
 
         function setExportButtonsEnabled(enabled) {
-            ['saveMixButton', 'shareMixButton', 'instagramOptionsButton'].forEach((id) => {
+            ['saveMasterVideoButton', 'saveMixButton', 'shareMixButton', 'instagramOptionsButton'].forEach((id) => {
                 document.getElementById(id).disabled = !enabled;
             });
         }
@@ -2104,10 +2154,72 @@
             showToast('Audio mix saved to your device.', 'fa-download', 'text-cyan-400');
         }
 
-        async function saveMasterToDevice() {
-            const mix = studioApp.exportBlob || await prepareMasterExport();
-            if (!mix) return;
-            downloadMaster();
+        async function saveMasterVideoToDevice() {
+            if (studioApp.masterVideoExporting) return;
+            const button = document.getElementById('saveMasterVideoButton');
+            if (studioApp.masterVideoBlob) {
+                downloadMasterVideo();
+                return;
+            }
+
+            const originalButtonText = button.textContent;
+            const mainButton = document.getElementById('saveMasterVideoMainButton');
+            studioApp.masterVideoExporting = true;
+            button.disabled = true;
+            mainButton.disabled = true;
+            mainButton.textContent = 'Preparing MP4...';
+            showToast('Preparing your MP4. Keep this page open while it renders.', 'fa-spinner fa-spin', 'text-cyan-400');
+            try {
+                if (!studioApp.exportBlob) {
+                    const mix = await prepareMasterExport();
+                    if (!mix) throw new Error('Could not prepare the audio mix for MP4 export.');
+                }
+                button.textContent = 'Rendering MP4...';
+                mainButton.textContent = 'Rendering MP4...';
+                const { blob, filename } = await renderInstagramVideo('Post', {
+                    requireMp4: true,
+                    statusElementId: 'exportStatus',
+                    statusLabel: 'Rendering MP4'
+                });
+                if (!blob.type.toLowerCase().includes('mp4')) {
+                    throw new Error('This browser did not create an MP4. Try Safari on iPhone or a browser with MP4 video export.');
+                }
+                studioApp.masterVideoBlob = blob;
+                studioApp.masterVideoName = `${filename}-master.mp4`;
+                downloadMasterVideo();
+            } catch (error) {
+                console.error('Could not render the master MP4:', error);
+                const status = document.getElementById('exportStatus');
+                if (status) status.textContent = error.message || 'Could not render the master MP4.';
+                button.textContent = 'Retry MP4 download';
+                showToast(error.message || 'Could not render the master MP4.', 'fa-triangle-exclamation', 'text-rose-400');
+            } finally {
+                studioApp.masterVideoExporting = false;
+                button.disabled = false;
+                mainButton.disabled = false;
+                mainButton.textContent = 'Save Master as MP4';
+                if (!studioApp.masterVideoBlob) button.textContent = originalButtonText;
+            }
+        }
+
+        function downloadMasterVideo() {
+            if (!studioApp.masterVideoBlob) return;
+            const url = URL.createObjectURL(studioApp.masterVideoBlob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = studioApp.masterVideoName;
+            link.style.display = 'none';
+            document.body.append(link);
+            link.click();
+            link.remove();
+            setTimeout(() => URL.revokeObjectURL(url), 30000);
+            const status = document.getElementById('exportStatus');
+            if (status) status.textContent = 'MP4 download started.';
+            showToast('MP4 download started.', 'fa-download', 'text-cyan-400');
+        }
+
+        function saveMasterToDevice() {
+            saveMasterVideoToDevice();
         }
 
         async function shareMaster() {
@@ -2168,7 +2280,7 @@
             context.fillText('PISTA & VOZ', width / 2, height / 2, width - 80);
         }
 
-        async function renderInstagramVideo(format) {
+        async function renderInstagramVideo(format, options = {}) {
             if (!studioApp.exportBlob) throw new Error('Prepare the audio mix before rendering a video.');
             if (!window.MediaRecorder || !HTMLCanvasElement.prototype.captureStream || !window.MediaStream) {
                 throw new Error('Video export is not supported in this browser.');
@@ -2219,14 +2331,21 @@
                     ...canvasStream.getVideoTracks(),
                     ...audioDestination.stream.getAudioTracks()
                 ]);
-                const mimeTypes = [
+                const mp4MimeTypes = [
                     'video/mp4;codecs="avc1.42E01E,mp4a.40.2"',
-                    'video/mp4',
+                    'video/mp4'
+                ];
+                const webmMimeTypes = [
                     'video/webm;codecs=vp9,opus',
                     'video/webm;codecs=vp8,opus',
                     'video/webm'
                 ];
+                const mimeTypes = options.requireMp4 ? mp4MimeTypes : [...mp4MimeTypes, ...webmMimeTypes];
                 const mimeType = mimeTypes.find((type) => MediaRecorder.isTypeSupported?.(type));
+                if (options.requireMp4 && !mimeType) {
+                    stream.getTracks().forEach((track) => track.stop());
+                    throw new Error('MP4 video export is not supported in this browser. Try Safari on iPhone or a browser with MP4 video export.');
+                }
                 const recorder = new MediaRecorder(stream, mimeType ? {
                     mimeType,
                     videoBitsPerSecond: 4_000_000,
@@ -2238,7 +2357,7 @@
                     .replace(/[^a-z0-9_-]+/gi, '-')
                     .replace(/^-+|-+$/g, '') || 'pista-voz';
                 const renderStarted = performance.now();
-                const status = document.getElementById('instagramStatus');
+                const status = document.getElementById(options.statusElementId || 'instagramStatus');
                 let animationFrame;
                 let progressTimer;
                 let stopTimer;
@@ -2294,7 +2413,7 @@
                         audioSource.start(0, 0, duration);
                         progressTimer = setInterval(() => {
                             const elapsed = Math.min(duration, (performance.now() - renderStarted) / 1000);
-                            status.textContent = `Rendering Instagram ${format}: ${formatTrackTime(elapsed)} / ${formatTrackTime(duration)}...`;
+                            status.textContent = `${options.statusLabel || `Rendering Instagram ${format}`}: ${formatTrackTime(elapsed)} / ${formatTrackTime(duration)}...`;
                         }, 500);
                         stopTimer = setTimeout(() => {
                             if (recorder.state !== 'inactive') recorder.stop();
