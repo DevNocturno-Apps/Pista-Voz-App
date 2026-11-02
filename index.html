@@ -164,9 +164,14 @@
                 <div class="mb-2 flex items-center justify-between">
                     <div>
                         <h3 class="text-[11px] font-bold text-zinc-200">Song timeline</h3>
-                        <p class="text-[9px] text-zinc-500">Drag the beat, vocal takes, and each photo/video to place them.</p>
+                        <p class="text-[9px] text-zinc-500">Touch and drag any clip to line it up with the beat.</p>
                     </div>
-                    <span id="timelineDurationLabel" class="font-mono text-[10px] text-cyan-300">00:00</span>
+                    <div class="flex items-center gap-1.5">
+                        <span id="timelineDurationLabel" class="mr-1 font-mono text-[10px] text-cyan-300">00:00</span>
+                        <button type="button" onclick="adjustTimelineZoom(-1)" aria-label="Zoom out timeline" class="h-8 w-8 rounded-lg border border-zinc-700 bg-zinc-900 text-sm font-bold text-white">-</button>
+                        <span id="timelineZoomLabel" class="min-w-10 text-center font-mono text-[9px] text-zinc-400">20 px/s</span>
+                        <button type="button" onclick="adjustTimelineZoom(1)" aria-label="Zoom in timeline" class="h-8 w-8 rounded-lg border border-zinc-700 bg-zinc-900 text-sm font-bold text-white">+</button>
+                    </div>
                 </div>
                 <div id="timelineTracksViewport" class="overflow-x-auto overscroll-x-contain rounded-lg" aria-label="Scrollable song timeline">
                     <div id="timelineTrackCanvas" class="relative space-y-2 pb-1">
@@ -177,14 +182,14 @@
                                 <span><i class="fa-solid fa-closed-captioning mr-1"></i>Caption / text</span>
                                 <span id="textTrackOffset" class="font-mono">00:00</span>
                             </div>
-                            <div id="timelineCaptionLane" class="relative h-9 rounded-md border border-zinc-800 bg-black/60"></div>
+                            <div id="timelineCaptionLane" class="relative h-12 rounded-md border border-zinc-800 bg-black/60"></div>
                         </div>
                         <div>
                             <div class="mb-1 flex items-center justify-between text-[10px] text-pink-300">
                                 <span><i class="fa-solid fa-music mr-1"></i>Beat · <span id="trackInstrumentalTitle">No track loaded</span></span>
                                 <span id="beatTrackOffset" class="font-mono">00:00</span>
                             </div>
-                            <div id="timelineBeatLane" class="relative h-9 rounded-md border border-zinc-800 bg-black/60"></div>
+                            <div id="timelineBeatLane" class="relative h-12 rounded-md border border-zinc-800 bg-black/60"></div>
                             <div class="mt-1 grid grid-cols-2 gap-2 rounded-lg border border-zinc-800 bg-black/40 p-2">
                                 <label class="text-[9px] text-zinc-400">Snip beat source start <span id="beatTrimStartLabel" class="font-mono text-pink-300">00:00</span>
                                     <input id="beatTrimStart" type="range" min="0" max="0" step="0.5" value="0" oninput="updateBeatTrim('start', this.value)" class="mt-1 w-full accent-pink-400">
@@ -199,14 +204,14 @@
                                 <span><i class="fa-solid fa-microphone mr-1"></i>Recorded vocals</span>
                                 <button type="button" onclick="openSecondaryVocalScreen()" class="rounded bg-zinc-800 px-2 py-0.5 text-cyan-200">Add / record vocal</button>
                             </div>
-                            <div id="timelineVocalPlacedStack" class="min-h-9 space-y-1"></div>
+                            <div id="timelineVocalPlacedStack" class="min-h-12 space-y-1"></div>
                         </div>
                         <div>
                             <div class="mb-1 flex items-center justify-between text-[10px] text-purple-300">
                                 <span><i class="fa-solid fa-photo-film mr-1"></i>Pictures &amp; videos · drag each clip</span>
                                 <button type="button" onclick="triggerGalleryImport()" class="rounded bg-zinc-800 px-2 py-0.5 text-purple-200">+ Add media</button>
                             </div>
-                            <div id="mediaStripBar" class="relative h-12 rounded-md border border-zinc-800 bg-black/60"></div>
+                            <div id="mediaStripBar" class="relative h-14 rounded-md border border-zinc-800 bg-black/60"></div>
                         </div>
                     </div>
                 </div>
@@ -550,7 +555,7 @@
             mediaVideoBlob: null,
             mediaAssets: [],
             mediaSequenceInterval: 4,
-            timelinePixelsPerSecond: 12,
+            timelinePixelsPerSecond: 20,
             timelineDrag: null,
             productionTrimTimer: null,
             timelineOffsets: { media: 0, beat: 0, text: 0 },
@@ -929,12 +934,22 @@
             });
         }
 
+        function adjustTimelineZoom(direction) {
+            const viewport = document.getElementById('timelineTracksViewport');
+            const oldScale = studioApp.timelinePixelsPerSecond;
+            const centerTime = (viewport.scrollLeft + viewport.clientWidth / 2) / oldScale;
+            studioApp.timelinePixelsPerSecond = Math.max(8, Math.min(48, oldScale * (direction > 0 ? 1.25 : 0.8)));
+            document.getElementById('timelineZoomLabel').textContent = `${Math.round(studioApp.timelinePixelsPerSecond)} px/s`;
+            updateTimelineTrimUI();
+            viewport.scrollLeft = Math.max(0, centerTime * studioApp.timelinePixelsPerSecond - viewport.clientWidth / 2);
+        }
+
         function createDraggableTimelineClip(kind, id, label, left, width, className) {
             const clip = document.createElement('button');
             clip.type = 'button';
-            clip.className = `absolute top-1 h-[calc(100%-0.5rem)] overflow-hidden rounded-md border px-1 text-left text-[9px] font-bold text-white shadow ${className} touch-none select-none`;
+            clip.className = `absolute top-1 h-[calc(100%-0.5rem)] min-h-11 overflow-hidden rounded-md border px-1.5 text-left text-[10px] font-bold text-white shadow ${className} touch-none select-none`;
             clip.style.left = `${left * studioApp.timelinePixelsPerSecond}px`;
-            clip.style.width = `${Math.max(28, width * studioApp.timelinePixelsPerSecond)}px`;
+            clip.style.width = `${Math.max(44, width * studioApp.timelinePixelsPerSecond)}px`;
             clip.style.cursor = 'grab';
             clip.textContent = label;
             clip.dataset.timelineKind = kind;
@@ -1047,6 +1062,9 @@
             };
             clip.setPointerCapture(event.pointerId);
             clip.style.cursor = 'grabbing';
+            clip.style.zIndex = '30';
+            clip.style.transform = 'translateY(-8px) scale(1.03)';
+            clip.style.boxShadow = '0 8px 20px rgb(0 0 0 / 0.55)';
             event.preventDefault();
         }
 
@@ -1055,9 +1073,12 @@
             if (!drag || drag.pointerId !== event.pointerId) return;
             const viewport = document.getElementById('timelineTracksViewport');
             const viewportBounds = viewport.getBoundingClientRect();
-            const edge = 28;
-            if (event.clientX > viewportBounds.right - edge) viewport.scrollLeft += 12;
-            else if (event.clientX < viewportBounds.left + edge) viewport.scrollLeft -= 12;
+            const edge = Math.min(48, viewportBounds.width * 0.18);
+            if (event.clientX > viewportBounds.right - edge) {
+                viewport.scrollLeft += Math.max(4, 24 * (event.clientX - (viewportBounds.right - edge)) / edge);
+            } else if (event.clientX < viewportBounds.left + edge) {
+                viewport.scrollLeft -= Math.max(4, 24 * ((viewportBounds.left + edge) - event.clientX) / edge);
+            }
             const scrollDelta = viewport.scrollLeft - drag.startScroll;
             const delta = (event.clientX - drag.startX + scrollDelta) / studioApp.timelinePixelsPerSecond;
             if (Math.abs(delta) >= 0.1) drag.moved = true;
@@ -1065,7 +1086,7 @@
             const movingDuration = drag.kind === 'text' ? 1 : getTimelineClipDuration(drag.kind, drag.id);
             const maxOffset = Math.max(0, 600 - movingDuration);
             const offset = Math.max(0, Math.min(drag.startOffset + delta, maxOffset));
-            const snappedOffset = Math.round(offset * 2) / 2;
+            const snappedOffset = Math.round(offset * 4) / 4;
             if (drag.kind === 'beat') studioApp.timelineOffsets.beat = snappedOffset;
             else if (drag.kind === 'text') studioApp.timelineOffsets.text = snappedOffset;
             else if (drag.kind === 'vocal') {
@@ -1088,6 +1109,10 @@
             const drag = studioApp.timelineDrag;
             if (!drag || drag.pointerId !== event.pointerId) return;
             studioApp.timelineDrag = null;
+            drag.clip.style.cursor = 'grab';
+            drag.clip.style.zIndex = '';
+            drag.clip.style.transform = '';
+            drag.clip.style.boxShadow = '';
             if (!drag.moved) {
                 if (drag.kind === 'media') showMediaAsset(Number(drag.id));
                 if (drag.kind === 'vocal') selectTakeFileBox(drag.id);
@@ -1620,7 +1645,7 @@
             container.style.width = `${laneWidth}px`;
             if (!placed.length) {
                 const empty = document.createElement('div');
-                empty.className = 'flex h-9 items-center rounded-md border border-dashed border-zinc-800 px-2 text-[9px] text-zinc-600';
+                empty.className = 'flex h-12 items-center rounded-md border border-dashed border-zinc-800 px-2 text-[10px] text-zinc-600';
                 empty.style.width = `${laneWidth}px`;
                 empty.textContent = 'Record a vocal, then drop it on this timeline';
                 container.append(empty);
@@ -1628,7 +1653,7 @@
             }
             placed.forEach((take) => {
                 const lane = document.createElement('div');
-                lane.className = 'relative h-9 rounded-md border border-zinc-800 bg-black/60';
+                lane.className = 'relative h-12 rounded-md border border-zinc-800 bg-black/60';
                 lane.style.width = `${laneWidth}px`;
                 const label = `${take.label} · ${take.tag}${take.voicePreset !== 'normal' ? ` · ${take.voicePreset}` : ''}`;
                 const clip = createDraggableTimelineClip(
@@ -2159,7 +2184,7 @@
             studioApp.mediaAssets.forEach((asset, index) => {
                 const thumbnail = document.createElement('button');
                 thumbnail.type = 'button';
-                thumbnail.className = `absolute top-1 flex h-10 items-center overflow-hidden rounded border px-1 text-left text-[9px] font-bold text-white shadow touch-none select-none ${index === studioApp.activeMediaIndex ? 'border-purple-300 ring-1 ring-purple-300' : 'border-purple-400/60'} bg-purple-900`;
+                thumbnail.className = `absolute top-1 flex h-12 items-center overflow-hidden rounded border px-1.5 text-left text-[10px] font-bold text-white shadow touch-none select-none ${index === studioApp.activeMediaIndex ? 'border-purple-300 ring-1 ring-purple-300' : 'border-purple-400/60'} bg-purple-900`;
                 thumbnail.style.left = `${(Number(asset.offset) || 0) * studioApp.timelinePixelsPerSecond}px`;
                 thumbnail.style.width = `${Math.max(44, (Number(asset.duration) || studioApp.mediaSequenceInterval) * studioApp.timelinePixelsPerSecond)}px`;
                 thumbnail.style.cursor = 'grab';
