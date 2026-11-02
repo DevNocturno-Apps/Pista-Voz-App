@@ -186,14 +186,14 @@
                         </div>
                         <div>
                             <div class="mb-1 flex items-center justify-between text-[10px] text-purple-300">
-                                <span><i class="fa-solid fa-photo-film mr-1"></i>Pictures &amp; videos · drag above the beat</span>
+                                <span><i class="fa-solid fa-photo-film mr-1"></i>Pictures &amp; videos · one row per clip</span>
                                 <button type="button" onclick="triggerGalleryImport()" class="rounded bg-zinc-800 px-2 py-0.5 text-purple-200">+ Add media</button>
                             </div>
                             <div id="mediaStripBar" class="space-y-1"></div>
                         </div>
                         <div>
                             <div class="mb-1 flex items-center justify-between text-[10px] text-cyan-300">
-                                <span><i class="fa-solid fa-microphone mr-1"></i>Recorded vocals · one row per take <span class="text-amber-300">amber = drag to place</span></span>
+                                <span><i class="fa-solid fa-microphone mr-1"></i>Vocal 1, 2, 3... · one row per take <span class="text-amber-300">amber = drag to place</span></span>
                                 <button type="button" onclick="openSecondaryVocalScreen()" class="rounded bg-zinc-800 px-2 py-0.5 text-cyan-200">Add / record vocal</button>
                             </div>
                             <div id="timelineVocalPlacedStack" class="min-h-12 space-y-1"></div>
@@ -1715,12 +1715,12 @@
                 container.append(empty);
                 return;
             }
-            takes.forEach((take) => {
+            takes.forEach((take, index) => {
                 const lane = document.createElement('div');
                 lane.className = 'relative h-12 rounded-md border border-zinc-800 bg-black/60';
                 lane.style.width = `${laneWidth}px`;
                 styleTimelineLaneGrid(lane);
-                const label = `${take.label} · ${take.tag}${take.voicePreset !== 'normal' ? ` · ${take.voicePreset}` : ''}${take.isPlaced ? '' : ' · drag to place'}`;
+                const label = `Vocal ${index + 1} · ${take.tag}${take.voicePreset !== 'normal' ? ` · ${take.voicePreset}` : ''}${take.isPlaced ? '' : ' · drag to place'}`;
                 const clip = createDraggableTimelineClip(
                     'vocal',
                     take.id,
@@ -2300,7 +2300,8 @@
                 thumbnail.style.cursor = 'grab';
                 thumbnail.dataset.timelineKind = 'media';
                 thumbnail.dataset.timelineId = String(index);
-                thumbnail.title = `Drag to position ${asset.name}`;
+                const mediaLabel = `${asset.type.startsWith('video/') ? 'Video' : 'Picture'} ${index + 1}`;
+                thumbnail.title = `Drag to position ${mediaLabel.toLowerCase()} ${asset.name}`;
                 thumbnail.setAttribute('aria-label', `Move ${asset.type.startsWith('video/') ? 'video' : 'photo'} ${index + 1}, ${asset.name}`);
                 if (asset.type.startsWith('video/')) {
                     const icon = document.createElement('i');
@@ -2314,7 +2315,7 @@
                 }
                 const title = document.createElement('span');
                 title.className = 'truncate rounded bg-black/55 px-1';
-                title.textContent = asset.name;
+                title.textContent = `${mediaLabel} · ${asset.name}`;
                 thumbnail.append(title);
                 thumbnail.addEventListener('pointerdown', startTimelineClipDrag);
                 thumbnail.addEventListener('pointermove', moveTimelineClipDrag);
