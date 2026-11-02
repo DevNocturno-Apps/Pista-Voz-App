@@ -276,12 +276,22 @@
                 }
             }
 
+            function isAudiusTrackPlayable(track) {
+                return Boolean(
+                    track?.id &&
+                    track.title &&
+                    track.is_available !== false &&
+                    track.is_streamable !== false &&
+                    track.is_stream_gated !== true
+                );
+            }
+
             function renderCatalogTracks(tracks) {
                 const status = el('catalogStatus');
                 const results = el('catalogResults');
-                const availableTracks = tracks.filter((track) => track && track.id && track.title);
+                const availableTracks = tracks.filter(isAudiusTrackPlayable);
                 if (!availableTracks.length) {
-                    status.textContent = 'No tracks found. Try another search or genre.';
+                    status.textContent = 'No playable tracks found. Try another search or genre.';
                     return;
                 }
                 status.textContent = `${availableTracks.length} tracks`;
@@ -311,6 +321,10 @@
 
             async function loadAudiusTrack(track, button) {
                 if (state.catalogLoading) return;
+                if (!isAudiusTrackPlayable(track)) {
+                    showToast('This Audius track is not available for streaming.');
+                    return;
+                }
                 state.catalogLoading = true;
                 el('catalogResults').querySelectorAll('button').forEach((loadButton) => {
                     loadButton.disabled = true;
@@ -323,6 +337,10 @@
                     streamUrl.searchParams.set('app_name', AUDIUS_APP_NAME);
                     const response = await fetch(streamUrl);
                     if (!response.ok) throw new Error(`Audius track could not be loaded (HTTP ${response.status}).`);
+                    const contentType = response.headers.get('content-type') || '';
+                    if (/^(application\/json|text\/)/i.test(contentType)) {
+                        throw new Error('Audius did not return an audio stream for this track.');
+                    }
                     const streamedAudio = await response.blob();
                     if (!streamedAudio.size) throw new Error('Audius returned an empty audio stream.');
                     const audio = new Blob([streamedAudio], { type: streamedAudio.type || 'audio/mpeg' });
