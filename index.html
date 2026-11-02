@@ -825,8 +825,11 @@
                 await updateInstagramConnectionStatus();
             } catch (error) {
                 console.error(error);
-                document.getElementById('googlePhotosStatus').textContent = 'Integrations need the app server. Start it with npm start.';
-                document.getElementById('instagramAccountStatus').textContent = 'Instagram publishing needs the app server.';
+                document.getElementById('googlePhotosStatus').textContent = 'Google Photos Picker is unavailable on this static site. Choose a photo from your device instead.';
+                document.getElementById('instagramAccountStatus').textContent = 'Instagram publishing needs a configured backend. You can still save or share your video.';
+                const googleButton = document.querySelector('#photoSourceModal button[onclick="pickFromGooglePhotos()"]');
+                googleButton.disabled = true;
+                googleButton.classList.add('opacity-50');
                 document.getElementById('connectInstagramButton').disabled = true;
             }
 

@@ -53,9 +53,9 @@ When connected, users can render an MP4 and publish a Feed video, Reel, or Story
 
 ## Hosting
 
-GitHub Pages only serves static files and cannot run the OAuth/session/publishing backend. This repository includes a Render Blueprint in `render.yaml` for a Node web service with persistent storage. Deploy the Blueprint from Render, then set the provider credentials, the service's public `APP_BASE_URL`, and a `TOKEN_ENCRYPTION_KEY` generated with `openssl rand -hex 32`. Render's persistent disk requires a paid web-service plan.
+This repository includes a GitHub Actions workflow that publishes the browser app to GitHub Pages whenever changes reach `main`. After pushing, open the repository's **Settings → Pages**, select **GitHub Actions** as the build and deployment source if prompted, and share the Pages URL shown there. The site provides the browser-based studio, device photo selection, and save/share options.
 
-After deployment, add the public site origin to the Google OAuth client and API-key referrer restrictions, and add the public URL followed by `/api/instagram/callback` to the Meta app's allowed redirect URIs. Google OAuth consent-screen verification and Meta App Review/Advanced Access may be required before unrelated public users can authorize their accounts.
+GitHub Pages is static hosting; Google Photos Picker and direct Instagram publishing require the separate Node backend and provider configuration described above. Those options are unavailable on the Pages site, but device photos and local save/share remain available. If you later want the backend, this repository also includes a Render Blueprint in `render.yaml`; Render persistent disks require a paid web-service plan.
 
 Do not commit `.env`, provider secrets, or session data.
 
