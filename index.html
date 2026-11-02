@@ -10,30 +10,30 @@
     <style>
         :root {
             color-scheme: dark;
-            --page: #101114;
-            --panel: #191b20;
-            --raised: #22252b;
-            --line: #343840;
-            --ink: #f4f3ef;
-            --muted: #a4a7ad;
-            --coral: #ff7468;
-            --cyan: #62d6d1;
-            --gold: #efc477;
+            --page: #09090b;
+            --panel: #121216;
+            --raised: #222228;
+            --line: #34343b;
+            --ink: #f4f4f5;
+            --muted: #a1a1aa;
+            --coral: #f43f5e;
+            --cyan: #06b6d4;
+            --gold: #8b5cf6;
         }
         * { box-sizing: border-box; }
         body {
             margin: 0;
             min-height: 100vh;
             color: var(--ink);
-            background: radial-gradient(ellipse at 85% 0%, #293236 0, transparent 34rem), var(--page);
+            background: radial-gradient(ellipse at 85% 0%, #251627 0, transparent 32rem), var(--page);
             font-family: "DM Sans", "Avenir Next", Avenir, sans-serif;
             -webkit-tap-highlight-color: transparent;
         }
         button, input { font: inherit; }
         button { color: inherit; cursor: pointer; }
         button:focus-visible, input:focus-visible { outline: 2px solid var(--cyan); outline-offset: 3px; }
-        .shell { width: min(100% - 28px, 760px); margin: 0 auto; padding-bottom: 36px; }
-        header { min-height: 78px; display: flex; align-items: center; justify-content: space-between; gap: 12px; border-bottom: 1px solid var(--line); }
+        .shell { width: min(100% - 28px, 620px); margin: 0 auto; padding-bottom: 36px; }
+        header { position: sticky; top: 0; z-index: 2; min-height: 78px; display: flex; align-items: center; justify-content: space-between; gap: 12px; border: 1px solid #ffffff12; border-top: 0; border-radius: 0 0 18px 18px; background: #121216e8; backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); }
         .brand { display: flex; align-items: center; gap: 12px; min-width: 0; }
         .brand img { width: 48px; height: 48px; object-fit: cover; border-radius: 12px; border: 1px solid #ffffff25; }
         .brand h1 { margin: 0; font-size: 19px; line-height: 1.15; }
@@ -41,22 +41,23 @@
         .button { min-height: 42px; padding: 0 14px; border: 1px solid var(--line); border-radius: 10px; background: var(--raised); font-weight: 650; font-size: 13px; }
         .button:hover { filter: brightness(1.12); }
         .button:disabled { opacity: .45; cursor: not-allowed; }
-        .button.primary { color: #171719; border-color: transparent; background: var(--cyan); }
+        .button.primary { color: white; border-color: transparent; background: linear-gradient(110deg, #f43f5e, #8b5cf6); }
         .button.small { min-height: 36px; padding: 0 10px; font-size: 12px; }
-        .transport { margin-top: 20px; padding: 18px; border: 1px solid var(--line); border-radius: 14px; background: linear-gradient(130deg, #23272b, #191b20 62%); }
+        .transport { margin-top: 16px; padding: 18px; border: 1px solid #ffffff14; border-radius: 22px; background: linear-gradient(130deg, #251a24, #15151b 62%); box-shadow: 0 16px 48px #0003; }
         .section-head, .transport-row, .timeline-label, .slider-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
         .eyebrow { color: var(--muted); font-size: 11px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
         .timecode { color: var(--cyan); font: 12px ui-monospace, SFMono-Regular, Menlo, monospace; white-space: nowrap; }
         .transport-row { margin-top: 14px; }
         .transport-buttons { display: flex; align-items: center; gap: 8px; }
         .icon-button { width: 42px; height: 42px; border: 1px solid var(--line); border-radius: 10px; background: #111317; font-size: 14px; }
-        .icon-button.play { width: 54px; height: 48px; color: #1a1715; border: 0; background: var(--gold); font-size: 20px; }
+        .icon-button.play { width: 54px; height: 48px; color: white; border: 0; background: linear-gradient(140deg, #f43f5e, #8b5cf6); font-size: 20px; }
         .seek { width: 100%; margin-top: 14px; }
         input[type="range"] { accent-color: var(--cyan); width: 100%; }
-        .section { margin-top: 16px; padding: 18px; border: 1px solid var(--line); border-radius: 14px; background: var(--panel); }
+        .section { margin-top: 16px; padding: 18px; border: 1px solid #ffffff12; border-radius: 20px; background: linear-gradient(145deg, #17171c, var(--panel) 70%); }
         .section h2 { margin: 0; font-size: 14px; }
         .section p { margin: 6px 0 0; color: var(--muted); font-size: 12px; line-height: 1.5; }
-        .drop-zone { min-height: 86px; margin-top: 14px; display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 14px; border: 1px dashed #626872; border-radius: 10px; background: #111317; }
+        .drop-zone { min-height: 86px; margin-top: 14px; display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 14px; border: 1px dashed #626872; border-radius: 14px; background: #111317; }
+        .source-actions { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 7px; }
         .track-name { overflow: hidden; color: var(--ink); font-size: 13px; font-weight: 650; text-overflow: ellipsis; white-space: nowrap; }
         .track-meta { margin-top: 4px; color: var(--muted); font-size: 11px; }
         .timeline { margin-top: 14px; overflow: hidden; border: 1px solid var(--line); border-radius: 10px; background: #111317; }
@@ -79,14 +80,26 @@
         .record-button.recording { color: white; background: #c83f39; }
         .status { min-height: 18px; text-align: center; color: var(--muted); font-size: 11px; }
         .mix-controls { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px 18px; margin-top: 14px; }
-        .notice { margin-top: 14px; padding: 11px 12px; border-left: 3px solid var(--gold); background: #24231f; color: #ded8cb; font-size: 11px; line-height: 1.5; }
+        .notice { margin-top: 14px; padding: 11px 12px; border-left: 3px solid var(--gold); background: #24202b; color: #ded8cb; font-size: 11px; line-height: 1.5; }
         .actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
         .toast { position: fixed; z-index: 4; left: 50%; bottom: max(18px, env(safe-area-inset-bottom)); max-width: calc(100vw - 28px); padding: 11px 15px; transform: translate(-50%, 16px); opacity: 0; pointer-events: none; border: 1px solid var(--line); border-radius: 9px; background: #25282e; color: var(--ink); font-size: 12px; transition: .2s ease; }
         .toast.show { transform: translate(-50%, 0); opacity: 1; }
-        dialog { width: min(420px, calc(100% - 28px)); padding: 20px; border: 1px solid var(--line); border-radius: 14px; background: var(--panel); color: var(--ink); }
+        dialog { width: min(480px, calc(100% - 28px)); max-height: min(85vh, 720px); overflow-y: auto; padding: 20px; border: 1px solid var(--line); border-radius: 20px; background: var(--panel); color: var(--ink); }
         dialog::backdrop { background: #000a; }
         dialog h2 { margin: 0; font-size: 16px; }
         dialog p { color: var(--muted); font-size: 13px; line-height: 1.55; }
+        .catalog-search { width: 100%; min-height: 42px; margin-top: 16px; padding: 0 12px; border: 1px solid var(--line); border-radius: 10px; background: #09090b; color: var(--ink); font-size: 13px; }
+        .genre-chips { display: flex; gap: 7px; overflow-x: auto; margin-top: 10px; padding: 2px 1px 5px; scrollbar-width: none; }
+        .genre-chips::-webkit-scrollbar { display: none; }
+        .genre-chip { flex: 0 0 auto; min-height: 32px; padding: 0 11px; border: 1px solid var(--line); border-radius: 10px; background: #09090b; color: var(--muted); font-size: 11px; font-weight: 650; }
+        .genre-chip[aria-pressed="true"] { border-color: #06b6d455; background: #06b6d422; color: #67e8f9; }
+        .catalog-status { min-height: 20px; margin: 12px 0 8px; color: var(--muted); font-size: 12px; }
+        .catalog-results { display: grid; gap: 8px; }
+        .catalog-track { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 11px; border: 1px solid var(--line); border-radius: 12px; background: #09090b; }
+        .catalog-track-copy { min-width: 0; }
+        .catalog-track-title, .catalog-track-artist { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .catalog-track-title { font-size: 12px; font-weight: 700; }
+        .catalog-track-artist { margin-top: 4px; color: var(--muted); font-size: 10px; }
         .visually-hidden { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
         @media (max-width: 520px) {
             .shell { width: min(100% - 20px, 760px); }
@@ -96,6 +109,8 @@
             .brand p { font-size: 10px; }
             .button { padding: 0 10px; }
             .section, .transport { padding: 14px; }
+            .drop-zone { align-items: flex-start; flex-direction: column; }
+            .source-actions { width: 100%; justify-content: flex-start; }
         }
     </style>
 </head>
@@ -127,7 +142,10 @@
                 <div class="section-head"><div><h2 id="trackHeading">Backing audio</h2><p>Choose an audio file stored on this device.</p></div></div>
                 <div class="drop-zone">
                     <div style="min-width:0"><div class="track-name" id="backingName">No track selected</div><div class="track-meta" id="backingMeta">Audio stays in this browser</div></div>
-                    <label class="button small primary" for="audioFile">Choose audio</label>
+                    <div class="source-actions">
+                        <label class="button small primary" for="audioFile">Choose audio</label>
+                        <button class="button small" id="browseCatalog" type="button">Browse Audius</button>
+                    </div>
                     <input class="visually-hidden" id="audioFile" type="file" accept="audio/*">
                 </div>
             </section>
@@ -167,6 +185,24 @@
         <p>This static website cannot sign in to Instagram or browse Instagram's licensed music catalog. Export your mix, then open Instagram and select the exported audio from your device. A real account integration would require Meta app approval and a secure backend.</p>
         <button class="button primary" id="closeInstagramDialog" type="button">Got it</button>
     </dialog>
+    <dialog id="catalogDialog" aria-labelledby="catalogHeading">
+        <div class="section-head">
+            <div><h2 id="catalogHeading">Audius music catalog</h2><p>Search tracks, then load one into your backing track.</p></div>
+            <button class="button small" id="closeCatalog" type="button">Close</button>
+        </div>
+        <label class="visually-hidden" for="catalogSearch">Search Audius tracks</label>
+        <input class="catalog-search" id="catalogSearch" type="search" placeholder="Search tracks or artists..." autocomplete="off">
+        <div class="genre-chips" aria-label="Filter tracks by genre">
+            <button class="genre-chip" type="button" data-genre="" aria-pressed="true">All</button>
+            <button class="genre-chip" type="button" data-genre="Hip-Hop/Rap" aria-pressed="false">Hip-Hop</button>
+            <button class="genre-chip" type="button" data-genre="Electronic" aria-pressed="false">Electronic</button>
+            <button class="genre-chip" type="button" data-genre="Lo-Fi" aria-pressed="false">Lo-Fi</button>
+            <button class="genre-chip" type="button" data-genre="Pop" aria-pressed="false">Pop</button>
+        </div>
+        <div class="catalog-status" id="catalogStatus" role="status" aria-live="polite">Loading popular tracks...</div>
+        <div class="catalog-results" id="catalogResults"></div>
+        <p class="notice">Check each track's license and usage terms before publishing or sharing your mix.</p>
+    </dialog>
 
     <script>
         (() => {
@@ -190,12 +226,18 @@
                 timer: null,
                 vocalStartTimer: null,
                 isPlaying: false,
-                toastTimer: null
+                toastTimer: null,
+                catalogGenre: '',
+                catalogSearchTimer: null,
+                catalogRequestId: 0,
+                catalogLoading: false
             };
 
             const el = (id) => document.getElementById(id);
             const backingAudio = el('backingAudio');
             const vocalAudio = el('vocalAudio');
+            const AUDIUS_API = 'https://api.audius.co';
+            const AUDIUS_APP_NAME = 'PistaVoz';
 
             function showToast(message) {
                 const toast = el('toast');
@@ -203,6 +245,101 @@
                 toast.classList.add('show');
                 clearTimeout(state.toastTimer);
                 state.toastTimer = setTimeout(() => toast.classList.remove('show'), 2800);
+            }
+
+            async function searchAudiusCatalog() {
+                const requestId = ++state.catalogRequestId;
+                const query = el('catalogSearch').value.trim();
+                const status = el('catalogStatus');
+                const results = el('catalogResults');
+                status.textContent = 'Searching Audius...';
+                results.replaceChildren();
+
+                const endpoint = new URL(query ? '/v1/tracks/search' : '/v1/tracks/trending', AUDIUS_API);
+                endpoint.searchParams.set('app_name', AUDIUS_APP_NAME);
+                endpoint.searchParams.set('limit', '15');
+                if (query) endpoint.searchParams.set('query', query);
+                if (state.catalogGenre) endpoint.searchParams.set('genre', state.catalogGenre);
+
+                try {
+                    const response = await fetch(endpoint);
+                    if (!response.ok) throw new Error(`Audius search failed (HTTP ${response.status}).`);
+                    const payload = await response.json();
+                    if (!Array.isArray(payload.data)) throw new Error('Audius returned an unexpected catalog response.');
+                    if (requestId !== state.catalogRequestId) return;
+                    renderCatalogTracks(payload.data);
+                } catch (error) {
+                    if (requestId !== state.catalogRequestId) return;
+                    console.error(error);
+                    status.textContent = 'The catalog could not be loaded. Check your connection and try again.';
+                    showToast(error.message || 'Could not load the Audius catalog.');
+                }
+            }
+
+            function renderCatalogTracks(tracks) {
+                const status = el('catalogStatus');
+                const results = el('catalogResults');
+                const availableTracks = tracks.filter((track) => track && track.id && track.title);
+                if (!availableTracks.length) {
+                    status.textContent = 'No tracks found. Try another search or genre.';
+                    return;
+                }
+                status.textContent = `${availableTracks.length} tracks`;
+                availableTracks.forEach((track) => {
+                    const item = document.createElement('div');
+                    item.className = 'catalog-track';
+                    const copy = document.createElement('div');
+                    copy.className = 'catalog-track-copy';
+                    const title = document.createElement('div');
+                    title.className = 'catalog-track-title';
+                    title.textContent = track.title;
+                    const artist = document.createElement('div');
+                    artist.className = 'catalog-track-artist';
+                    artist.textContent = track.user?.name || 'Unknown artist';
+                    copy.append(title, artist);
+
+                    const loadButton = document.createElement('button');
+                    loadButton.className = 'button small';
+                    loadButton.type = 'button';
+                    loadButton.textContent = 'Load';
+                    loadButton.disabled = state.catalogLoading;
+                    loadButton.addEventListener('click', () => loadAudiusTrack(track, loadButton));
+                    item.append(copy, loadButton);
+                    results.append(item);
+                });
+            }
+
+            async function loadAudiusTrack(track, button) {
+                if (state.catalogLoading) return;
+                state.catalogLoading = true;
+                el('catalogResults').querySelectorAll('button').forEach((loadButton) => {
+                    loadButton.disabled = true;
+                });
+                button.disabled = true;
+                button.textContent = 'Loading...';
+                el('catalogStatus').textContent = `Loading ${track.title}...`;
+                try {
+                    const streamUrl = new URL(`/v1/tracks/${encodeURIComponent(track.id)}/stream`, AUDIUS_API);
+                    streamUrl.searchParams.set('app_name', AUDIUS_APP_NAME);
+                    const response = await fetch(streamUrl);
+                    if (!response.ok) throw new Error(`Audius track could not be loaded (HTTP ${response.status}).`);
+                    const streamedAudio = await response.blob();
+                    if (!streamedAudio.size) throw new Error('Audius returned an empty audio stream.');
+                    const audio = new Blob([streamedAudio], { type: streamedAudio.type || 'audio/mpeg' });
+                    const artistName = track.user?.name || 'Audius';
+                    await loadBacking(audio, `${track.title} - ${artistName}`);
+                    el('catalogDialog').close();
+                } catch (error) {
+                    console.error(error);
+                    el('catalogStatus').textContent = error.message || 'Could not load this track.';
+                    showToast(error.message || 'Could not load this Audius track.');
+                } finally {
+                    state.catalogLoading = false;
+                    el('catalogResults').querySelectorAll('button').forEach((loadButton) => {
+                        loadButton.disabled = false;
+                        loadButton.textContent = 'Load';
+                    });
+                }
             }
 
             function formatTime(seconds) {
@@ -544,6 +681,24 @@
             });
             el('instagramInfo').addEventListener('click', () => el('instagramDialog').showModal());
             el('closeInstagramDialog').addEventListener('click', () => el('instagramDialog').close());
+            el('browseCatalog').addEventListener('click', () => {
+                el('catalogDialog').showModal();
+                searchAudiusCatalog();
+            });
+            el('closeCatalog').addEventListener('click', () => el('catalogDialog').close());
+            el('catalogSearch').addEventListener('input', () => {
+                clearTimeout(state.catalogSearchTimer);
+                state.catalogSearchTimer = setTimeout(searchAudiusCatalog, 350);
+            });
+            document.querySelectorAll('.genre-chip').forEach((button) => {
+                button.addEventListener('click', () => {
+                    state.catalogGenre = button.dataset.genre;
+                    document.querySelectorAll('.genre-chip').forEach((chip) => {
+                        chip.setAttribute('aria-pressed', String(chip === button));
+                    });
+                    searchAudiusCatalog();
+                });
+            });
             backingAudio.addEventListener('timeupdate', updateTimeline);
             backingAudio.addEventListener('loadedmetadata', updateTimeline);
             vocalAudio.addEventListener('loadedmetadata', updateTimeline);
