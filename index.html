@@ -193,7 +193,7 @@
                         </div>
                         <div>
                             <div class="mb-1 flex items-center justify-between text-[10px] text-cyan-300">
-                                <span><i class="fa-solid fa-microphone mr-1"></i>Vocal 1, 2, 3... · one row per take <span class="text-amber-300">amber = drag to place</span></span>
+                                <span><i class="fa-solid fa-microphone mr-1"></i>Four vocal tracks · one movable row per take <span class="text-amber-300">amber = drag to place</span></span>
                                 <button type="button" onclick="openSecondaryVocalScreen()" class="rounded bg-zinc-800 px-2 py-0.5 text-cyan-200">Add / record vocal</button>
                             </div>
                             <div id="timelineVocalPlacedStack" class="min-h-12 space-y-1"></div>
@@ -1707,37 +1707,36 @@
             const laneWidth = Math.max(240, getTimelineDuration() * studioApp.timelinePixelsPerSecond);
             container.replaceChildren();
             container.style.width = `${laneWidth}px`;
-            if (!takes.length) {
-                const empty = document.createElement('div');
-                empty.className = 'flex h-12 items-center rounded-md border border-dashed border-zinc-800 px-2 text-[10px] text-zinc-600';
-                empty.style.width = `${laneWidth}px`;
-                empty.textContent = 'Record vocals to see each take on its own timeline row';
-                container.append(empty);
-                return;
-            }
-            takes.forEach((take, index) => {
-                const lane = document.createElement('div');
-                lane.className = 'relative h-12 rounded-md border border-zinc-800 bg-black/60';
-                lane.style.width = `${laneWidth}px`;
-                styleTimelineLaneGrid(lane);
-                const label = `Vocal ${index + 1} · ${take.tag}${take.voicePreset !== 'normal' ? ` · ${take.voicePreset}` : ''}${take.isPlaced ? '' : ' · drag to place'}`;
-                const clip = createDraggableTimelineClip(
-                    'vocal',
-                    take.id,
-                    label,
-                    Number(take.offset) || 0,
-                    getTimelineClipDuration('vocal', take.id),
-                    take.isPlaced
-                        ? 'border-cyan-300/70 bg-cyan-600/90'
-                        : 'border-dashed border-amber-300/70 bg-amber-900/90'
-                );
-                clip.title = take.isPlaced
-                    ? 'Drag to move this vocal take. Tap to select and edit it.'
-                    : 'This take is not in the mix yet. Drag it to place it on the timeline.';
-                if (take.id === studioApp.selectedTakeId) clip.classList.add('ring-1', 'ring-white');
-                lane.append(clip);
-                container.append(lane);
-            });
+            Array.from({ length: Math.max(4, takes.length) }, (_, index) => takes[index] || null)
+                .forEach((take, index) => {
+                    const lane = document.createElement('div');
+                    lane.className = 'relative h-12 rounded-md border border-zinc-800 bg-black/60';
+                    lane.style.width = `${laneWidth}px`;
+                    styleTimelineLaneGrid(lane);
+                    if (!take) {
+                        lane.classList.add('flex', 'items-center', 'px-2', 'text-[10px]', 'text-zinc-600');
+                        lane.textContent = `Vocal ${index + 1} · record a take to add it here`;
+                        container.append(lane);
+                        return;
+                    }
+                    const label = `Vocal ${index + 1} · ${take.tag}${take.voicePreset !== 'normal' ? ` · ${take.voicePreset}` : ''}${take.isPlaced ? '' : ' · drag to place'}`;
+                    const clip = createDraggableTimelineClip(
+                        'vocal',
+                        take.id,
+                        label,
+                        Number(take.offset) || 0,
+                        getTimelineClipDuration('vocal', take.id),
+                        take.isPlaced
+                            ? 'border-cyan-300/70 bg-cyan-600/90'
+                            : 'border-dashed border-amber-300/70 bg-amber-900/90'
+                    );
+                    clip.title = take.isPlaced
+                        ? 'Drag to move this vocal take. Tap to select and edit it.'
+                        : 'This take is not in the mix yet. Drag it to place it on the timeline.';
+                    if (take.id === studioApp.selectedTakeId) clip.classList.add('ring-1', 'ring-white');
+                    lane.append(clip);
+                    container.append(lane);
+                });
         }
 
         async function toggleSecondaryMicrophone() {
@@ -2287,6 +2286,14 @@
             strip.replaceChildren();
             const laneWidth = Math.max(240, getTimelineDuration() * studioApp.timelinePixelsPerSecond);
             strip.style.width = `${laneWidth}px`;
+            if (!studioApp.mediaAssets.length) {
+                const lane = document.createElement('div');
+                lane.className = 'flex h-14 items-center rounded-md border border-dashed border-zinc-800 px-2 text-[10px] text-zinc-600';
+                lane.style.width = `${laneWidth}px`;
+                lane.textContent = 'Add a picture or video to create a movable timeline row';
+                strip.append(lane);
+                return;
+            }
             studioApp.mediaAssets.forEach((asset, index) => {
                 const lane = document.createElement('div');
                 lane.className = 'relative h-14 rounded-md border border-zinc-800 bg-black/60';
