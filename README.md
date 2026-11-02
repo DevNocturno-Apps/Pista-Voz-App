@@ -8,7 +8,7 @@ The beat picker searches Audius's live catalog, supports genre filters, and load
 
 ## Android and iPhone
 
-The studio is installable as a Progressive Web App on the GitHub Pages HTTPS site. On Android, open the site in Chrome and choose **Install app** or **Add to Home screen** from the browser menu. On iPhone, open it in Safari, tap **Share**, then **Add to Home Screen**. The app icon and shell can load offline after the first visit; Audius, Google Photos, Instagram publishing, and other network services still need an internet connection. Microphone access requires HTTPS and your permission. Photo/video imports use the device's native gallery or file picker.
+The studio is installable as a Progressive Web App on the GitHub Pages HTTPS site. On Android, open the site in Chrome and choose **Install app** or **Add to Home screen** from the browser menu. On iPhone, open it in Safari, tap **Share**, then **Add to Home Screen**. Your current project automatically saves in the browser on that device, including recorded takes and imported media, and restores when you reopen the app. Browser storage can be cleared by device or browser settings; saved projects do not sync between devices. The app shell can load offline after the first visit, but Audius, Google Photos, Instagram publishing, and other network services still need an internet connection. Microphone access requires HTTPS and your permission. Photo/video imports use the device's native gallery or file picker.
 
 ## Run locally
 

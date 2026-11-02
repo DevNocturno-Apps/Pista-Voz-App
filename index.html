@@ -106,7 +106,7 @@
 
             <div class="flex items-center justify-between px-1">
                 <h2 class="text-sm font-semibold text-zinc-200"><i class="fa-solid fa-layer-group mr-2 text-purple-500"></i>Arrangement Workspace</h2>
-                <span class="text-xs text-zinc-500">Step 3 of 4</span>
+                <span id="projectSaveStatus" class="text-[10px] text-zinc-500" role="status" aria-live="polite">Draft is saved on this device</span>
             </div>
 
             <!-- Top App Status Bar -->
@@ -498,6 +498,13 @@
             audioUrl: '',
             mediaImageUrl: '',
             mediaVideoUrl: '',
+            audioBlob: null,
+            mediaImageBlob: null,
+            mediaVideoBlob: null,
+            projectDatabase: null,
+            projectSaveTimer: null,
+            projectSaveRevision: 0,
+            restoringProject: false,
             exportBlob: null,
             exportName: '',
             instagramBlob: null,
@@ -536,8 +543,7 @@
         const mixPreviewElement = new Audio();
         audioElement.preload = 'metadata';
         mixPreviewElement.preload = 'none';
-        window.onload = function() {
-            openTrackSelectorModal();
+        window.onload = async function() {
             renderFileBoxList();
             renderActiveTakeFXCard();
             renderMainCapCutTimelineClips();
@@ -568,12 +574,175 @@
                     .catch((error) => console.error('Could not register the app for offline use:', error));
             }
             initializeIntegrations();
+            try {
+                const restoredProject = await restoreStudioProject();
+                if (!restoredProject) {
+                    openTrackSelectorModal();
+                    document.getElementById('projectSaveStatus').textContent = 'New project · changes save on this device';
+                }
+            } catch (error) {
+                console.error('Could not restore the saved project:', error);
+                document.getElementById('projectSaveStatus').textContent = 'Could not restore saved project';
+                showToast(error.message || 'Could not restore your saved project.', 'fa-triangle-exclamation', 'text-rose-400');
+                openTrackSelectorModal();
+            }
         };
+
+        function openProjectDatabase() {
+            if (studioApp.projectDatabase) return studioApp.projectDatabase;
+            studioApp.projectDatabase = new Promise((resolve, reject) => {
+                if (!window.indexedDB) {
+                    reject(new Error('This browser does not support saving projects on this device.'));
+                    return;
+                }
+
+                const request = indexedDB.open('pista-voz-studio', 1);
+                request.onupgradeneeded = () => {
+                    if (!request.result.objectStoreNames.contains('projects')) {
+                        request.result.createObjectStore('projects', { keyPath: 'id' });
+                    }
+                };
+                request.onsuccess = () => resolve(request.result);
+                request.onerror = () => reject(request.error || new Error('Could not open project storage.'));
+                request.onblocked = () => reject(new Error('Project storage is busy in another tab. Close the other app tab and try again.'));
+            }).catch((error) => {
+                studioApp.projectDatabase = null;
+                throw error;
+            });
+            return studioApp.projectDatabase;
+        }
+
+        function getSavedProject() {
+            return openProjectDatabase().then((database) => new Promise((resolve, reject) => {
+                const transaction = database.transaction('projects', 'readonly');
+                const request = transaction.objectStore('projects').get('current');
+                request.onsuccess = () => resolve(request.result || null);
+                request.onerror = () => reject(request.error || new Error('Could not read the saved project.'));
+                transaction.onabort = () => reject(transaction.error || new Error('Could not read the saved project.'));
+            }));
+        }
+
+        function getProjectSnapshot() {
+            return {
+                id: 'current',
+                version: 1,
+                savedAt: Date.now(),
+                songName: studioApp.songName,
+                audioUrl: studioApp.audioBlob ? '' : audioElement.src,
+                audioBlob: studioApp.audioBlob,
+                projectDurationSetting: studioApp.projectDurationSetting,
+                caption: document.getElementById('captionInput').value,
+                mediaImageBlob: studioApp.mediaImageBlob,
+                mediaVideoBlob: studioApp.mediaVideoBlob,
+                activeTag: studioApp.activeTag,
+                selectedTakeId: studioApp.selectedTakeId,
+                recordedFiles: studioApp.recordedFiles.map(({ url, ...take }) => take)
+            };
+        }
+
+        function saveStudioProject() {
+            if (studioApp.restoringProject) return Promise.resolve();
+            const snapshot = getProjectSnapshot();
+            const hasProjectContent = Boolean(
+                snapshot.songName ||
+                snapshot.recordedFiles.length ||
+                snapshot.mediaImageBlob ||
+                snapshot.mediaVideoBlob ||
+                snapshot.caption !== 'Back in the day .' ||
+                snapshot.projectDurationSetting !== '30'
+            );
+            const status = document.getElementById('projectSaveStatus');
+            if (!hasProjectContent) {
+                status.textContent = 'New project · changes save on this device';
+                return Promise.resolve();
+            }
+
+            const revision = ++studioApp.projectSaveRevision;
+            status.textContent = 'Saving project...';
+            return openProjectDatabase().then((database) => new Promise((resolve, reject) => {
+                const transaction = database.transaction('projects', 'readwrite');
+                transaction.objectStore('projects').put(snapshot);
+                transaction.oncomplete = () => {
+                    if (revision === studioApp.projectSaveRevision) {
+                        status.textContent = 'Saved on this device';
+                    }
+                    resolve();
+                };
+                transaction.onerror = () => reject(transaction.error || new Error('Could not save your project.'));
+                transaction.onabort = () => reject(transaction.error || new Error('Could not save your project.'));
+            })).catch((error) => {
+                if (revision === studioApp.projectSaveRevision) {
+                    status.textContent = 'Project not saved';
+                    console.error('Could not save the project:', error);
+                    showToast(error.message || 'Could not save the project on this device.', 'fa-triangle-exclamation', 'text-rose-400');
+                }
+                throw error;
+            });
+        }
+
+        function scheduleProjectSave() {
+            if (studioApp.restoringProject) return;
+            clearTimeout(studioApp.projectSaveTimer);
+            studioApp.projectSaveTimer = setTimeout(() => {
+                saveStudioProject().catch(() => {});
+            }, 500);
+        }
+
+        async function restoreStudioProject() {
+            const project = await getSavedProject();
+            if (!project || project.version !== 1) return false;
+
+            studioApp.restoringProject = true;
+            try {
+                studioApp.projectDurationSetting = ['30', '60', 'full'].includes(project.projectDurationSetting)
+                    ? project.projectDurationSetting
+                    : '30';
+                document.getElementById('projectLengthSelect').value = studioApp.projectDurationSetting;
+                updateProjectLengthUI();
+                document.getElementById('captionInput').value = project.caption || '';
+                updateCaption(project.caption || '');
+
+                studioApp.recordedFiles = (Array.isArray(project.recordedFiles) ? project.recordedFiles : [])
+                    .filter((take) => take.blob instanceof Blob)
+                    .map((take) => ({ ...take, url: URL.createObjectURL(take.blob) }));
+                studioApp.selectedTakeId = studioApp.recordedFiles.some((take) => take.id === project.selectedTakeId)
+                    ? project.selectedTakeId
+                    : studioApp.recordedFiles[0]?.id || '';
+                renderFileBoxList();
+                renderActiveTakeFXCard();
+                renderMainCapCutTimelineClips();
+
+                if (project.audioBlob instanceof Blob) {
+                    const audioUrl = URL.createObjectURL(project.audioBlob);
+                    setAudioSource(audioUrl, project.songName || 'Local audio', audioUrl, project.audioBlob);
+                } else if (project.audioUrl && project.songName) {
+                    setAudioSource(project.audioUrl, project.songName);
+                }
+
+                if (project.mediaImageBlob instanceof Blob) applyPhotoFile(project.mediaImageBlob);
+                if (project.mediaVideoBlob instanceof Blob) applyVideoFile(project.mediaVideoBlob);
+
+                const activeTagButton = [...document.querySelectorAll('.tag-chip')]
+                    .find((button) => button.textContent.trim() === project.activeTag);
+                if (activeTagButton) setRecordingTag(project.activeTag, activeTagButton);
+                setActiveStudioStep('timeline');
+                document.getElementById('projectSaveStatus').textContent = 'Project restored from this device';
+                return true;
+            } finally {
+                studioApp.restoringProject = false;
+            }
+        }
+
+        window.addEventListener('pagehide', () => {
+            clearTimeout(studioApp.projectSaveTimer);
+            saveStudioProject().catch(() => {});
+        });
 
         function updateProjectLength(val) {
             invalidateMixPreview();
             studioApp.projectDurationSetting = val;
             updateProjectLengthUI();
+            scheduleProjectSave();
             showToast(`Project length updated to ${val === 'full' ? 'Full Song' : val + 's'}`, "fa-clock", "text-cyan-400");
         }
 
@@ -724,6 +893,7 @@
                 b.className = "tag-chip px-3 py-1 rounded-xl text-xs font-bold bg-zinc-900 text-zinc-400 border border-zinc-800";
             });
             btn.className = "tag-chip px-3 py-1 rounded-xl text-xs font-bold bg-rose-500/20 text-rose-400 border border-rose-500/30";
+            scheduleProjectSave();
         }
 
         function renderFileBoxList() {
@@ -765,6 +935,7 @@
             studioApp.selectedTakeId = id;
             renderFileBoxList();
             renderActiveTakeFXCard();
+            scheduleProjectSave();
         }
 
         function renderActiveTakeFXCard() {
@@ -821,6 +992,7 @@
 
             renderFileBoxList();
             renderMainCapCutTimelineClips();
+            scheduleProjectSave();
         }
 
         function applyVoicePreset(preset) {
@@ -849,6 +1021,7 @@
 
             renderActiveTakeFXCard();
             renderFileBoxList();
+            scheduleProjectSave();
             showToast(`Applied ${preset} effect`, "fa-microphone-lines", "text-rose-400");
         }
 
@@ -859,6 +1032,7 @@
                 take.isPlaced = true;
                 renderFileBoxList();
                 renderMainCapCutTimelineClips();
+                scheduleProjectSave();
                 showToast(`Dropped ${take.label} (${take.tag}) onto song timeline!`, "fa-check", "text-cyan-400");
                 closeSecondaryVocalScreen();
             }
@@ -882,6 +1056,7 @@
             renderFileBoxList();
             renderActiveTakeFXCard();
             renderMainCapCutTimelineClips();
+            scheduleProjectSave();
         }
 
         function renderMainCapCutTimelineClips() {
@@ -950,13 +1125,15 @@
                             pitch: 0,
                             volume: 100,
                             voicePreset: 'normal',
-                            url: audioUrl
+                            url: audioUrl,
+                            blob
                         });
 
                         invalidateMixPreview();
                         studioApp.selectedTakeId = newId;
                         renderFileBoxList();
                         renderActiveTakeFXCard();
+                        scheduleProjectSave();
                         showToast(`Saved Vocal ${newTakeNum} (${studioApp.activeTag}) to File Box!`, "fa-box-archive", "text-cyan-400");
                     };
 
@@ -1331,11 +1508,14 @@
             if (studioApp.mediaImageUrl) URL.revokeObjectURL(studioApp.mediaImageUrl);
             studioApp.mediaVideoUrl = '';
             studioApp.mediaImageUrl = URL.createObjectURL(file);
+            studioApp.mediaImageBlob = file;
+            studioApp.mediaVideoBlob = null;
             document.getElementById('videoCanvasContainer').style.backgroundImage = `url('${studioApp.mediaImageUrl}')`;
             const thumbnail = document.getElementById('mediaStripThumbnail');
             thumbnail.style.backgroundImage = `url('${studioApp.mediaImageUrl}')`;
             thumbnail.innerHTML = '';
             thumbnail.setAttribute('aria-label', `Selected photo: ${file.name}`);
+            scheduleProjectSave();
             showToast('Cover photo uploaded', 'fa-image', 'text-purple-400');
         }
         function handleVideoImport(e) {
@@ -1352,12 +1532,15 @@
             if (studioApp.mediaImageUrl) URL.revokeObjectURL(studioApp.mediaImageUrl);
             studioApp.mediaImageUrl = '';
             studioApp.mediaVideoUrl = URL.createObjectURL(file);
+            studioApp.mediaVideoBlob = file;
+            studioApp.mediaImageBlob = null;
             video.src = studioApp.mediaVideoUrl;
             video.loop = true;
             video.classList.remove('hidden');
             document.getElementById('mediaStripThumbnail').style.backgroundImage = '';
             document.getElementById('mediaStripThumbnail').innerHTML = '<i class="fa-solid fa-video text-purple-300"></i>';
             document.getElementById('mediaStripThumbnail').setAttribute('aria-label', `Selected video: ${file.name}`);
+            scheduleProjectSave();
             video.play().catch((error) => {
                 console.error(error);
                 showToast('Video preview could not start. It may still be used in export.', 'fa-triangle-exclamation', 'text-rose-400');
@@ -1625,11 +1808,12 @@
             }
         }
 
-        function setAudioSource(url, name, ownedUrl = '') {
+        function setAudioSource(url, name, ownedUrl = '', audioBlob = null) {
             invalidateMixPreview();
             audioElement.pause();
             if (studioApp.audioUrl) URL.revokeObjectURL(studioApp.audioUrl);
             studioApp.audioUrl = ownedUrl;
+            studioApp.audioBlob = audioBlob;
             studioApp.songName = name;
             studioApp.songDuration = 0;
             audioElement.src = url;
@@ -1646,6 +1830,7 @@
                 ? formatTrackTime(210)
                 : `${studioApp.projectDurationSetting === '60' ? '01:00' : '00:30'}`;
             updatePlaybackTimeUI();
+            scheduleProjectSave();
         }
 
         function handleDeviceSongImport(event) {
@@ -1653,7 +1838,7 @@
             if (!file) return;
             stopAudiusPreview();
             const url = URL.createObjectURL(file);
-            setAudioSource(url, file.name, url);
+            setAudioSource(url, file.name, url, file);
             closeTrackSelectorModal();
             openSecondaryVocalScreen();
             showToast('Local track loaded. Press play to listen.', 'fa-file-audio', 'text-cyan-400');
@@ -1694,6 +1879,7 @@
             const caption = value.trim() || 'Your caption here...';
             document.getElementById('subtitleOverlay').textContent = caption;
             document.getElementById('timelineCaptionTrack').textContent = caption;
+            scheduleProjectSave();
         }
 
         async function decodeAudioUrl(context, url) {
