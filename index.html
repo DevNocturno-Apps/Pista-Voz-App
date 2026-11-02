@@ -91,7 +91,7 @@
                         Pista &amp; Voz
                         <span class="ml-1.5 rounded bg-gradient-to-r from-purple-600 to-pink-600 px-1.5 py-0.5 text-[9px] font-bold text-white">STUDIO</span>
                     </h1>
-                    <p id="currentStepIndicator" class="text-[10px] font-semibold text-pink-400">Step 3: Arrange &amp; Timeline</p>
+                    <p id="currentStepIndicator" class="text-[10px] font-semibold text-pink-400">Step 3: Timeline, Trim &amp; Save</p>
                 </div>
             </div>
             <button type="button" onclick="advanceStudioStep()" id="headerNextBtn" class="ml-2 flex-shrink-0 rounded-lg bg-pink-600 px-3 py-1 text-xs font-bold text-white transition hover:bg-pink-500">
@@ -100,7 +100,7 @@
         </header>
 
         <!-- ========================================== -->
-        <!-- SCREEN 1: MAIN EDITOR & TIMELINE          -->
+        <!-- SCREEN 3: SHARED TIMELINE, TRIM & SAVE    -->
         <!-- ========================================== -->
         <div id="screenMainEditor" class="flex flex-col h-full w-full justify-between p-3 space-y-3">
 
@@ -137,7 +137,7 @@
                 <div class="relative z-10 flex justify-center">
                     <div class="bg-black/80 backdrop-blur-md px-3 py-1 rounded-full border border-white/10 flex items-center space-x-2 text-[10px]">
                         <i class="fa-solid fa-layer-group text-cyan-400"></i>
-                        <span class="text-zinc-200">Arrange the full song · trim on the final screen</span>
+                        <span class="text-zinc-200">Arrange, trim, and save on Step 3</span>
                     </div>
                 </div>
             </div>
@@ -164,7 +164,7 @@
                 <div class="mb-2 flex items-center justify-between">
                     <div>
                         <h3 class="text-[11px] font-bold text-zinc-200">Song timeline</h3>
-                        <p class="text-[9px] text-zinc-500">Touch and drag any clip to line it up with the beat.</p>
+                        <p class="text-[9px] text-zinc-500">Every lane shares this time ruler. Drag vocals and visuals to line them up with the beat.</p>
                     </div>
                     <div class="flex items-center gap-1.5">
                         <span id="timelineDurationLabel" class="mr-1 font-mono text-[10px] text-cyan-300">00:00</span>
@@ -185,6 +185,20 @@
                             <div id="timelineCaptionLane" class="relative h-12 rounded-md border border-zinc-800 bg-black/60"></div>
                         </div>
                         <div>
+                            <div class="mb-1 flex items-center justify-between text-[10px] text-purple-300">
+                                <span><i class="fa-solid fa-photo-film mr-1"></i>Pictures &amp; videos · drag above the beat</span>
+                                <button type="button" onclick="triggerGalleryImport()" class="rounded bg-zinc-800 px-2 py-0.5 text-purple-200">+ Add media</button>
+                            </div>
+                            <div id="mediaStripBar" class="relative h-14 rounded-md border border-zinc-800 bg-black/60"></div>
+                        </div>
+                        <div>
+                            <div class="mb-1 flex items-center justify-between text-[10px] text-cyan-300">
+                                <span><i class="fa-solid fa-microphone mr-1"></i>Recorded vocals · one row per take <span class="text-amber-300">amber = drag to place</span></span>
+                                <button type="button" onclick="openSecondaryVocalScreen()" class="rounded bg-zinc-800 px-2 py-0.5 text-cyan-200">Add / record vocal</button>
+                            </div>
+                            <div id="timelineVocalPlacedStack" class="min-h-12 space-y-1"></div>
+                        </div>
+                        <div>
                             <div class="mb-1 flex items-center justify-between text-[10px] text-pink-300">
                                 <span><i class="fa-solid fa-music mr-1"></i>Beat · <span id="trackInstrumentalTitle">No track loaded</span></span>
                                 <span id="beatTrackOffset" class="font-mono">00:00</span>
@@ -199,26 +213,28 @@
                                 </label>
                             </div>
                         </div>
-                        <div>
-                            <div class="mb-1 flex items-center justify-between text-[10px] text-cyan-300">
-                                <span><i class="fa-solid fa-microphone mr-1"></i>Recorded vocals</span>
-                                <button type="button" onclick="openSecondaryVocalScreen()" class="rounded bg-zinc-800 px-2 py-0.5 text-cyan-200">Add / record vocal</button>
-                            </div>
-                            <div id="timelineVocalPlacedStack" class="min-h-12 space-y-1"></div>
-                        </div>
-                        <div>
-                            <div class="mb-1 flex items-center justify-between text-[10px] text-purple-300">
-                                <span><i class="fa-solid fa-photo-film mr-1"></i>Pictures &amp; videos · drag each clip</span>
-                                <button type="button" onclick="triggerGalleryImport()" class="rounded bg-zinc-800 px-2 py-0.5 text-purple-200">+ Add media</button>
-                            </div>
-                            <div id="mediaStripBar" class="relative h-14 rounded-md border border-zinc-800 bg-black/60"></div>
-                        </div>
                     </div>
                 </div>
             </section>
 
+            <section class="w-full space-y-2 rounded-2xl border border-cyan-900/60 bg-cyan-950/20 p-3">
+                <div class="flex items-center justify-between gap-2">
+                    <div>
+                        <h3 class="text-[11px] font-bold text-white">Trim the whole production</h3>
+                        <p class="text-[9px] text-zinc-400">Choose the final video's start and end.</p>
+                    </div>
+                    <span id="arrangementTrimDurationLabel" class="whitespace-nowrap rounded-lg bg-black/40 px-2 py-1 font-mono text-xs font-bold text-cyan-300">00:30</span>
+                </div>
+                <label class="block text-[10px] text-zinc-300">Start <span id="arrangementTrimStartLabel" class="font-mono text-cyan-300">00:00</span>
+                    <input id="arrangementProductionTrimStart" type="range" min="0" max="30" step="0.25" value="0" oninput="updateProductionTrim('start', this.value)" class="mt-1 w-full accent-cyan-400">
+                </label>
+                <label class="block text-[10px] text-zinc-300">End <span id="arrangementTrimEndLabel" class="font-mono text-cyan-300">00:30</span>
+                    <input id="arrangementProductionTrimEnd" type="range" min="1" max="30" step="0.25" value="30" oninput="updateProductionTrim('end', this.value)" class="mt-1 w-full accent-cyan-400">
+                </label>
+            </section>
+
             <button id="saveMasterVideoMainButton" type="button" onclick="openExportModal()" class="w-full rounded-xl bg-gradient-to-r from-purple-600 via-pink-600 to-amber-500 py-3 text-xs font-bold text-white shadow-lg transition hover:opacity-90">
-                <i class="fa-solid fa-scissors mr-2"></i>Finish &amp; Trim Final Video
+                <i class="fa-solid fa-scissors mr-2"></i>Review &amp; Save Final Video
             </button>
 
         </div>
@@ -536,7 +552,7 @@
         </button>
         <button type="button" onclick="navigateStudioStep('timeline')" data-studio-step="timeline" aria-current="step" class="studio-step flex min-w-0 flex-col items-center space-y-1 px-2 py-1 text-purple-400 transition">
             <i class="fa-solid fa-layer-group text-sm"></i>
-            <span class="text-[10px] font-medium">3. Arrange &amp; Save</span>
+            <span class="text-[10px] font-medium">3. Timeline, Trim &amp; Save</span>
         </button>
     </nav>
 
@@ -886,6 +902,8 @@
             if (totalDisplay) totalDisplay.textContent = formatTrackTime(productionBounds.end - productionBounds.start);
             const finalTrimDuration = document.getElementById('finalTrimDurationLabel');
             if (finalTrimDuration) finalTrimDuration.textContent = formatTrackTime(productionBounds.end - productionBounds.start);
+            const arrangementTrimDuration = document.getElementById('arrangementTrimDurationLabel');
+            if (arrangementTrimDuration) arrangementTrimDuration.textContent = formatTrackTime(productionBounds.end - productionBounds.start);
             updatePlaybackTimeUI();
         }
 
@@ -934,6 +952,12 @@
             });
         }
 
+        function styleTimelineLaneGrid(lane) {
+            const gridInterval = studioApp.timelinePixelsPerSecond * 5;
+            lane.style.backgroundImage = 'linear-gradient(to right, rgb(161 161 170 / 0.13) 1px, transparent 1px)';
+            lane.style.backgroundSize = `${gridInterval}px 100%`;
+        }
+
         function adjustTimelineZoom(direction) {
             const viewport = document.getElementById('timelineTracksViewport');
             const oldScale = studioApp.timelinePixelsPerSecond;
@@ -973,6 +997,7 @@
             const captionLane = document.getElementById('timelineCaptionLane');
             captionLane.replaceChildren();
             captionLane.style.width = `${Math.max(240, duration * pixelsPerSecond)}px`;
+            styleTimelineLaneGrid(captionLane);
             const captionClip = createDraggableTimelineClip(
                 'text',
                 '',
@@ -987,6 +1012,7 @@
             const beatLane = document.getElementById('timelineBeatLane');
             beatLane.replaceChildren();
             beatLane.style.width = `${Math.max(240, duration * pixelsPerSecond)}px`;
+            styleTimelineLaneGrid(beatLane);
             const beatEnd = studioApp.timelineTrims.beatEnd || studioApp.songDuration || 0;
             const beatLength = Math.max(0, beatEnd - (studioApp.timelineTrims.beatStart || 0));
             const beatClip = studioApp.songName && beatLength
@@ -1091,7 +1117,10 @@
             else if (drag.kind === 'text') studioApp.timelineOffsets.text = snappedOffset;
             else if (drag.kind === 'vocal') {
                 const take = studioApp.recordedFiles.find((item) => item.id === drag.id);
-                if (take) take.offset = snappedOffset;
+                if (take) {
+                    take.offset = snappedOffset;
+                    take.isPlaced = true;
+                }
             } else if (drag.kind === 'media') {
                 const asset = studioApp.mediaAssets[Number(drag.id)];
                 if (asset) asset.offset = snappedOffset;
@@ -1128,23 +1157,36 @@
 
         function updateTimelineTrimUI() {
             const duration = getTimelineDuration();
-            const productionStart = document.getElementById('productionTrimStart');
-            const productionEnd = document.getElementById('productionTrimEnd');
-            if (productionStart && productionEnd) {
-                const productionBounds = getProductionTrimBounds(duration);
-                productionStart.max = String(Math.max(0, duration - 1));
-                productionEnd.min = String(productionBounds.start + 1);
-                productionEnd.max = String(duration);
-                productionStart.value = String(productionBounds.start);
-                productionEnd.value = String(productionBounds.end);
-                document.getElementById('productionTrimStartLabel').textContent = formatTrackTime(productionBounds.start);
-                document.getElementById('productionTrimEndLabel').textContent = formatTrackTime(productionBounds.end);
-            }
+            const productionBounds = getProductionTrimBounds(duration);
+            [
+                {
+                    start: document.getElementById('productionTrimStart'),
+                    end: document.getElementById('productionTrimEnd'),
+                    startLabel: document.getElementById('productionTrimStartLabel'),
+                    endLabel: document.getElementById('productionTrimEndLabel')
+                },
+                {
+                    start: document.getElementById('arrangementProductionTrimStart'),
+                    end: document.getElementById('arrangementProductionTrimEnd'),
+                    startLabel: document.getElementById('arrangementTrimStartLabel'),
+                    endLabel: document.getElementById('arrangementTrimEndLabel')
+                }
+            ].forEach((controls) => {
+                if (!controls.start || !controls.end) return;
+                controls.start.max = String(Math.max(0, duration - 1));
+                controls.end.min = String(productionBounds.start + 1);
+                controls.end.max = String(duration);
+                controls.start.value = String(productionBounds.start);
+                controls.end.value = String(productionBounds.end);
+                controls.startLabel.textContent = formatTrackTime(productionBounds.start);
+                controls.endLabel.textContent = formatTrackTime(productionBounds.end);
+            });
             const finalTrimDuration = document.getElementById('finalTrimDurationLabel');
             if (finalTrimDuration) {
-                const bounds = getProductionTrimBounds(duration);
-                finalTrimDuration.textContent = formatTrackTime(bounds.end - bounds.start);
+                finalTrimDuration.textContent = formatTrackTime(productionBounds.end - productionBounds.start);
             }
+            const arrangementTrimDuration = document.getElementById('arrangementTrimDurationLabel');
+            if (arrangementTrimDuration) arrangementTrimDuration.textContent = formatTrackTime(productionBounds.end - productionBounds.start);
 
             const beatDuration = Math.max(0, studioApp.songDuration || 0);
             const beatStart = document.getElementById('beatTrimStart');
@@ -1315,8 +1357,8 @@
             const stepDetails = {
                 beat: { label: 'Step 1: Select Beat', next: 'Next', nextStep: 'vocals' },
                 vocals: { label: 'Step 2: Record Vocals', next: 'Next', nextStep: 'timeline' },
-                timeline: { label: 'Step 3: Arrange & Save', next: 'Finish', nextStep: 'export' },
-                export: { label: 'Step 3: Arrange & Save', next: 'Timeline', nextStep: 'timeline' }
+                timeline: { label: 'Step 3: Timeline, Trim & Save', next: 'Finish', nextStep: 'export' },
+                export: { label: 'Step 3: Timeline, Trim & Save', next: 'Timeline', nextStep: 'timeline' }
             };
             const details = stepDetails[step] || stepDetails.timeline;
 
@@ -1639,32 +1681,37 @@
 
         function renderMainCapCutTimelineClips() {
             const container = document.getElementById('timelineVocalPlacedStack');
-            const placed = studioApp.recordedFiles.filter(f => f.isPlaced);
+            const takes = studioApp.recordedFiles;
             const laneWidth = Math.max(240, getTimelineDuration() * studioApp.timelinePixelsPerSecond);
             container.replaceChildren();
             container.style.width = `${laneWidth}px`;
-            if (!placed.length) {
+            if (!takes.length) {
                 const empty = document.createElement('div');
                 empty.className = 'flex h-12 items-center rounded-md border border-dashed border-zinc-800 px-2 text-[10px] text-zinc-600';
                 empty.style.width = `${laneWidth}px`;
-                empty.textContent = 'Record a vocal, then drop it on this timeline';
+                empty.textContent = 'Record vocals to see each take on its own timeline row';
                 container.append(empty);
                 return;
             }
-            placed.forEach((take) => {
+            takes.forEach((take) => {
                 const lane = document.createElement('div');
                 lane.className = 'relative h-12 rounded-md border border-zinc-800 bg-black/60';
                 lane.style.width = `${laneWidth}px`;
-                const label = `${take.label} · ${take.tag}${take.voicePreset !== 'normal' ? ` · ${take.voicePreset}` : ''}`;
+                styleTimelineLaneGrid(lane);
+                const label = `${take.label} · ${take.tag}${take.voicePreset !== 'normal' ? ` · ${take.voicePreset}` : ''}${take.isPlaced ? '' : ' · drag to place'}`;
                 const clip = createDraggableTimelineClip(
                     'vocal',
                     take.id,
                     label,
                     Number(take.offset) || 0,
                     getTimelineClipDuration('vocal', take.id),
-                    'border-cyan-300/70 bg-cyan-600/90'
+                    take.isPlaced
+                        ? 'border-cyan-300/70 bg-cyan-600/90'
+                        : 'border-dashed border-amber-300/70 bg-amber-900/90'
                 );
-                clip.title = 'Drag to move this vocal take. Tap to select and edit it.';
+                clip.title = take.isPlaced
+                    ? 'Drag to move this vocal take. Tap to select and edit it.'
+                    : 'This take is not in the mix yet. Drag it to place it on the timeline.';
                 if (take.id === studioApp.selectedTakeId) clip.classList.add('ring-1', 'ring-white');
                 lane.append(clip);
                 container.append(lane);
@@ -1721,6 +1768,8 @@
                         studioApp.selectedTakeId = newId;
                         renderFileBoxList();
                         renderActiveTakeFXCard();
+                        updateProjectLengthUI();
+                        updateTimelineTrimUI();
                         scheduleProjectSave();
                         showToast(`Saved Vocal ${newTakeNum} (${studioApp.activeTag}) to File Box!`, "fa-box-archive", "text-cyan-400");
                     };
@@ -2181,6 +2230,7 @@
             strip.replaceChildren();
             const laneWidth = Math.max(240, getTimelineDuration() * studioApp.timelinePixelsPerSecond);
             strip.style.width = `${laneWidth}px`;
+            styleTimelineLaneGrid(strip);
             studioApp.mediaAssets.forEach((asset, index) => {
                 const thumbnail = document.createElement('button');
                 thumbnail.type = 'button';
@@ -2855,7 +2905,7 @@
                 studioApp.masterVideoExporting = false;
                 button.disabled = false;
                 mainButton.disabled = false;
-                mainButton.innerHTML = '<i class="fa-solid fa-scissors mr-2"></i>Finish &amp; Trim Final Video';
+                mainButton.innerHTML = '<i class="fa-solid fa-scissors mr-2"></i>Review &amp; Save Final Video';
                 if (!studioApp.masterVideoBlob) button.textContent = originalButtonText;
             }
         }
