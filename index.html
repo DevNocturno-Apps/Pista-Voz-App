@@ -470,7 +470,6 @@
         };
 
         let mediaRecorder = null;
-        let audioChunks = [];
         let isRecordingNow = false;
         const AUDIUS_API = 'https://api.audius.co';
         const AUDIUS_APP_NAME = 'PistaVoz';
@@ -612,6 +611,7 @@
                                     ${file.voicePreset !== 'normal' ? `<span class="text-[9px] px-1.5 py-0.2 rounded bg-amber-500/20 text-amber-400 border border-amber-500/30 font-semibold">${file.voicePreset}</span>` : ''}
                                 </h4>
                                 <p class="text-[10px] text-zinc-400">Duration: ${file.duration} | Timeline Drop: +${file.offset.toFixed(1)}s</p>
+                                ${file.url ? `<audio src="${file.url}" controls preload="none" onclick="event.stopPropagation()" aria-label="Preview ${file.label}" class="mt-1 h-7 w-full max-w-[220px]"></audio>` : ''}
                             </div>
                         </div>
                         <div class="flex items-center space-x-2">
@@ -716,6 +716,13 @@
         }
 
         function deleteTake(id) {
+            const deletedTake = studioApp.recordedFiles.find((file) => file.id === id);
+            if (deletedTake?.url) {
+                const preview = [...document.querySelectorAll('#vocalFileBoxList audio')]
+                    .find((audio) => audio.getAttribute('src') === deletedTake.url);
+                preview?.pause();
+                URL.revokeObjectURL(deletedTake.url);
+            }
             studioApp.recordedFiles = studioApp.recordedFiles.filter(f => f.id !== id);
             if (studioApp.selectedTakeId === id && studioApp.recordedFiles.length > 0) {
                 studioApp.selectedTakeId = studioApp.recordedFiles[0].id;
@@ -757,16 +764,25 @@
             const statusBadge = document.getElementById('vocalRecStatusBadge');
 
             if (!isRecordingNow) {
+                let stream;
                 try {
-                    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-                    mediaRecorder = new MediaRecorder(stream);
-                    audioChunks = [];
+                    stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                    const recorder = new MediaRecorder(stream);
+                    mediaRecorder = recorder;
+                    const chunks = [];
 
-                    mediaRecorder.ondataavailable = e => audioChunks.push(e.data);
-                    mediaRecorder.onstop = () => {
-                        const blob = new Blob(audioChunks, { type: 'audio/wav' });
+                    recorder.ondataavailable = (event) => {
+                        if (event.data?.size) chunks.push(event.data);
+                    };
+                    let recordingStartedAt = 0;
+                    recorder.onstop = () => {
+                        const duration = Math.max(1, Math.round((Date.now() - recordingStartedAt) / 1000));
+                        const blob = new Blob(chunks, { type: recorder.mimeType || 'audio/webm' });
+                        if (!blob.size) {
+                            showToast('No audio was captured. Check microphone permissions and try again.', 'fa-triangle-exclamation', 'text-rose-400');
+                            return;
+                        }
                         const audioUrl = URL.createObjectURL(blob);
-
                         const newTakeNum = studioApp.recordedFiles.length + 1;
                         const newId = `rec_${Date.now()}`;
 
@@ -774,7 +790,7 @@
                             id: newId,
                             label: `Vocal ${newTakeNum}`,
                             tag: studioApp.activeTag,
-                            duration: '0:15',
+                            duration: formatTrackTime(duration),
                             isPlaced: false,
                             offset: 0.0,
                             reverb: 35,
@@ -791,14 +807,17 @@
                         showToast(`Saved Vocal ${newTakeNum} (${studioApp.activeTag}) to File Box!`, "fa-box-archive", "text-cyan-400");
                     };
 
-                    mediaRecorder.start();
+                    recorder.start();
+                    recordingStartedAt = Date.now();
                     isRecordingNow = true;
                     micBtn.className = "w-16 h-16 rounded-3xl bg-red-600 animate-pulse text-white flex items-center justify-center text-2xl shadow-xl shadow-red-600/50";
                     statusBadge.innerText = "Recording...";
                     statusBadge.className = "text-[10px] font-mono px-2 py-0.5 rounded bg-red-500/20 text-red-400 border border-red-500/30";
 
                 } catch (err) {
-                    showToast("Microphone access denied", "fa-triangle-exclamation", "text-rose-400");
+                    stream?.getTracks().forEach((track) => track.stop());
+                    console.error(err);
+                    showToast(err.message || 'Microphone access denied or unavailable.', 'fa-triangle-exclamation', 'text-rose-400');
                 }
             } else {
                 if (mediaRecorder) {
