@@ -201,7 +201,7 @@
         <div id="screenVocalManager" class="fixed inset-0 z-50 bg-black flex flex-col justify-between hidden max-w-md mx-auto border-x border-zinc-900 transition-all duration-300">
 
             <!-- Secondary Screen Header -->
-            <div class="p-4 bg-zinc-950 border-b border-zinc-900 flex items-center justify-between">
+            <div class="p-4 bg-zinc-950 border-b border-zinc-900 flex items-center">
                 <div class="flex items-center space-x-2">
                     <div class="w-8 h-8 rounded-xl bg-rose-500/20 border border-rose-500/40 flex items-center justify-center text-rose-400">
                         <i class="fa-solid fa-microphone"></i>
@@ -211,9 +211,6 @@
                         <p class="text-[10px] text-zinc-400">Record Chorus/Verse, apply FX, and drop onto song timeline</p>
                     </div>
                 </div>
-                <button onclick="closeSecondaryVocalScreen()" class="w-8 h-8 rounded-full bg-zinc-900 border border-zinc-800 text-zinc-400 hover:text-white flex items-center justify-center">
-                    <i class="fa-solid fa-xmark"></i>
-                </button>
             </div>
 
             <!-- Screen 2 Body Scroll Area -->
@@ -226,6 +223,18 @@
                         <span id="vocalRecStatusBadge" role="status" aria-live="polite" class="text-[10px] font-mono px-2 py-0.5 rounded bg-zinc-900 text-zinc-400 border border-zinc-800">Ready</span>
                     </div>
                     <p class="text-[11px] text-zinc-400">Tap once to record and again to stop. Your take appears below; apply effects after recording.</p>
+
+                    <div class="flex items-center justify-between gap-2 rounded-xl border border-zinc-800 bg-black p-2.5">
+                        <div class="min-w-0">
+                            <p class="text-[9px] font-bold uppercase tracking-wider text-zinc-500">Backing track</p>
+                            <p id="vocalBackingTrackName" class="truncate text-[11px] font-semibold text-zinc-200">No beat selected</p>
+                        </div>
+                        <button id="vocalBackingPlayButton" type="button" onclick="toggleBackingPlayback()" disabled aria-label="Play backing track" class="flex flex-shrink-0 items-center space-x-1.5 rounded-lg border border-pink-500/30 bg-pink-500/15 px-3 py-2 text-[11px] font-bold text-pink-200 transition hover:bg-pink-500/25 disabled:cursor-not-allowed disabled:opacity-40">
+                            <i id="vocalBackingPlayIcon" class="fa-solid fa-play" aria-hidden="true"></i>
+                            <span id="vocalBackingPlayLabel">Play Beat</span>
+                        </button>
+                    </div>
+                    <p class="text-[10px] text-zinc-500">Use headphones to hear the beat while recording and reduce bleed into the microphone.</p>
 
                     <!-- Tag Selection Chips -->
                     <div class="flex items-center space-x-2 overflow-x-auto pb-1 scrollbar-none">
@@ -534,6 +543,10 @@
             renderMainCapCutTimelineClips();
             updateProjectLengthUI();
             audioElement.addEventListener('loadedmetadata', updateTrackDurationUI);
+            audioElement.addEventListener('play', updateBackingPlaybackUI);
+            audioElement.addEventListener('pause', updateBackingPlaybackUI);
+            audioElement.addEventListener('ended', updateBackingPlaybackUI);
+            audioElement.addEventListener('timeupdate', updatePlaybackTimeUI);
             mixPreviewElement.addEventListener('timeupdate', updatePlaybackTimeUI);
             mixPreviewElement.addEventListener('ended', () => {
                 studioApp.isPlaying = false;
@@ -604,6 +617,39 @@
             document.getElementById('masterPlayIcon').className = studioApp.isPlaying ? 'fa-solid fa-pause' : 'fa-solid fa-play';
         }
 
+        function updateBackingPlaybackUI() {
+            const isPlaying = !audioElement.paused;
+            const button = document.getElementById('vocalBackingPlayButton');
+            button.disabled = !audioElement.src;
+            button.setAttribute('aria-label', `${isPlaying ? 'Pause' : 'Play'} backing track`);
+            button.setAttribute('aria-pressed', String(isPlaying));
+            document.getElementById('vocalBackingPlayIcon').className = `fa-solid ${isPlaying ? 'fa-pause' : 'fa-play'}`;
+            document.getElementById('vocalBackingPlayLabel').textContent = isPlaying ? 'Pause Beat' : 'Play Beat';
+        }
+
+        async function toggleBackingPlayback() {
+            if (!audioElement.src) {
+                showToast('Select an Audius track or upload a beat first.', 'fa-triangle-exclamation', 'text-rose-400');
+                return;
+            }
+            if (!audioElement.paused) {
+                audioElement.pause();
+                return;
+            }
+
+            try {
+                if (audioElement.ended) audioElement.currentTime = 0;
+                mixPreviewElement.pause();
+                studioApp.isPlaying = false;
+                studioApp.isMixPreview = false;
+                updatePlayButtonUI();
+                await audioElement.play();
+            } catch (error) {
+                console.error(error);
+                showToast(error.message || 'The backing track could not start. Try previewing it again.', 'fa-triangle-exclamation', 'text-rose-400');
+            }
+        }
+
         function setActiveStudioStep(step) {
             const stepDetails = {
                 beat: { label: 'Step 1: Select Beat', next: 'Next', nextStep: 'vocals' },
@@ -641,6 +687,10 @@
                 showToast('Stop recording before leaving Vocal Studio.', 'fa-triangle-exclamation', 'text-rose-400');
                 return;
             }
+            if (step === 'vocals' && !audioElement.src) {
+                showToast('Select an Audius track or upload a beat before recording.', 'fa-triangle-exclamation', 'text-rose-400');
+                return;
+            }
 
             if (step !== 'beat' && !document.getElementById('beatModal').classList.contains('hidden')) {
                 closeTrackSelectorModal();
@@ -663,6 +713,7 @@
             document.getElementById('screenVocalManager').classList.remove('hidden');
         }
         function closeSecondaryVocalScreen() {
+            audioElement.pause();
             document.getElementById('screenVocalManager').classList.add('hidden');
             setActiveStudioStep('timeline');
         }
@@ -948,6 +999,7 @@
                 updatePlayButtonUI();
                 return;
             }
+            audioElement.pause();
             try {
                 if (!studioApp.mixPreviewBlob) {
                     showToast('Preparing your full arrangement...', 'fa-sliders', 'text-cyan-400');
@@ -1452,6 +1504,35 @@
             return streamUrl.href;
         }
 
+        async function verifyAudiusTrackStream(track) {
+            const controller = new AbortController();
+            const timeout = setTimeout(() => controller.abort(), 10000);
+            try {
+                const response = await fetch(getAudiusStreamUrl(track), {
+                    method: 'HEAD',
+                    cache: 'no-store',
+                    signal: controller.signal
+                });
+                if (!response.ok) {
+                    const error = new Error(`Audius could not stream this track (HTTP ${response.status}). Choose another track.`);
+                    if ([401, 403, 404].includes(response.status)) error.name = 'AudiusTrackUnavailableError';
+                    throw error;
+                }
+                if (!response.headers.get('content-type')?.toLowerCase().startsWith('audio/')) {
+                    const error = new Error('Audius did not return an audio stream for this track. Choose another track.');
+                    error.name = 'AudiusTrackUnavailableError';
+                    throw error;
+                }
+            } catch (error) {
+                if (error.name === 'AbortError') {
+                    throw new Error('Audius track check timed out. Check your connection and try again.');
+                }
+                throw error;
+            } finally {
+                clearTimeout(timeout);
+            }
+        }
+
         function updateAudiusPreviewButtons() {
             document.querySelectorAll('#audiusTrackList [data-preview-track]').forEach((button) => {
                 const isPreviewing = button.dataset.previewTrack === studioApp.audiusPreviewTrackId &&
@@ -1489,10 +1570,11 @@
             }
 
             if (studioApp.isPlaying) {
-                audioElement.pause();
+                mixPreviewElement.pause();
                 studioApp.isPlaying = false;
                 updatePlayButtonUI();
             }
+            audioElement.pause();
             studioApp.audiusPreviewTrackId = trackId;
             studioApp.audiusPreview.src = getAudiusStreamUrl(track);
             try {
@@ -1512,28 +1594,34 @@
             if (studioApp.audiusLoading || !isAudiusTrackPlayable(track)) return;
             stopAudiusPreview();
             studioApp.audiusLoading = true;
+            let streamUnavailable = false;
             const list = document.getElementById('audiusTrackList');
             const status = document.getElementById('audiusSearchStatus');
             list.querySelectorAll('button').forEach((item) => { item.disabled = true; });
-            button.textContent = 'Loading...';
-            status.textContent = `Loading ${track.title}...`;
+            button.textContent = 'Checking...';
+            status.textContent = `Checking the Audius stream for ${track.title}...`;
 
             try {
-                setAudioSource(getAudiusStreamUrl(track), `${track.title} - ${track.user?.name || 'Audius'}`);
+                const streamUrl = getAudiusStreamUrl(track);
+                await verifyAudiusTrackStream(track);
+                status.textContent = `Loading ${track.title}...`;
+                setAudioSource(streamUrl, `${track.title} - ${track.user?.name || 'Audius'}`);
                 closeTrackSelectorModal();
                 status.textContent = 'Track selected. Press play to start streaming.';
                 showToast('Audius track selected. Press play to listen.', 'fa-music', 'text-cyan-400');
                 openSecondaryVocalScreen();
             } catch (error) {
+                streamUnavailable = error.name === 'AudiusTrackUnavailableError';
                 console.error(error);
                 status.textContent = error.message || 'Could not load this Audius track.';
+                button.textContent = streamUnavailable ? 'Unavailable' : 'Select';
                 showToast(error.message || 'Could not load this Audius track.', 'fa-triangle-exclamation', 'text-rose-400');
             } finally {
                 studioApp.audiusLoading = false;
                 list.querySelectorAll('button').forEach((item) => {
-                    item.disabled = false;
-                    item.textContent = 'Load';
+                    item.disabled = streamUnavailable && item === button;
                 });
+                updateAudiusPreviewButtons();
             }
         }
 
@@ -1546,6 +1634,8 @@
             studioApp.songDuration = 0;
             audioElement.src = url;
             audioElement.load();
+            document.getElementById('vocalBackingTrackName').textContent = name;
+            updateBackingPlaybackUI();
             document.getElementById('currentBeatTitleText').textContent = name;
             document.getElementById('trackInstrumentalTitle').textContent = name;
             document.getElementById('trackDurationBadge').textContent = 'Loading...';
