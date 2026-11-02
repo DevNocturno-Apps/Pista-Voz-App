@@ -57,15 +57,35 @@
         }
     </style>
 </head>
-<body class="min-h-screen flex flex-col items-center justify-start antialiased selection:bg-rose-500 selection:text-white pb-12">
+<body class="min-h-screen flex flex-col items-center justify-start antialiased selection:bg-purple-500 selection:text-white pb-24">
 
     <!-- App Container Wrapper -->
     <div class="w-full max-w-md bg-black min-h-screen flex flex-col relative overflow-hidden shadow-2xl border border-zinc-900">
+
+        <header class="flex items-center justify-between border-b border-zinc-800 bg-zinc-950/90 px-4 py-3">
+            <div class="flex items-center space-x-2">
+                <div class="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-tr from-purple-600 to-cyan-500 shadow-lg shadow-purple-500/20">
+                    <i class="fa-solid fa-microphone-lines text-sm text-white"></i>
+                </div>
+                <div>
+                    <h1 class="text-sm font-bold tracking-wide text-zinc-100">Pista & Voz</h1>
+                    <p class="text-[10px] font-medium text-purple-400">@PistayVoz Studio</p>
+                </div>
+            </div>
+            <span class="inline-flex items-center rounded-full border border-purple-500/20 bg-purple-500/10 px-2 py-0.5 text-[10px] font-medium text-purple-300">
+                <span class="mr-1.5 h-1.5 w-1.5 animate-pulse rounded-full bg-green-500"></span>Studio
+            </span>
+        </header>
 
         <!-- ========================================== -->
         <!-- SCREEN 1: MAIN EDITOR & TIMELINE          -->
         <!-- ========================================== -->
         <div id="screenMainEditor" class="flex flex-col h-full w-full justify-between p-3 space-y-3">
+
+            <div class="flex items-center justify-between px-1">
+                <h2 class="text-sm font-semibold text-zinc-200"><i class="fa-solid fa-layer-group mr-2 text-purple-500"></i>Arrangement Workspace</h2>
+                <span class="text-xs text-zinc-500">Step 3 of 4</span>
+            </div>
 
             <!-- Top App Status Bar -->
             <div class="flex items-center justify-between px-1">
@@ -106,6 +126,9 @@
                 </div>
             </div>
 
+            <label for="captionInput" class="sr-only">Caption / on-screen text</label>
+            <input id="captionInput" type="text" maxlength="160" value="Back in the day ." oninput="updateCaption(this.value)" class="w-full rounded-xl border border-zinc-800 bg-zinc-900 px-3 py-2 text-xs text-zinc-200 placeholder:text-zinc-500 focus:border-purple-500 focus:outline-none" placeholder="Type video caption here...">
+
             <!-- Playhead Timer Display Header -->
             <div class="flex items-center justify-between px-2 text-xs text-zinc-400 font-mono">
                 <button onclick="toggleMasterPlay()" id="masterPlayIconBtn" class="text-white text-base">
@@ -125,7 +148,7 @@
                 <div class="absolute top-0 bottom-0 left-1/2 w-0.5 bg-white z-30 pointer-events-none shadow-[0_0_8px_#ffffff]"></div>
 
                 <!-- Track 1: Subtitle Text Track -->
-                <div class="h-7 bg-purple-600 rounded-lg px-3 flex items-center text-xs font-semibold text-white truncate shadow-sm">
+                <div id="timelineCaptionTrack" class="h-7 bg-purple-600 rounded-lg px-3 flex items-center text-xs font-semibold text-white truncate shadow-sm">
                     Back in the day .
                 </div>
 
@@ -143,36 +166,11 @@
 
                 <!-- Track 4: Media Strip Thumbnail Bar -->
                 <div id="mediaStripBar" class="h-9 bg-zinc-900 rounded-lg flex items-center space-x-1 overflow-x-auto p-1 border border-zinc-800">
-                    <div class="w-8 h-full bg-zinc-800 rounded object-cover flex-shrink-0 bg-cover bg-center" style="background-image: url('https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=100');"></div>
-                    <div class="w-8 h-full bg-zinc-800 rounded flex-shrink-0 flex items-center justify-center text-zinc-500 text-xs font-bold">+</div>
+                    <div id="mediaStripThumbnail" role="img" aria-label="Default project photo" class="w-8 h-full flex-shrink-0 rounded bg-zinc-800 bg-cover bg-center" style="background-image: url('https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=100');"></div>
+                    <button type="button" onclick="triggerPhotoImport()" aria-label="Add a photo or video" class="flex h-full w-8 flex-shrink-0 items-center justify-center rounded bg-zinc-800 text-xs font-bold text-zinc-400 hover:text-white">+</button>
                 </div>
             </div>
 
-            <!-- Bottom CapCut Navigation Toolbar -->
-            <div class="flex items-center justify-between pt-2 px-1 text-zinc-400 text-center border-t border-zinc-900">
-                <button onclick="openTrackSelectorModal()" class="flex flex-col items-center space-y-1 hover:text-white">
-                    <i class="fa-solid fa-music text-xs"></i>
-                    <span class="text-[9px]">Select Beat</span>
-                </button>
-                <button onclick="showToast('Adjust settings', 'fa-sliders', 'text-zinc-300')" class="flex flex-col items-center space-y-1 hover:text-white">
-                    <i class="fa-solid fa-sliders text-xs"></i>
-                    <span class="text-[9px]">Adjust</span>
-                </button>
-                <button onclick="showToast('Text tool', 'fa-font', 'text-zinc-300')" class="flex flex-col items-center space-y-1 hover:text-white">
-                    <i class="fa-solid fa-font text-xs"></i>
-                    <span class="text-[9px]">Text</span>
-                </button>
-                <button onclick="openSecondaryVocalScreen()" class="flex flex-col items-center space-y-1 text-rose-500 hover:text-rose-400">
-                    <div class="w-7 h-7 rounded-full bg-rose-500/20 border border-rose-500/40 flex items-center justify-center shadow-md">
-                        <i class="fa-solid fa-microphone text-xs text-rose-400"></i>
-                    </div>
-                    <span class="text-[9px] font-bold">Vocal Studio</span>
-                </button>
-                <button onclick="showToast('Captions tool', 'fa-closed-captioning', 'text-zinc-300')" class="flex flex-col items-center space-y-1 hover:text-white">
-                    <i class="fa-solid fa-closed-captioning text-xs"></i>
-                    <span class="text-[9px]">Captions</span>
-                </button>
-            </div>
         </div>
 
         <!-- ========================================================================= -->
@@ -187,7 +185,7 @@
                         <i class="fa-solid fa-microphone"></i>
                     </div>
                     <div>
-                        <h2 class="text-sm font-extrabold text-white">Screen 2: Vocal Studio & File Box</h2>
+                        <h2 class="text-sm font-extrabold text-white">Step 2 of 4: Vocal Studio</h2>
                         <p class="text-[10px] text-zinc-400">Record Chorus/Verse, apply FX, and drop onto song timeline</p>
                     </div>
                 </div>
@@ -352,7 +350,7 @@
             <div class="flex items-center justify-between pb-2 border-b border-zinc-800">
                 <h3 class="font-bold text-base text-zinc-100 flex items-center space-x-2">
                     <i class="fa-solid fa-music text-pink-500"></i>
-                    <span>Select Instrumental Track (Screen 1)</span>
+                    <span>Select Instrumental Track (Step 1 of 4)</span>
                 </h3>
                 <button onclick="closeTrackSelectorModal()" class="w-8 h-8 rounded-full bg-zinc-900 text-zinc-400 hover:text-white flex items-center justify-center">
                     <i class="fa-solid fa-xmark"></i>
@@ -375,7 +373,7 @@
     <div id="exportModal" class="fixed inset-0 bg-black/80 backdrop-blur-md z-50 hidden flex items-end sm:items-center justify-center p-0 sm:p-4">
         <div class="bg-zinc-950 w-full max-w-md rounded-t-3xl sm:rounded-3xl p-6 space-y-4 max-h-[85vh] overflow-y-auto border border-zinc-800">
             <div class="flex items-center justify-between pb-2 border-b border-zinc-800">
-                <h3 class="font-bold text-base text-zinc-100">Finish and share</h3>
+                <h3 class="font-bold text-base text-zinc-100">Export &amp; Publish</h3>
                 <button onclick="closeExportModal()" class="w-8 h-8 rounded-full bg-zinc-900 text-zinc-400 flex items-center justify-center"><i class="fa-solid fa-xmark"></i></button>
             </div>
             <p id="exportStatus" class="text-xs text-zinc-400" role="status" aria-live="polite">Preparing your audio mix...</p>
@@ -419,6 +417,25 @@
     </div>
 
     <!-- APP ENGINE LOGIC -->
+    <nav aria-label="Studio workflow" class="fixed bottom-0 left-1/2 z-40 flex w-full max-w-md -translate-x-1/2 items-center justify-around border-t border-zinc-800 bg-zinc-950/95 px-2 py-2 backdrop-blur-md">
+        <button type="button" onclick="navigateStudioStep('beat')" data-studio-step="beat" aria-current="false" class="studio-step flex min-w-0 flex-col items-center space-y-1 px-2 py-1 text-zinc-500 transition hover:text-zinc-200">
+            <i class="fa-solid fa-music text-sm"></i>
+            <span class="text-[10px] font-medium">Select Beat</span>
+        </button>
+        <button type="button" onclick="navigateStudioStep('vocals')" data-studio-step="vocals" aria-current="false" class="studio-step flex min-w-0 flex-col items-center space-y-1 px-2 py-1 text-zinc-500 transition hover:text-zinc-200">
+            <i class="fa-solid fa-microphone text-sm"></i>
+            <span class="text-[10px] font-medium">Vocal Studio</span>
+        </button>
+        <button type="button" onclick="navigateStudioStep('timeline')" data-studio-step="timeline" aria-current="step" class="studio-step flex min-w-0 flex-col items-center space-y-1 px-2 py-1 text-purple-400 transition">
+            <i class="fa-solid fa-layer-group text-sm"></i>
+            <span class="text-[10px] font-medium">Timeline</span>
+        </button>
+        <button type="button" onclick="navigateStudioStep('export')" data-studio-step="export" aria-current="false" class="studio-step flex min-w-0 flex-col items-center space-y-1 px-2 py-1 text-zinc-500 transition hover:text-zinc-200">
+            <i class="fa-solid fa-share-nodes text-sm"></i>
+            <span class="text-[10px] font-medium">Export</span>
+        </button>
+    </nav>
+
     <script>
         const studioApp = {
             isPlaying: false,
@@ -459,7 +476,6 @@
         const AUDIUS_APP_NAME = 'PistaVoz';
         const audioElement = new Audio();
         audioElement.preload = 'metadata';
-
         window.onload = function() {
             renderFileBoxList();
             renderActiveTakeFXCard();
@@ -529,11 +545,44 @@
             document.getElementById('masterPlayIcon').className = studioApp.isPlaying ? 'fa-solid fa-pause' : 'fa-solid fa-play';
         }
 
+        function setActiveStudioStep(step) {
+            document.querySelectorAll('.studio-step').forEach((button) => {
+                const isActive = button.dataset.studioStep === step;
+                button.setAttribute('aria-current', isActive ? 'step' : 'false');
+                button.classList.toggle('text-purple-400', isActive);
+                button.classList.toggle('text-zinc-500', !isActive);
+            });
+        }
+
+        function navigateStudioStep(step) {
+            if (isRecordingNow && step !== 'vocals') {
+                showToast('Stop recording before leaving Vocal Studio.', 'fa-triangle-exclamation', 'text-rose-400');
+                return;
+            }
+
+            if (step !== 'beat' && !document.getElementById('beatModal').classList.contains('hidden')) {
+                closeTrackSelectorModal();
+            }
+            if (step !== 'vocals' && !document.getElementById('screenVocalManager').classList.contains('hidden')) {
+                closeSecondaryVocalScreen();
+            }
+            if (step !== 'export' && !document.getElementById('exportModal').classList.contains('hidden')) {
+                closeExportModal();
+            }
+
+            setActiveStudioStep(step);
+            if (step === 'beat') openTrackSelectorModal();
+            if (step === 'vocals') openSecondaryVocalScreen();
+            if (step === 'export') openExportModal();
+        }
+
         function openSecondaryVocalScreen() {
+            setActiveStudioStep('vocals');
             document.getElementById('screenVocalManager').classList.remove('hidden');
         }
         function closeSecondaryVocalScreen() {
             document.getElementById('screenVocalManager').classList.add('hidden');
+            setActiveStudioStep('timeline');
         }
 
         function setRecordingTag(tag, btn) {
@@ -1065,6 +1114,10 @@
             studioApp.mediaVideoUrl = '';
             studioApp.mediaImageUrl = URL.createObjectURL(file);
             document.getElementById('videoCanvasContainer').style.backgroundImage = `url('${studioApp.mediaImageUrl}')`;
+            const thumbnail = document.getElementById('mediaStripThumbnail');
+            thumbnail.style.backgroundImage = `url('${studioApp.mediaImageUrl}')`;
+            thumbnail.innerHTML = '';
+            thumbnail.setAttribute('aria-label', `Selected photo: ${file.name}`);
             showToast('Cover photo uploaded', 'fa-image', 'text-purple-400');
         }
         function handleVideoImport(e) {
@@ -1078,6 +1131,9 @@
                 video.src = studioApp.mediaVideoUrl;
                 video.loop = true;
                 video.classList.remove('hidden');
+                document.getElementById('mediaStripThumbnail').style.backgroundImage = '';
+                document.getElementById('mediaStripThumbnail').innerHTML = '<i class="fa-solid fa-video text-purple-300"></i>';
+                document.getElementById('mediaStripThumbnail').setAttribute('aria-label', `Selected video: ${file.name}`);
                 video.play().catch((error) => {
                     console.error(error);
                     showToast('Video preview could not start. It may still be used in export.', 'fa-triangle-exclamation', 'text-rose-400');
@@ -1220,11 +1276,16 @@
         }
 
         function openTrackSelectorModal() {
+            setActiveStudioStep('beat');
             document.getElementById('beatModal').classList.remove('hidden');
             searchAudiusCatalog();
         }
-        function closeTrackSelectorModal() { document.getElementById('beatModal').classList.add('hidden'); }
+        function closeTrackSelectorModal() {
+            document.getElementById('beatModal').classList.add('hidden');
+            setActiveStudioStep('timeline');
+        }
         function openExportModal() {
+            setActiveStudioStep('export');
             document.getElementById('exportModal').classList.remove('hidden');
             document.getElementById('instagramOptions').classList.add('hidden');
             document.getElementById('instagramStatus').textContent = 'Choose a format to render your picture and audio as a video for Instagram.';
@@ -1240,6 +1301,13 @@
         function closeExportModal() {
             studioApp.exportRequestId++;
             document.getElementById('exportModal').classList.add('hidden');
+            setActiveStudioStep('timeline');
+        }
+
+        function updateCaption(value) {
+            const caption = value.trim() || 'Your caption here...';
+            document.getElementById('subtitleOverlay').textContent = caption;
+            document.getElementById('timelineCaptionTrack').textContent = caption;
         }
 
         async function decodeAudioUrl(context, url) {

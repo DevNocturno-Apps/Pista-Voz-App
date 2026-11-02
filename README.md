@@ -2,6 +2,8 @@
 
 A browser-based audio and video studio. The Node server provides Google Photos Picker configuration and secure Instagram account authorization/publishing. The app can still be used locally without provider credentials; those integrations remain disabled until configured.
 
+The mobile studio is organized as four steps: select a beat, record and process vocals, arrange the timeline and caption, then export or publish. The workflow navigation keeps the existing audio recording, rendering, device sharing, and Instagram integrations available throughout.
+
 ## Run locally
 
 Requirements: Node.js 20 or newer.
