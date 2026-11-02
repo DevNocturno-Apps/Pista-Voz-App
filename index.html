@@ -223,8 +223,9 @@
                 <div class="bg-zinc-950 p-4 rounded-2xl border border-zinc-800/80 space-y-3">
                     <div class="flex items-center justify-between">
                         <span class="text-xs font-bold text-zinc-200 uppercase tracking-wider">Record Section</span>
-                        <span id="vocalRecStatusBadge" class="text-[10px] font-mono px-2 py-0.5 rounded bg-zinc-900 text-zinc-400 border border-zinc-800">Ready</span>
+                        <span id="vocalRecStatusBadge" role="status" aria-live="polite" class="text-[10px] font-mono px-2 py-0.5 rounded bg-zinc-900 text-zinc-400 border border-zinc-800">Ready</span>
                     </div>
+                    <p class="text-[11px] text-zinc-400">Tap once to record and again to stop. Your take appears below; apply effects after recording.</p>
 
                     <!-- Tag Selection Chips -->
                     <div class="flex items-center space-x-2 overflow-x-auto pb-1 scrollbar-none">
@@ -235,8 +236,9 @@
                     </div>
 
                     <div class="flex items-center justify-center py-2">
-                        <button onclick="toggleSecondaryMicrophone()" id="screen2MicBtn" class="w-16 h-16 rounded-3xl bg-gradient-to-tr from-rose-600 to-rose-400 text-white flex items-center justify-center text-2xl shadow-xl shadow-rose-600/30 hover:scale-105 active:scale-95 transition">
-                            <i id="screen2MicIcon" class="fa-solid fa-microphone"></i>
+                        <button type="button" onclick="toggleSecondaryMicrophone()" id="screen2MicBtn" aria-label="Start recording" aria-pressed="false" class="flex w-full max-w-xs items-center justify-center space-x-2 rounded-xl bg-gradient-to-r from-rose-600 to-rose-400 py-3 text-sm font-bold text-white shadow-xl shadow-rose-600/30 transition hover:opacity-90 active:scale-[0.98]">
+                            <i id="screen2MicIcon" class="fa-solid fa-microphone" aria-hidden="true"></i>
+                            <span id="screen2MicLabel">Start Recording</span>
                         </button>
                     </div>
                 </div>
@@ -910,7 +912,11 @@
                     recorder.start();
                     recordingStartedAt = Date.now();
                     isRecordingNow = true;
-                    micBtn.className = "w-16 h-16 rounded-3xl bg-red-600 animate-pulse text-white flex items-center justify-center text-2xl shadow-xl shadow-red-600/50";
+                    micBtn.className = "flex w-full max-w-xs items-center justify-center space-x-2 rounded-xl bg-red-600 py-3 text-sm font-bold text-white shadow-xl shadow-red-600/50 animate-pulse";
+                    micBtn.setAttribute('aria-label', 'Stop recording');
+                    micBtn.setAttribute('aria-pressed', 'true');
+                    document.getElementById('screen2MicIcon').className = 'fa-solid fa-stop';
+                    document.getElementById('screen2MicLabel').textContent = 'Stop Recording';
                     statusBadge.innerText = "Recording...";
                     statusBadge.className = "text-[10px] font-mono px-2 py-0.5 rounded bg-red-500/20 text-red-400 border border-red-500/30";
 
@@ -925,7 +931,11 @@
                     mediaRecorder.stream.getTracks().forEach(t => t.stop());
                 }
                 isRecordingNow = false;
-                micBtn.className = "w-16 h-16 rounded-3xl bg-gradient-to-tr from-rose-600 to-rose-400 text-white flex items-center justify-center text-2xl shadow-xl shadow-rose-600/30 hover:scale-105 active:scale-95 transition";
+                micBtn.className = "flex w-full max-w-xs items-center justify-center space-x-2 rounded-xl bg-gradient-to-r from-rose-600 to-rose-400 py-3 text-sm font-bold text-white shadow-xl shadow-rose-600/30 transition hover:opacity-90 active:scale-[0.98]";
+                micBtn.setAttribute('aria-label', 'Start recording');
+                micBtn.setAttribute('aria-pressed', 'false');
+                document.getElementById('screen2MicIcon').className = 'fa-solid fa-microphone';
+                document.getElementById('screen2MicLabel').textContent = 'Start Recording';
                 statusBadge.innerText = "Ready";
                 statusBadge.className = "text-[10px] font-mono px-2 py-0.5 rounded bg-zinc-900 text-zinc-400 border border-zinc-800";
             }
