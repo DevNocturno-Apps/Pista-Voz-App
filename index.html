@@ -387,11 +387,11 @@
                     <button id="connectInstagramButton" onclick="connectInstagram()" class="rounded-lg bg-pink-500/20 px-3 py-1.5 text-xs font-semibold text-pink-300">Connect</button>
                     <button id="disconnectInstagramButton" onclick="disconnectInstagram()" class="hidden rounded-lg bg-zinc-800 px-3 py-1.5 text-xs font-semibold text-zinc-300">Disconnect</button>
                 </div>
-                <p class="text-[10px] text-zinc-500">Connect an Instagram professional account to publish the rendered video from this page.</p>
+                <p class="text-[10px] leading-relaxed text-zinc-400">No connection or special Instagram account is needed to upload it yourself: create the video below, tap <strong class="text-zinc-200">Share video</strong> and choose Instagram, or save it and upload it in the Instagram app. Direct publishing from this website is a separate optional feature.</p>
             </div>
-            <button id="instagramOptionsButton" onclick="toggleInstagramOptions()" disabled class="w-full py-3 px-3 rounded-2xl bg-gradient-to-r from-pink-500 to-purple-600 text-white font-bold text-xs disabled:opacity-50">Continue to Instagram</button>
+            <button id="instagramOptionsButton" onclick="toggleInstagramOptions()" disabled class="w-full py-3 px-3 rounded-2xl bg-gradient-to-r from-pink-500 to-purple-600 text-white font-bold text-xs disabled:opacity-50">Create video to share or upload</button>
             <div id="instagramOptions" class="hidden space-y-3 rounded-2xl border border-zinc-800 bg-black p-3">
-                <p class="text-xs font-semibold text-zinc-200">Choose where you plan to post</p>
+                <p class="text-xs font-semibold text-zinc-200">1. Choose a video format</p>
                 <div class="grid grid-cols-3 gap-2">
                     <button onclick="prepareInstagramPost('Post')" class="rounded-xl border border-zinc-700 bg-zinc-900 px-2 py-2 text-xs font-semibold text-white">Post</button>
                     <button onclick="prepareInstagramPost('Reel')" class="rounded-xl border border-zinc-700 bg-zinc-900 px-2 py-2 text-xs font-semibold text-white">Reel</button>
@@ -402,10 +402,13 @@
                 <p id="instagramStatus" class="text-[11px] leading-relaxed text-zinc-400" role="status" aria-live="polite">Choose a format to render your picture and audio as a video for Instagram.</p>
                 <div class="grid grid-cols-2 gap-2">
                     <button id="saveInstagramVideoButton" onclick="downloadInstagramVideo()" disabled class="rounded-xl bg-white px-2 py-2 text-xs font-bold text-black disabled:opacity-50">Save video</button>
-                    <button id="shareInstagramVideoButton" onclick="shareInstagramVideo()" disabled class="rounded-xl border border-zinc-700 bg-zinc-900 px-2 py-2 text-xs font-semibold text-white disabled:opacity-50">Share video</button>
+                    <button id="shareInstagramVideoButton" onclick="shareInstagramVideo()" disabled class="rounded-xl border border-zinc-700 bg-zinc-900 px-2 py-2 text-xs font-semibold text-white disabled:opacity-50">2. Share video</button>
                 </div>
-                <button id="publishInstagramButton" onclick="publishToInstagram()" disabled class="w-full rounded-xl bg-gradient-to-r from-pink-500 to-purple-600 px-3 py-2.5 text-xs font-bold text-white disabled:opacity-50">Publish to Instagram</button>
-                <p class="text-[11px] leading-relaxed text-zinc-500">Publishing requires a connected professional account and MP4 video. Story publishing is supported for eligible business accounts.</p>
+                <details class="rounded-xl border border-zinc-800 bg-zinc-950 p-3">
+                    <summary class="cursor-pointer text-xs font-semibold text-zinc-300">Website owner: optional direct publishing setup</summary>
+                    <p class="mt-2 text-[11px] leading-relaxed text-zinc-500">Direct publishing requires this website's server and Meta app approval. It is not required to save or share a video to Instagram yourself.</p>
+                    <button id="publishInstagramButton" onclick="publishToInstagram()" disabled class="mt-3 w-full rounded-xl bg-gradient-to-r from-pink-500 to-purple-600 px-3 py-2.5 text-xs font-bold text-white disabled:opacity-50">Direct publish (server required)</button>
+                </details>
             </div>
         </div>
     </div>
@@ -894,11 +897,11 @@
             } catch (error) {
                 console.error(error);
                 document.getElementById('googlePhotosStatus').textContent = 'Google Photos Picker is unavailable on this static site. Choose a photo from your device instead.';
-                document.getElementById('instagramAccountStatus').textContent = 'Instagram publishing needs a configured backend. You can still save or share your video.';
+                document.getElementById('instagramAccountStatus').textContent = 'Direct publishing is unavailable here; you can still share or upload your video yourself.';
                 const googleButton = document.querySelector('#photoSourceModal button[onclick="pickFromGooglePhotos()"]');
                 googleButton.disabled = true;
                 googleButton.classList.add('opacity-50');
-                document.getElementById('connectInstagramButton').disabled = true;
+                document.getElementById('connectInstagramButton').classList.add('hidden');
             }
 
             const result = new URLSearchParams(location.search);
@@ -929,9 +932,8 @@
             const connectButton = document.getElementById('connectInstagramButton');
             const disconnectButton = document.getElementById('disconnectInstagramButton');
             if (!status.configured) {
-                accountStatus.textContent = 'Instagram connection is not configured yet.';
-                connectButton.disabled = true;
-                connectButton.title = 'The site owner must configure Meta app credentials.';
+                accountStatus.textContent = 'Direct publishing is not enabled here; you can still share or upload your video yourself.';
+                connectButton.classList.add('hidden');
                 disconnectButton.classList.add('hidden');
             } else if (status.connected) {
                 accountStatus.textContent = `Connected${status.username ? ` as @${status.username}` : ' to Instagram'}`;
@@ -940,6 +942,7 @@
             } else {
                 accountStatus.textContent = 'Instagram account not connected.';
                 connectButton.disabled = false;
+                connectButton.textContent = 'Connect account';
                 connectButton.classList.remove('hidden');
                 disconnectButton.classList.add('hidden');
             }
@@ -1307,7 +1310,7 @@
             setActiveStudioStep('export');
             document.getElementById('exportModal').classList.remove('hidden');
             document.getElementById('instagramOptions').classList.add('hidden');
-            document.getElementById('instagramStatus').textContent = 'Choose a format to render your picture and audio as a video for Instagram.';
+            document.getElementById('instagramStatus').textContent = 'Choose a format to render a video. No Instagram login or website connection is needed to share or upload it yourself.';
             document.getElementById('saveInstagramVideoButton').disabled = true;
             document.getElementById('shareInstagramVideoButton').disabled = true;
             document.getElementById('publishInstagramButton').disabled = true;
@@ -1489,7 +1492,12 @@
         }
 
         function toggleInstagramOptions() {
-            document.getElementById('instagramOptions').classList.toggle('hidden');
+            const options = document.getElementById('instagramOptions');
+            const isOpening = options.classList.contains('hidden');
+            options.classList.toggle('hidden');
+            document.getElementById('instagramOptionsButton').textContent = isOpening
+                ? 'Hide video options'
+                : 'Create video to share or upload';
         }
 
         function drawCoverImage(context, source, width, height) {
@@ -1665,8 +1673,8 @@
                 document.getElementById('shareInstagramVideoButton').disabled = false;
                 updatePublishButtonState();
                 status.textContent = blob.type.includes('mp4')
-                    ? `Your ${format} video is ready as MP4. ${studioApp.instagramConnected ? 'You can publish it from here.' : 'Connect an Instagram account to publish it here.'}`
-                    : `Your ${format} video is ready as WebM. This browser cannot publish WebM directly; try Safari or choose Save/Share instead.`;
+                    ? `Your ${format} video is ready. Tap Share video and choose Instagram, or save it and upload it in Instagram. No connection to this website is needed.`
+                    : `Your ${format} video is ready as WebM. Instagram may not accept this format. Try a browser that exports MP4, or save the video and convert it to MP4 before uploading.`;
             } catch (error) {
                 console.error(error);
                 status.textContent = error.message || 'Could not render the Instagram video.';
@@ -1747,18 +1755,19 @@
                     await navigator.share({
                         files: [file],
                         title: `Pista & Voz Instagram ${studioApp.instagramFormat}`,
-                        text: `Video prepared for an Instagram ${studioApp.instagramFormat}.`
+                        text: 'Choose Instagram to upload this video.'
                     });
+                    document.getElementById('instagramStatus').textContent = 'Shared. Choose Instagram in your device share sheet to finish uploading.';
                 } catch (error) {
-                    if (error.name !== 'AbortError') {
-                        console.error(error);
-                        showToast('Sharing failed. Save the video and upload it in Instagram.', 'fa-triangle-exclamation', 'text-rose-400');
-                    }
+                    if (error.name === 'AbortError') return;
+                    console.error(error);
+                    document.getElementById('instagramStatus').textContent = 'Could not open the share sheet. Save the video, then open Instagram and upload it from your device.';
+                    showToast('Sharing failed. Save the video, then upload it from Instagram.', 'fa-triangle-exclamation', 'text-rose-400');
                 }
                 return;
             }
             downloadInstagramVideo();
-            document.getElementById('instagramStatus').textContent = 'File sharing is not supported here. The video was saved; upload it in Instagram.';
+            document.getElementById('instagramStatus').textContent = 'Video saved. Open Instagram, tap +, choose Reel or Post, and select the downloaded video. On a computer, transfer the video to your phone first.';
         }
 
         function showToast(msg, iconClass = "fa-circle-check", iconColor = "text-emerald-400") {

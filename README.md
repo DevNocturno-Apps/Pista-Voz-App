@@ -53,6 +53,10 @@ The app requests only `photospicker.mediaitems.readonly`, keeps the access token
 
 When connected, users can render an MP4 and publish a Feed video, Reel, or Story from the site. Instagram processing and eligibility restrictions still apply. The app never publishes until the user explicitly clicks **Publish to Instagram**.
 
+### Uploading without a connected account
+
+Direct publishing is optional. On a phone, prepare the mix, choose **Create video to share or upload**, select Post, Reel, or Story, and render the video. Tap **Share video** and choose Instagram in the phone's share sheet, then finish the upload in Instagram. Alternatively, save the video and upload it from Instagram's **+** button. On a computer, download the video and transfer it to your phone. Instagram generally expects MP4; if the browser creates a WebM file, use a browser/device that exports MP4 or convert it before uploading.
+
 ## Hosting
 
 This repository includes a GitHub Actions workflow that publishes the browser app to GitHub Pages whenever changes reach `main`. After pushing, open the repository's **Settings → Pages**, select **GitHub Actions** as the build and deployment source if prompted, and share the Pages URL shown there. The site provides the browser-based studio, device photo selection, and save/share options.
