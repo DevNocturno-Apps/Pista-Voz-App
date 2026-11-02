@@ -375,6 +375,7 @@
                 <button type="button" onclick="filterAudiusGenre('Lo-Fi')" data-genre="Lo-Fi" aria-pressed="false" class="audius-genre-button whitespace-nowrap rounded-full border border-zinc-800 bg-zinc-900 px-3 py-1.5 text-xs font-semibold text-zinc-300">Lo-Fi</button>
                 <button type="button" onclick="filterAudiusGenre('Trap')" data-genre="Trap" aria-pressed="false" class="audius-genre-button whitespace-nowrap rounded-full border border-zinc-800 bg-zinc-900 px-3 py-1.5 text-xs font-semibold text-zinc-300">Trap</button>
             </div>
+            <p class="text-[10px] italic text-zinc-500"><i class="fa-solid fa-circle-info mr-1 text-pink-400"></i>Preview a track before selecting it.</p>
             <p id="audiusSearchStatus" class="text-xs text-zinc-400" role="status" aria-live="polite">Loading popular tracks...</p>
             <div id="audiusTrackList" class="space-y-2"></div>
         </div>
@@ -475,6 +476,9 @@
             audiusSearchTimer: null,
             audiusLoading: false,
             audiusGenre: '',
+            audiusPreview: null,
+            audiusPreviewTrackId: '',
+            audiusPreviewTimer: null,
             activeTag: 'Chorus',
             selectedTakeId: 'rec_1',
             recordedFiles: [
@@ -1189,6 +1193,7 @@
 
         function filterAudiusGenre(genre) {
             studioApp.audiusGenre = genre;
+            stopAudiusPreview();
             document.querySelectorAll('.audius-genre-button').forEach((button) => {
                 const isActive = button.dataset.genre === genre;
                 button.setAttribute('aria-pressed', String(isActive));
@@ -1201,6 +1206,7 @@
         }
 
         async function searchAudiusCatalog() {
+            stopAudiusPreview();
             const requestId = ++studioApp.audiusRequestId;
             const query = document.getElementById('audiusSearchInput').value.trim();
             const status = document.getElementById('audiusSearchStatus');
@@ -1257,19 +1263,94 @@
                 ].filter(Boolean).join(' · ');
                 details.append(title, artist);
 
+                const actions = document.createElement('div');
+                actions.className = 'flex flex-shrink-0 items-center gap-1.5';
+                const previewButton = document.createElement('button');
+                previewButton.type = 'button';
+                previewButton.className = 'rounded-lg border border-zinc-700 bg-zinc-800 px-2.5 py-1.5 text-xs font-semibold text-zinc-200 disabled:opacity-50';
+                previewButton.dataset.previewTrack = String(track.id);
+                previewButton.textContent = studioApp.audiusPreviewTrackId === String(track.id) ? 'Pause' : 'Preview';
+                previewButton.disabled = studioApp.audiusLoading;
+                previewButton.setAttribute('aria-label', `Preview ${track.title}`);
+                previewButton.addEventListener('click', () => toggleAudiusPreview(track, previewButton));
+
                 const loadButton = document.createElement('button');
                 loadButton.type = 'button';
                 loadButton.className = 'flex-shrink-0 rounded-lg border border-pink-500/30 bg-pink-500/20 px-3 py-1.5 text-xs font-semibold text-pink-300 disabled:opacity-50';
                 loadButton.textContent = 'Select';
                 loadButton.disabled = studioApp.audiusLoading;
                 loadButton.addEventListener('click', () => selectAudiusTrack(track, loadButton));
-                row.append(details, loadButton);
+                actions.append(previewButton, loadButton);
+                row.append(details, actions);
                 list.append(row);
             });
         }
 
+        function getAudiusStreamUrl(track) {
+            const streamUrl = new URL(`/v1/tracks/${encodeURIComponent(track.id)}/stream`, AUDIUS_API);
+            streamUrl.searchParams.set('app_name', AUDIUS_APP_NAME);
+            return streamUrl.href;
+        }
+
+        function updateAudiusPreviewButtons() {
+            document.querySelectorAll('#audiusTrackList [data-preview-track]').forEach((button) => {
+                const isPreviewing = button.dataset.previewTrack === studioApp.audiusPreviewTrackId &&
+                    studioApp.audiusPreview && !studioApp.audiusPreview.paused;
+                button.textContent = isPreviewing ? 'Pause' : 'Preview';
+                button.setAttribute('aria-pressed', String(Boolean(isPreviewing)));
+            });
+        }
+
+        function stopAudiusPreview() {
+            clearTimeout(studioApp.audiusPreviewTimer);
+            studioApp.audiusPreviewTimer = null;
+            if (studioApp.audiusPreview) {
+                studioApp.audiusPreview.pause();
+                studioApp.audiusPreview.removeAttribute('src');
+                studioApp.audiusPreview.load();
+            }
+            studioApp.audiusPreviewTrackId = '';
+            updateAudiusPreviewButtons();
+        }
+
+        async function toggleAudiusPreview(track) {
+            if (!isAudiusTrackPlayable(track)) return;
+            const trackId = String(track.id);
+            if (studioApp.audiusPreviewTrackId === trackId && studioApp.audiusPreview && !studioApp.audiusPreview.paused) {
+                stopAudiusPreview();
+                return;
+            }
+
+            stopAudiusPreview();
+            if (!studioApp.audiusPreview) {
+                studioApp.audiusPreview = new Audio();
+                studioApp.audiusPreview.preload = 'none';
+                studioApp.audiusPreview.addEventListener('ended', stopAudiusPreview);
+            }
+
+            if (studioApp.isPlaying) {
+                audioElement.pause();
+                studioApp.isPlaying = false;
+                updatePlayButtonUI();
+            }
+            studioApp.audiusPreviewTrackId = trackId;
+            studioApp.audiusPreview.src = getAudiusStreamUrl(track);
+            try {
+                await studioApp.audiusPreview.play();
+                studioApp.audiusPreviewTimer = setTimeout(stopAudiusPreview, 30_000);
+                updateAudiusPreviewButtons();
+                document.getElementById('audiusSearchStatus').textContent = `Previewing ${track.title} (30-second preview).`;
+            } catch (error) {
+                stopAudiusPreview();
+                console.error(error);
+                document.getElementById('audiusSearchStatus').textContent = 'Preview could not start. Check your connection or select another track.';
+                showToast(error.message || 'Could not preview this track.', 'fa-triangle-exclamation', 'text-rose-400');
+            }
+        }
+
         async function selectAudiusTrack(track, button) {
             if (studioApp.audiusLoading || !isAudiusTrackPlayable(track)) return;
+            stopAudiusPreview();
             studioApp.audiusLoading = true;
             const list = document.getElementById('audiusTrackList');
             const status = document.getElementById('audiusSearchStatus');
@@ -1278,12 +1359,11 @@
             status.textContent = `Loading ${track.title}...`;
 
             try {
-                const streamUrl = new URL(`/v1/tracks/${encodeURIComponent(track.id)}/stream`, AUDIUS_API);
-                streamUrl.searchParams.set('app_name', AUDIUS_APP_NAME);
-                setAudioSource(streamUrl.href, `${track.title} - ${track.user?.name || 'Audius'}`);
+                setAudioSource(getAudiusStreamUrl(track), `${track.title} - ${track.user?.name || 'Audius'}`);
                 closeTrackSelectorModal();
                 status.textContent = 'Track selected. Press play to start streaming.';
                 showToast('Audius track selected. Press play to listen.', 'fa-music', 'text-cyan-400');
+                openSecondaryVocalScreen();
             } catch (error) {
                 console.error(error);
                 status.textContent = error.message || 'Could not load this Audius track.';
@@ -1320,9 +1400,11 @@
         function handleDeviceSongImport(event) {
             const file = event.target.files?.[0];
             if (!file) return;
+            stopAudiusPreview();
             const url = URL.createObjectURL(file);
             setAudioSource(url, file.name, url);
             closeTrackSelectorModal();
+            openSecondaryVocalScreen();
             showToast('Local track loaded. Press play to listen.', 'fa-file-audio', 'text-cyan-400');
             event.target.value = '';
         }
@@ -1333,6 +1415,7 @@
             searchAudiusCatalog();
         }
         function closeTrackSelectorModal() {
+            stopAudiusPreview();
             document.getElementById('beatModal').classList.add('hidden');
             setActiveStudioStep('timeline');
         }
