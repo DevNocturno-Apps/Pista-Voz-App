@@ -47,6 +47,10 @@
         .app-header {
             padding-top: calc(0.75rem + env(safe-area-inset-top));
         }
+        .beat-selector-screen {
+            top: calc(3.75rem + env(safe-area-inset-top));
+            bottom: calc(3.5rem + env(safe-area-inset-bottom));
+        }
         .studio-navigation {
             padding-bottom: calc(0.5rem + env(safe-area-inset-bottom));
         }
@@ -75,19 +79,24 @@
     <!-- App Container Wrapper -->
     <div class="w-full max-w-md bg-black min-h-screen flex flex-col relative overflow-hidden shadow-2xl border border-zinc-900">
 
-        <header class="app-header flex items-center justify-between border-b border-zinc-800 bg-zinc-950/90 px-4 py-3">
-            <div class="flex items-center space-x-2">
-                <div class="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-tr from-purple-600 to-cyan-500 shadow-lg shadow-purple-500/20">
-                    <i class="fa-solid fa-microphone-lines text-sm text-white"></i>
+        <header class="app-header sticky top-0 z-40 flex items-center justify-between border-b border-zinc-800 bg-black/95 px-4 py-3 backdrop-blur">
+            <div class="flex min-w-0 items-center space-x-2.5">
+                <div class="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full bg-gradient-to-tr from-[#fcb045] via-[#fd1d1d] to-[#833ab4] p-[2px] shadow-lg">
+                    <div class="flex h-full w-full items-center justify-center rounded-full bg-black">
+                        <i class="fa-solid fa-microphone-lines text-xs text-white"></i>
+                    </div>
                 </div>
                 <div>
-                    <h1 class="text-sm font-bold tracking-wide text-zinc-100">Pista & Voz</h1>
-                    <p class="text-[10px] font-medium text-purple-400">@PistayVoz Studio</p>
+                    <h1 class="flex items-center text-xs font-bold tracking-wide text-zinc-100">
+                        Pista &amp; Voz
+                        <span class="ml-1.5 rounded bg-gradient-to-r from-purple-600 to-pink-600 px-1.5 py-0.5 text-[9px] font-bold text-white">STUDIO</span>
+                    </h1>
+                    <p id="currentStepIndicator" class="text-[10px] font-semibold text-pink-400">Step 3: Arrange &amp; Timeline</p>
                 </div>
             </div>
-            <span class="inline-flex items-center rounded-full border border-purple-500/20 bg-purple-500/10 px-2 py-0.5 text-[10px] font-medium text-purple-300">
-                <span class="mr-1.5 h-1.5 w-1.5 animate-pulse rounded-full bg-green-500"></span>Studio
-            </span>
+            <button type="button" onclick="advanceStudioStep()" id="headerNextBtn" class="ml-2 flex-shrink-0 rounded-lg bg-pink-600 px-3 py-1 text-xs font-bold text-white transition hover:bg-pink-500">
+                Next <i class="fa-solid fa-arrow-right ml-1"></i>
+            </button>
         </header>
 
         <!-- ========================================== -->
@@ -361,22 +370,22 @@
         </div>
     </div>
 
-    <!-- Modal: Audio Beat Selector -->
-    <div id="beatModal" class="fixed inset-0 bg-black/80 backdrop-blur-md z-50 hidden flex items-end sm:items-center justify-center p-0 sm:p-4">
-        <div class="bg-zinc-950 w-full max-w-md rounded-t-3xl sm:rounded-3xl p-6 space-y-4 max-h-[85vh] overflow-y-auto border border-zinc-800">
-            <div class="flex items-center justify-between pb-2 border-b border-zinc-800">
-                <h3 class="font-bold text-base text-zinc-100 flex items-center space-x-2">
-                    <i class="fa-solid fa-music text-pink-500"></i>
-                    <span>Select Instrumental Track (Step 1 of 4)</span>
-                </h3>
+    <!-- Step 1: live Audius beat browser and local audio upload -->
+    <div id="beatModal" class="beat-selector-screen fixed inset-x-0 z-30 mx-auto hidden w-full max-w-md flex flex-col overflow-y-auto border-x border-zinc-900 bg-black">
+        <div class="flex min-h-full w-full flex-col space-y-3 p-4">
+            <div class="flex items-center justify-between">
+                <h2 class="text-sm font-bold tracking-wide text-zinc-200">
+                    <i class="fa-solid fa-music mr-2 text-pink-500"></i>1. Select Instrumental Beat
+                </h2>
                 <button onclick="closeTrackSelectorModal()" class="w-8 h-8 rounded-full bg-zinc-900 text-zinc-400 hover:text-white flex items-center justify-center">
                     <i class="fa-solid fa-xmark"></i>
                 </button>
             </div>
-            <div class="p-3 bg-zinc-900 rounded-2xl border border-zinc-800 text-center">
-                <label class="block w-full py-2 px-4 bg-pink-500/20 hover:bg-pink-500/30 text-pink-400 font-semibold text-xs rounded-xl border border-pink-500/30 cursor-pointer transition">
-                    <i class="fa-solid fa-file-audio mr-1.5"></i> Load Local Song / Instrumental File
-                    <input type="file" accept="audio/*" onchange="handleDeviceSongImport(event)" class="hidden">
+            <div class="relative rounded-2xl border-2 border-dashed border-zinc-800 bg-zinc-950 p-3 text-center transition hover:border-pink-500/50">
+                <label class="block w-full cursor-pointer text-xs font-semibold text-zinc-200">
+                    <i class="fa-solid fa-cloud-arrow-up mr-1.5 text-pink-500"></i>Upload custom beat from your device
+                    <span class="mt-1 block text-[10px] font-normal text-zinc-500">Choose a local audio file instead of the live catalog.</span>
+                    <input type="file" accept="audio/*" onchange="handleDeviceSongImport(event)" class="sr-only">
                 </label>
             </div>
             <label class="block text-xs text-zinc-400" for="audiusSearchInput">Search Audius tracks</label>
@@ -394,7 +403,7 @@
             </div>
             <p class="text-[10px] italic text-zinc-500"><i class="fa-solid fa-circle-info mr-1 text-pink-400"></i>Preview a track before selecting it.</p>
             <p id="audiusSearchStatus" class="text-xs text-zinc-400" role="status" aria-live="polite">Loading popular tracks...</p>
-            <div id="audiusTrackList" class="max-h-[55vh] space-y-2 overflow-y-auto rounded-2xl border border-zinc-900 bg-zinc-950/40 p-2"></div>
+            <div id="audiusTrackList" class="min-h-48 flex-1 space-y-2 overflow-y-auto rounded-2xl border border-zinc-900 bg-zinc-950/40 p-2"></div>
             <button id="audiusLoadMoreButton" type="button" onclick="loadMoreAudiusTracks()" class="hidden w-full rounded-xl border border-zinc-800 bg-zinc-900 py-2.5 text-xs font-semibold text-zinc-200 hover:border-pink-500/50 disabled:opacity-50">Load more tracks</button>
         </div>
     </div>
@@ -453,19 +462,19 @@
     <nav aria-label="Studio workflow" class="studio-navigation fixed bottom-0 left-1/2 z-40 flex w-full max-w-md -translate-x-1/2 items-center justify-around border-t border-zinc-800 bg-zinc-950/95 px-2 py-2 backdrop-blur-md">
         <button type="button" onclick="navigateStudioStep('beat')" data-studio-step="beat" aria-current="false" class="studio-step flex min-w-0 flex-col items-center space-y-1 px-2 py-1 text-zinc-500 transition hover:text-zinc-200">
             <i class="fa-solid fa-music text-sm"></i>
-            <span class="text-[10px] font-medium">Select Beat</span>
+            <span class="text-[10px] font-medium">1. Beat</span>
         </button>
         <button type="button" onclick="navigateStudioStep('vocals')" data-studio-step="vocals" aria-current="false" class="studio-step flex min-w-0 flex-col items-center space-y-1 px-2 py-1 text-zinc-500 transition hover:text-zinc-200">
             <i class="fa-solid fa-microphone text-sm"></i>
-            <span class="text-[10px] font-medium">Vocal Studio</span>
+            <span class="text-[10px] font-medium">2. Vocals</span>
         </button>
         <button type="button" onclick="navigateStudioStep('timeline')" data-studio-step="timeline" aria-current="step" class="studio-step flex min-w-0 flex-col items-center space-y-1 px-2 py-1 text-purple-400 transition">
             <i class="fa-solid fa-layer-group text-sm"></i>
-            <span class="text-[10px] font-medium">Timeline</span>
+            <span class="text-[10px] font-medium">3. Timeline</span>
         </button>
         <button type="button" onclick="navigateStudioStep('export')" data-studio-step="export" aria-current="false" class="studio-step flex min-w-0 flex-col items-center space-y-1 px-2 py-1 text-zinc-500 transition hover:text-zinc-200">
             <i class="fa-solid fa-share-nodes text-sm"></i>
-            <span class="text-[10px] font-medium">Export</span>
+            <span class="text-[10px] font-medium">4. Export</span>
         </button>
     </nav>
 
@@ -517,6 +526,7 @@
         audioElement.preload = 'metadata';
         mixPreviewElement.preload = 'none';
         window.onload = function() {
+            openTrackSelectorModal();
             renderFileBoxList();
             renderActiveTakeFXCard();
             renderMainCapCutTimelineClips();
@@ -593,12 +603,35 @@
         }
 
         function setActiveStudioStep(step) {
+            const stepDetails = {
+                beat: { label: 'Step 1: Select Beat', next: 'Next', nextStep: 'vocals' },
+                vocals: { label: 'Step 2: Record Vocals', next: 'Next', nextStep: 'timeline' },
+                timeline: { label: 'Step 3: Arrange & Timeline', next: 'Next', nextStep: 'export' },
+                export: { label: 'Step 4: Export & Save', next: 'Timeline', nextStep: 'timeline' }
+            };
+            const details = stepDetails[step] || stepDetails.timeline;
+
             document.querySelectorAll('.studio-step').forEach((button) => {
                 const isActive = button.dataset.studioStep === step;
                 button.setAttribute('aria-current', isActive ? 'step' : 'false');
                 button.classList.toggle('text-purple-400', isActive);
                 button.classList.toggle('text-zinc-500', !isActive);
             });
+            document.getElementById('currentStepIndicator').textContent = details.label;
+            const nextButton = document.getElementById('headerNextBtn');
+            nextButton.innerHTML = `${details.next} <i class="fa-solid ${step === 'export' ? 'fa-arrow-left' : 'fa-arrow-right'} ml-1"></i>`;
+            nextButton.setAttribute('aria-label', `${details.next}: ${stepDetails[details.nextStep].label}`);
+        }
+
+        function advanceStudioStep() {
+            const activeStep = document.querySelector('.studio-step[aria-current="step"]')?.dataset.studioStep || 'timeline';
+            const nextSteps = {
+                beat: 'vocals',
+                vocals: 'timeline',
+                timeline: 'export',
+                export: 'timeline'
+            };
+            navigateStudioStep(nextSteps[activeStep] || 'timeline');
         }
 
         function navigateStudioStep(step) {
