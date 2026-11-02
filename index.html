@@ -193,7 +193,7 @@
             </div>
 
             <button id="saveMasterVideoMainButton" type="button" onclick="saveMasterVideoToDevice()" class="w-full rounded-xl bg-gradient-to-r from-purple-600 via-pink-600 to-amber-500 py-3 text-xs font-bold text-white shadow-lg transition hover:opacity-90 disabled:opacity-50">
-                <i class="fa-solid fa-download mr-2"></i>Save Master as MP4
+                <i class="fa-solid fa-download mr-2"></i>Download Final Project (MP4)
             </button>
 
         </div>
@@ -429,12 +429,12 @@
     <div id="exportModal" class="fixed inset-0 bg-black/80 backdrop-blur-md z-50 hidden flex items-end sm:items-center justify-center p-0 sm:p-4">
         <div class="bg-zinc-950 w-full max-w-md rounded-t-3xl sm:rounded-3xl p-6 space-y-4 max-h-[85vh] overflow-y-auto border border-zinc-800">
             <div class="flex items-center justify-between pb-2 border-b border-zinc-800">
-                <h3 class="font-bold text-base text-zinc-100">Export &amp; Publish</h3>
+                <h3 class="font-bold text-base text-zinc-100">Save Final Project</h3>
                 <button onclick="closeExportModal()" class="w-8 h-8 rounded-full bg-zinc-900 text-zinc-400 flex items-center justify-center"><i class="fa-solid fa-xmark"></i></button>
             </div>
             <p id="exportStatus" class="text-xs text-zinc-400" role="status" aria-live="polite">Preparing your audio mix...</p>
             <div class="grid grid-cols-2 gap-3">
-                <button id="saveMasterVideoButton" onclick="saveMasterVideoToDevice()" disabled class="col-span-2 py-3 px-3 rounded-2xl bg-gradient-to-r from-purple-600 via-pink-600 to-amber-500 text-white font-bold text-xs shadow-lg disabled:opacity-50">Save Master as MP4</button>
+                <button id="saveMasterVideoButton" onclick="saveMasterVideoToDevice()" disabled class="col-span-2 py-3 px-3 rounded-2xl bg-gradient-to-r from-purple-600 via-pink-600 to-amber-500 text-white font-bold text-xs shadow-lg disabled:opacity-50">Download Final Project (MP4)</button>
                 <button id="saveMixButton" onclick="downloadMaster()" disabled class="py-3 px-3 rounded-2xl bg-white text-black font-bold text-xs shadow-lg disabled:opacity-50">Save audio (WAV)</button>
                 <button id="shareMixButton" onclick="shareMaster()" disabled class="py-3 px-3 rounded-2xl bg-zinc-900 text-white font-bold text-xs border border-zinc-800 disabled:opacity-50">Share audio</button>
             </div>
@@ -1908,7 +1908,7 @@
             studioApp.masterVideoBlob = null;
             studioApp.masterVideoName = '';
             const masterVideoButton = document.getElementById('saveMasterVideoButton');
-            masterVideoButton.textContent = 'Save Master as MP4';
+            masterVideoButton.textContent = 'Download Final Project (MP4)';
             masterVideoButton.disabled = true;
             document.getElementById('instagramOptions').classList.add('hidden');
             document.getElementById('instagramStatus').textContent = 'Choose a format to render a video. No Instagram login or website connection is needed to share or upload it yourself.';
@@ -2167,15 +2167,16 @@
             studioApp.masterVideoExporting = true;
             button.disabled = true;
             mainButton.disabled = true;
-            mainButton.textContent = 'Preparing MP4...';
-            showToast('Preparing your MP4. Keep this page open while it renders.', 'fa-spinner fa-spin', 'text-cyan-400');
+            mainButton.textContent = 'Preparing final MP4...';
+            button.textContent = 'Preparing final MP4...';
+            showToast('Preparing your final MP4. Keep this page open while it renders.', 'fa-spinner fa-spin', 'text-cyan-400');
             try {
                 if (!studioApp.exportBlob) {
                     const mix = await prepareMasterExport();
                     if (!mix) throw new Error('Could not prepare the audio mix for MP4 export.');
                 }
-                button.textContent = 'Rendering MP4...';
-                mainButton.textContent = 'Rendering MP4...';
+                button.textContent = 'Rendering final MP4...';
+                mainButton.textContent = 'Rendering final MP4...';
                 const { blob, filename } = await renderInstagramVideo('Post', {
                     requireMp4: true,
                     statusElementId: 'exportStatus',
@@ -2191,13 +2192,13 @@
                 console.error('Could not render the master MP4:', error);
                 const status = document.getElementById('exportStatus');
                 if (status) status.textContent = error.message || 'Could not render the master MP4.';
-                button.textContent = 'Retry MP4 download';
+                button.textContent = 'Retry final MP4 download';
                 showToast(error.message || 'Could not render the master MP4.', 'fa-triangle-exclamation', 'text-rose-400');
             } finally {
                 studioApp.masterVideoExporting = false;
                 button.disabled = false;
                 mainButton.disabled = false;
-                mainButton.textContent = 'Save Master as MP4';
+                mainButton.textContent = 'Download Final Project (MP4)';
                 if (!studioApp.masterVideoBlob) button.textContent = originalButtonText;
             }
         }
