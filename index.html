@@ -122,7 +122,7 @@
             </div>
 
             <!-- Top 9:16 Video / Image Preview Viewport -->
-            <div id="videoCanvasContainer" class="w-full aspect-[9/16] max-h-[340px] bg-zinc-950 rounded-2xl relative overflow-hidden flex flex-col justify-between p-4 bg-cover bg-center border border-zinc-800/80 mx-auto" style="background-image: url('https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=600&auto=format&fit=crop&q=60');">
+            <div id="videoCanvasContainer" class="w-full aspect-[9/16] max-h-[340px] bg-gradient-to-br from-purple-950 via-zinc-900 to-zinc-950 rounded-2xl relative overflow-hidden flex flex-col justify-between p-4 bg-cover bg-center border border-zinc-800/80 mx-auto">
                 <video id="canvasVideoElement" class="absolute inset-0 w-full h-full object-cover hidden" loop muted playsinline></video>
                 <div class="absolute inset-0 bg-black/20"></div>
 
@@ -189,7 +189,7 @@
                                 <span><i class="fa-solid fa-photo-film mr-1"></i>Pictures &amp; videos · drag above the beat</span>
                                 <button type="button" onclick="triggerGalleryImport()" class="rounded bg-zinc-800 px-2 py-0.5 text-purple-200">+ Add media</button>
                             </div>
-                            <div id="mediaStripBar" class="relative h-14 rounded-md border border-zinc-800 bg-black/60"></div>
+                            <div id="mediaStripBar" class="space-y-1"></div>
                         </div>
                         <div>
                             <div class="mb-1 flex items-center justify-between text-[10px] text-cyan-300">
@@ -1221,7 +1221,9 @@
             const vocalLanes = document.getElementById('timelineVocalPlacedStack');
             vocalLanes.style.width = width;
             vocalLanes.querySelectorAll(':scope > div').forEach((lane) => { lane.style.width = width; });
-            document.getElementById('mediaStripBar').style.width = width;
+            const mediaLanes = document.getElementById('mediaStripBar');
+            mediaLanes.style.width = width;
+            mediaLanes.querySelectorAll(':scope > div').forEach((lane) => { lane.style.width = width; });
         }
 
         function getProductionTrimBounds(duration = getTimelineDuration()) {
@@ -1301,18 +1303,38 @@
             if (studioApp.isMixPreview && studioApp.mediaAssets.length) {
                 const mediaIndex = findMediaAssetIndexAtTime(timelineTime);
                 if (mediaIndex >= 0 && mediaIndex !== studioApp.activeMediaIndex) showMediaAsset(mediaIndex);
-                if (mediaIndex < 0) document.getElementById('canvasVideoElement').pause();
+                if (mediaIndex < 0 && studioApp.activeMediaIndex !== -1) clearMediaPreview();
             }
             renderTimelinePlayhead();
         }
 
         function findMediaAssetIndexAtTime(time) {
-            return studioApp.mediaAssets.findIndex((asset, index) => {
+            let activeIndex = -1;
+            let activeOffset = -1;
+            studioApp.mediaAssets.forEach((asset, index) => {
                 const offset = Number.isFinite(asset.offset)
                     ? asset.offset
                     : (studioApp.timelineOffsets.media || 0) + index * studioApp.mediaSequenceInterval;
-                return time >= offset && time < offset + (Number(asset.duration) || studioApp.mediaSequenceInterval);
+                const duration = Number(asset.duration) || studioApp.mediaSequenceInterval;
+                if (time >= offset && time < offset + duration && offset >= activeOffset) {
+                    activeIndex = index;
+                    activeOffset = offset;
+                }
             });
+            return activeIndex;
+        }
+
+        function clearMediaPreview() {
+            const video = document.getElementById('canvasVideoElement');
+            video.pause();
+            video.classList.add('hidden');
+            studioApp.mediaVideoUrl = '';
+            studioApp.mediaVideoBlob = null;
+            studioApp.mediaImageUrl = '';
+            studioApp.mediaImageBlob = null;
+            document.getElementById('videoCanvasContainer').style.backgroundImage = '';
+            studioApp.activeMediaIndex = -1;
+            renderMediaSequenceStrip();
         }
 
         function updatePlayButtonUI() {
@@ -2180,6 +2202,9 @@
                 };
             });
             studioApp.mediaAssets = append ? [...studioApp.mediaAssets, ...newAssets] : newAssets;
+            newAssets.forEach((asset) => {
+                if (asset.type.startsWith('video/')) loadMediaVideoDuration(asset);
+            });
             if (!append) studioApp.activeMediaIndex = 0;
             studioApp.timelineOffsets.media = studioApp.mediaAssets.length
                 ? Math.min(...studioApp.mediaAssets.map((asset) => asset.offset))
@@ -2193,6 +2218,38 @@
                 showToast(`${studioApp.mediaAssets.length} photos/videos added to the sequence`, 'fa-photo-film', 'text-purple-400');
             }
         }
+
+        function loadMediaVideoDuration(asset) {
+            const metadataVideo = document.createElement('video');
+            let metadataSettled = false;
+            metadataVideo.preload = 'metadata';
+            metadataVideo.src = asset.url;
+            metadataVideo.addEventListener('loadedmetadata', () => {
+                if (metadataSettled) return;
+                metadataSettled = true;
+                const duration = Number(metadataVideo.duration);
+                metadataVideo.removeAttribute('src');
+                metadataVideo.load();
+                if (!studioApp.mediaAssets.includes(asset)) return;
+                if (!Number.isFinite(duration) || duration <= 0) {
+                    showToast(`Could not read the duration of "${asset.name}".`, 'fa-triangle-exclamation', 'text-rose-400');
+                    return;
+                }
+                asset.duration = Math.min(600, duration);
+                updateProjectLengthUI();
+                updateTimelineTrimUI();
+                scheduleProjectSave();
+            }, { once: true });
+            metadataVideo.addEventListener('error', () => {
+                if (metadataSettled) return;
+                metadataSettled = true;
+                metadataVideo.removeAttribute('src');
+                metadataVideo.load();
+                if (!studioApp.mediaAssets.includes(asset)) return;
+                showToast(`Could not read the selected video "${asset.name}". Try another video.`, 'fa-triangle-exclamation', 'text-rose-400');
+            }, { once: true });
+        }
+
         function showMediaAsset(index) {
             if (!studioApp.mediaAssets.length) return;
             studioApp.activeMediaIndex = (index + studioApp.mediaAssets.length) % studioApp.mediaAssets.length;
@@ -2230,8 +2287,11 @@
             strip.replaceChildren();
             const laneWidth = Math.max(240, getTimelineDuration() * studioApp.timelinePixelsPerSecond);
             strip.style.width = `${laneWidth}px`;
-            styleTimelineLaneGrid(strip);
             studioApp.mediaAssets.forEach((asset, index) => {
+                const lane = document.createElement('div');
+                lane.className = 'relative h-14 rounded-md border border-zinc-800 bg-black/60';
+                lane.style.width = `${laneWidth}px`;
+                styleTimelineLaneGrid(lane);
                 const thumbnail = document.createElement('button');
                 thumbnail.type = 'button';
                 thumbnail.className = `absolute top-1 flex h-12 items-center overflow-hidden rounded border px-1.5 text-left text-[10px] font-bold text-white shadow touch-none select-none ${index === studioApp.activeMediaIndex ? 'border-purple-300 ring-1 ring-purple-300' : 'border-purple-400/60'} bg-purple-900`;
@@ -2265,7 +2325,8 @@
                     event.preventDefault();
                     showMediaAsset(index);
                 });
-                strip.append(thumbnail);
+                lane.append(thumbnail);
+                strip.append(lane);
             });
         }
 
