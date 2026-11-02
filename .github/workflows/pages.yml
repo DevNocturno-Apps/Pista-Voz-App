@@ -30,7 +30,7 @@ jobs:
       - name: Prepare site files
         run: |
           mkdir site
-          cp index.html logo.jpg site/
+          cp index.html logo.jpg manifest.webmanifest app-icon.svg sw.js site/
           touch site/.nojekyll
 
       - name: Upload site artifact

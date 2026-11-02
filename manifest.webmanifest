@@ -1,0 +1,20 @@
+{
+  "id": "./",
+  "name": "Pista & Voz Studio",
+  "short_name": "Pista & Voz",
+  "description": "A mobile audio and video studio for beats, vocals, and social video.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#000000",
+  "theme_color": "#000000",
+  "icons": [
+    {
+      "src": "./app-icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}

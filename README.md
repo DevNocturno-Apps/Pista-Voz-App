@@ -6,6 +6,10 @@ The mobile studio is organized as four steps: select a beat, record and process 
 
 The beat picker searches Audius's live catalog and supports genre filters. Preview a result before selecting it to load the track and move into Vocal Studio, or load an audio file from your device.
 
+## Android and iPhone
+
+The studio is installable as a Progressive Web App on the GitHub Pages HTTPS site. On Android, open the site in Chrome and choose **Install app** or **Add to Home screen** from the browser menu. On iPhone, open it in Safari, tap **Share**, then **Add to Home Screen**. The app icon and shell can load offline after the first visit; Audius, Google Photos, Instagram publishing, and other network services still need an internet connection. Microphone access requires HTTPS and your permission. Photo/video imports use the device's native gallery or file picker.
+
 ## Run locally
 
 Requirements: Node.js 20 or newer.

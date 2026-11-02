@@ -452,6 +452,17 @@ app.get(['/', '/index.html'], (request, response) => {
 app.get('/logo.jpg', (request, response) => {
     response.sendFile(path.join(__dirname, 'logo.jpg'));
 });
+app.get('/manifest.webmanifest', (request, response) => {
+    response.set('Cache-Control', 'no-cache');
+    response.sendFile(path.join(__dirname, 'manifest.webmanifest'));
+});
+app.get('/app-icon.svg', (request, response) => {
+    response.sendFile(path.join(__dirname, 'app-icon.svg'));
+});
+app.get('/sw.js', (request, response) => {
+    response.set('Cache-Control', 'no-cache');
+    response.sendFile(path.join(__dirname, 'sw.js'));
+});
 
 app.use((error, request, response, next) => {
     console.error('Request failed:', error);

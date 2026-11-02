@@ -6,7 +6,10 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="Pista &amp; Voz">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="theme-color" content="#000000">
     <title>Pista & Voz - Mobile Studio Editor</title>
+    <link rel="manifest" href="./manifest.webmanifest">
     <!-- Favicon & Mobile App Icons -->
     <link rel="icon" type="image/jpeg" href="https://devnocturno-apps.github.io/Pista-Voz-App/logo.jpg">
     <link rel="apple-touch-icon" href="https://devnocturno-apps.github.io/Pista-Voz-App/logo.jpg">
@@ -41,6 +44,12 @@
             touch-action: manipulation;
             -webkit-tap-highlight-color: transparent;
         }
+        .app-header {
+            padding-top: calc(0.75rem + env(safe-area-inset-top));
+        }
+        .studio-navigation {
+            padding-bottom: calc(0.5rem + env(safe-area-inset-bottom));
+        }
         ::-webkit-scrollbar {
             width: 4px;
             height: 4px;
@@ -66,7 +75,7 @@
     <!-- App Container Wrapper -->
     <div class="w-full max-w-md bg-black min-h-screen flex flex-col relative overflow-hidden shadow-2xl border border-zinc-900">
 
-        <header class="flex items-center justify-between border-b border-zinc-800 bg-zinc-950/90 px-4 py-3">
+        <header class="app-header flex items-center justify-between border-b border-zinc-800 bg-zinc-950/90 px-4 py-3">
             <div class="flex items-center space-x-2">
                 <div class="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-tr from-purple-600 to-cyan-500 shadow-lg shadow-purple-500/20">
                     <i class="fa-solid fa-microphone-lines text-sm text-white"></i>
@@ -440,7 +449,7 @@
     </div>
 
     <!-- APP ENGINE LOGIC -->
-    <nav aria-label="Studio workflow" class="fixed bottom-0 left-1/2 z-40 flex w-full max-w-md -translate-x-1/2 items-center justify-around border-t border-zinc-800 bg-zinc-950/95 px-2 py-2 backdrop-blur-md">
+    <nav aria-label="Studio workflow" class="studio-navigation fixed bottom-0 left-1/2 z-40 flex w-full max-w-md -translate-x-1/2 items-center justify-around border-t border-zinc-800 bg-zinc-950/95 px-2 py-2 backdrop-blur-md">
         <button type="button" onclick="navigateStudioStep('beat')" data-studio-step="beat" aria-current="false" class="studio-step flex min-w-0 flex-col items-center space-y-1 px-2 py-1 text-zinc-500 transition hover:text-zinc-200">
             <i class="fa-solid fa-music text-sm"></i>
             <span class="text-[10px] font-medium">Select Beat</span>
@@ -525,6 +534,10 @@
                 clearTimeout(studioApp.audiusSearchTimer);
                 studioApp.audiusSearchTimer = setTimeout(searchAudiusCatalog, 350);
             });
+            if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost')) {
+                navigator.serviceWorker.register('./sw.js')
+                    .catch((error) => console.error('Could not register the app for offline use:', error));
+            }
             initializeIntegrations();
         };
 
