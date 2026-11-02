@@ -102,7 +102,7 @@
         <!-- ========================================== -->
         <!-- SCREEN 3: SHARED TIMELINE, TRIM & SAVE    -->
         <!-- ========================================== -->
-        <div id="screenMainEditor" class="flex flex-col h-full w-full justify-between p-3 space-y-3">
+        <div id="screenMainEditor" class="flex flex-col h-full w-full justify-between p-2 space-y-2">
 
             <div class="flex items-center justify-between px-1">
                 <h2 class="text-sm font-semibold text-zinc-200"><i class="fa-solid fa-layer-group mr-2 text-purple-500"></i>Arrangement Workspace</h2>
@@ -122,16 +122,12 @@
             </div>
 
             <!-- Top 9:16 Video / Image Preview Viewport -->
-            <div id="videoCanvasContainer" class="w-full aspect-[9/16] max-h-[340px] bg-gradient-to-br from-purple-950 via-zinc-900 to-zinc-950 rounded-2xl relative overflow-hidden flex flex-col justify-between p-4 bg-cover bg-center border border-zinc-800/80 mx-auto">
+            <div id="videoCanvasContainer" class="w-full max-w-[126px] aspect-[9/16] max-h-[224px] bg-gradient-to-br from-purple-950 via-zinc-900 to-zinc-950 rounded-xl relative overflow-hidden flex flex-col justify-between p-2 bg-cover bg-center border border-zinc-800/80 mx-auto">
                 <video id="canvasVideoElement" class="absolute inset-0 w-full h-full object-cover hidden" loop muted playsinline></video>
                 <div class="absolute inset-0 bg-black/20"></div>
 
                 <div class="relative z-10 flex justify-between items-start">
                     <span id="subtitleOverlay" class="text-sm font-medium text-white italic drop-shadow-md">Back in the day .</span>
-                    <div class="flex space-x-1">
-                        <button onclick="triggerPhotoImport()" class="px-2 py-1 bg-black/60 text-[10px] text-white rounded-md border border-white/20"><i class="fa-solid fa-image text-purple-400"></i> Photo</button>
-                        <button onclick="triggerGalleryImport()" class="px-2 py-1 bg-black/60 text-[10px] text-white rounded-md border border-white/20"><i class="fa-solid fa-photo-film text-rose-400"></i> Gallery</button>
-                    </div>
                 </div>
 
                 <div class="relative z-10 flex justify-center">
@@ -143,7 +139,7 @@
             </div>
 
             <label for="captionInput" class="sr-only">Caption / on-screen text</label>
-            <input id="captionInput" type="text" maxlength="160" value="Back in the day ." oninput="updateCaption(this.value)" class="w-full rounded-xl border border-zinc-800 bg-zinc-900 px-3 py-2 text-xs text-zinc-200 placeholder:text-zinc-500 focus:border-purple-500 focus:outline-none" placeholder="Type video caption here...">
+            <input id="captionInput" type="text" maxlength="160" value="Back in the day ." oninput="updateCaption(this.value)" class="w-full rounded-lg border border-zinc-800 bg-zinc-900 px-2.5 py-1.5 text-[10px] text-zinc-200 placeholder:text-zinc-500 focus:border-purple-500 focus:outline-none" placeholder="Type video caption here...">
 
             <!-- Playhead Timer Display Header -->
             <div class="flex items-center justify-between px-2 text-xs text-zinc-400 font-mono">
@@ -160,34 +156,38 @@
             </div>
 
             <!-- Multi-Track Stacked CapCut Timeline -->
-            <section class="w-full rounded-2xl border border-zinc-800 bg-zinc-950 p-2.5 shadow-inner">
-                <div class="mb-2 flex items-center justify-between">
+            <section class="w-full rounded-xl border border-zinc-800 bg-zinc-950 p-2 shadow-inner">
+                <div class="mb-1.5 flex items-center justify-between">
                     <div>
                         <h3 class="text-[11px] font-bold text-zinc-200">Song timeline</h3>
-                        <p class="text-[9px] text-zinc-500">Every lane shares this time ruler. Drag vocals and visuals to line them up with the beat.</p>
+                        <p class="text-[9px] text-zinc-500">Drag clips to place them. Drag the cyan ends on the ruler to trim the final video.</p>
                     </div>
                     <div class="flex items-center gap-1.5">
                         <span id="timelineDurationLabel" class="mr-1 font-mono text-[10px] text-cyan-300">00:00</span>
+                        <span id="arrangementTrimDurationLabel" class="font-mono text-[9px] text-cyan-300">00:30 output</span>
                         <button type="button" onclick="adjustTimelineZoom(-1)" aria-label="Zoom out timeline" class="h-8 w-8 rounded-lg border border-zinc-700 bg-zinc-900 text-sm font-bold text-white">-</button>
                         <span id="timelineZoomLabel" class="min-w-10 text-center font-mono text-[9px] text-zinc-400">20 px/s</span>
                         <button type="button" onclick="adjustTimelineZoom(1)" aria-label="Zoom in timeline" class="h-8 w-8 rounded-lg border border-zinc-700 bg-zinc-900 text-sm font-bold text-white">+</button>
                     </div>
                 </div>
-                <div id="timelineTracksViewport" class="overflow-x-auto overscroll-x-contain rounded-lg" aria-label="Scrollable song timeline">
+                <div class="mb-1.5 rounded-lg border border-zinc-800 bg-black/40 p-1.5">
+                    <div class="mb-1.5 flex items-center justify-between gap-2">
+                        <div>
+                            <h4 class="text-[10px] font-bold text-purple-200">Picture &amp; video bin <span id="timelineMediaCount" class="font-normal text-zinc-500">0 / 20</span></h4>
+                            <p class="text-[9px] text-zinc-500">Add more anytime. Choose a clip to preview or move it to the playhead, then drag it below.</p>
+                        </div>
+                        <button type="button" onclick="triggerGalleryImport()" class="shrink-0 rounded-lg border border-purple-500/50 bg-purple-950 px-2.5 py-2 text-[10px] font-bold text-purple-100">+ Add pictures/videos</button>
+                    </div>
+                    <div id="timelineMediaLibrary" class="flex min-h-16 gap-2 overflow-x-auto overscroll-x-contain pb-1" aria-label="Imported pictures and videos"></div>
+                </div>
+                <div id="timelineTracksViewport" class="max-h-[38vh] overflow-auto overscroll-contain rounded-lg" aria-label="Scrollable song timeline">
                     <div id="timelineTrackCanvas" class="relative space-y-2 pb-1">
                         <div id="timelinePlayhead" class="pointer-events-none absolute bottom-0 top-0 z-20 w-0.5 bg-white shadow-[0_0_8px_#ffffff]"></div>
-                        <div id="timelineRuler" class="relative h-5 border-b border-zinc-800"></div>
-                        <div>
-                            <div class="mb-1 flex items-center justify-between text-[10px] text-amber-300">
-                                <span><i class="fa-solid fa-closed-captioning mr-1"></i>Caption / text</span>
-                                <span id="textTrackOffset" class="font-mono">00:00</span>
-                            </div>
-                            <div id="timelineCaptionLane" class="relative h-12 rounded-md border border-zinc-800 bg-black/60"></div>
-                        </div>
+                        <div id="timelineRuler" class="relative h-8 touch-none border-b border-zinc-800" aria-label="Timeline ruler; drag the cyan handles to trim and tap to seek"></div>
                         <div>
                             <div class="mb-1 flex items-center justify-between text-[10px] text-purple-300">
                                 <span><i class="fa-solid fa-photo-film mr-1"></i>Pictures &amp; videos · one row per clip</span>
-                                <button type="button" onclick="triggerGalleryImport()" class="rounded bg-zinc-800 px-2 py-0.5 text-purple-200">+ Add media</button>
+                                <span class="text-[9px] text-zinc-500">Drag each clip to position it</span>
                             </div>
                             <div id="mediaStripBar" class="space-y-1"></div>
                         </div>
@@ -204,33 +204,11 @@
                                 <span id="beatTrackOffset" class="font-mono">00:00</span>
                             </div>
                             <div id="timelineBeatLane" class="relative h-12 rounded-md border border-zinc-800 bg-black/60"></div>
-                            <div class="mt-1 grid grid-cols-2 gap-2 rounded-lg border border-zinc-800 bg-black/40 p-2">
-                                <label class="text-[9px] text-zinc-400">Snip beat source start <span id="beatTrimStartLabel" class="font-mono text-pink-300">00:00</span>
-                                    <input id="beatTrimStart" type="range" min="0" max="0" step="0.5" value="0" oninput="updateBeatTrim('start', this.value)" class="mt-1 w-full accent-pink-400">
-                                </label>
-                                <label class="text-[9px] text-zinc-400">Snip beat source end <span id="beatTrimEndLabel" class="font-mono text-pink-300">Full</span>
-                                    <input id="beatTrimEnd" type="range" min="0" max="0" step="0.5" value="0" oninput="updateBeatTrim('end', this.value)" class="mt-1 w-full accent-pink-400">
-                                </label>
-                            </div>
+                            <p id="timelineBeatWaveformNote" class="mt-1 text-[9px] text-zinc-500" aria-live="polite">Load a beat to see its waveform here.</p>
+                            <p class="mt-1 text-[9px] text-zinc-500">Drag the pink clip ends to snip the beat.</p>
                         </div>
                     </div>
                 </div>
-            </section>
-
-            <section class="w-full space-y-2 rounded-2xl border border-cyan-900/60 bg-cyan-950/20 p-3">
-                <div class="flex items-center justify-between gap-2">
-                    <div>
-                        <h3 class="text-[11px] font-bold text-white">Trim the whole production</h3>
-                        <p class="text-[9px] text-zinc-400">Choose the final video's start and end.</p>
-                    </div>
-                    <span id="arrangementTrimDurationLabel" class="whitespace-nowrap rounded-lg bg-black/40 px-2 py-1 font-mono text-xs font-bold text-cyan-300">00:30</span>
-                </div>
-                <label class="block text-[10px] text-zinc-300">Start <span id="arrangementTrimStartLabel" class="font-mono text-cyan-300">00:00</span>
-                    <input id="arrangementProductionTrimStart" type="range" min="0" max="30" step="0.25" value="0" oninput="updateProductionTrim('start', this.value)" class="mt-1 w-full accent-cyan-400">
-                </label>
-                <label class="block text-[10px] text-zinc-300">End <span id="arrangementTrimEndLabel" class="font-mono text-cyan-300">00:30</span>
-                    <input id="arrangementProductionTrimEnd" type="range" min="1" max="30" step="0.25" value="30" oninput="updateProductionTrim('end', this.value)" class="mt-1 w-full accent-cyan-400">
-                </label>
             </section>
 
             <button id="saveMasterVideoMainButton" type="button" onclick="openExportModal()" class="w-full rounded-xl bg-gradient-to-r from-purple-600 via-pink-600 to-amber-500 py-3 text-xs font-bold text-white shadow-lg transition hover:opacity-90">
@@ -329,22 +307,8 @@
                         </button>
                     </div>
 
-                    <!-- Song Timeline Position Drop Slider -->
-                    <div class="space-y-1.5">
-                        <div class="flex justify-between text-xs">
-                            <span class="text-zinc-300 font-medium">Drop Position on Song Time</span>
-                            <span id="valPositionText" class="font-mono text-cyan-400 font-bold">+0.0s</span>
-                        </div>
-                        <input type="range" id="sliderPositionOffset" min="0" max="90" step="0.5" value="0" oninput="updateActiveTakeParam('offset', this.value)" class="w-full accent-cyan-400 h-1.5 bg-zinc-800 rounded-lg appearance-none cursor-pointer">
-                    </div>
-                    <div class="grid grid-cols-2 gap-3 rounded-xl border border-zinc-800 bg-black/40 p-3">
-                        <label class="text-[10px] text-zinc-400">Snip vocal start <span id="vocalTrimStartLabel" class="font-mono text-cyan-300">00:00</span>
-                            <input id="vocalTrimStart" type="range" min="0" max="0" step="0.1" value="0" oninput="updateVocalTrim('start', this.value)" class="mt-1 w-full accent-cyan-400">
-                        </label>
-                        <label class="text-[10px] text-zinc-400">Snip vocal end <span id="vocalTrimEndLabel" class="font-mono text-cyan-300">Full take</span>
-                            <input id="vocalTrimEnd" type="range" min="0.1" max="0.1" step="0.1" value="0.1" oninput="updateVocalTrim('end', this.value)" class="mt-1 w-full accent-cyan-400">
-                        </label>
-                    </div>
+                    <p class="text-[10px] text-zinc-500">Place vocal timing by dragging its clip on the Step 3 timeline.</p>
+                    <p class="text-[10px] text-zinc-500">Trim this take by dragging its cyan ends on the Step 3 timeline.</p>
 
                     <!-- Voice Filters & Megaphone Effects -->
                     <div class="space-y-1.5 pt-1">
@@ -486,16 +450,10 @@
                 <div class="flex items-center justify-between gap-2">
                     <div>
                         <h4 class="text-xs font-bold text-white">Trim the whole creation</h4>
-                        <p class="text-[10px] text-zinc-400">Choose where the final video starts and ends.</p>
+                        <p class="text-[10px] text-zinc-400">Final start and end are set with the cyan handles on the timeline.</p>
                     </div>
                     <span id="finalTrimDurationLabel" class="whitespace-nowrap rounded-lg bg-black/40 px-2 py-1 font-mono text-xs font-bold text-cyan-300">00:30</span>
                 </div>
-                <label class="block text-[10px] text-zinc-300">Start at <span id="productionTrimStartLabel" class="font-mono text-cyan-300">00:00</span>
-                    <input id="productionTrimStart" type="range" min="0" max="30" step="1" value="0" oninput="updateProductionTrim('start', this.value)" class="mt-1 w-full accent-cyan-400">
-                </label>
-                <label class="block text-[10px] text-zinc-300">End at <span id="productionTrimEndLabel" class="font-mono text-cyan-300">00:30</span>
-                    <input id="productionTrimEnd" type="range" min="1" max="30" step="1" value="30" oninput="updateProductionTrim('end', this.value)" class="mt-1 w-full accent-cyan-400">
-                </label>
             </section>
             <div class="grid grid-cols-2 gap-3">
                 <button id="saveMasterVideoButton" onclick="saveMasterVideoToDevice()" disabled class="col-span-2 py-3 px-3 rounded-2xl bg-gradient-to-r from-purple-600 via-pink-600 to-amber-500 text-white font-bold text-xs shadow-lg disabled:opacity-50">Download Final Project (MP4)</button>
@@ -567,13 +525,16 @@
             mediaImageUrl: '',
             mediaVideoUrl: '',
             audioBlob: null,
+            beatWaveform: [],
+            beatWaveformStatus: 'unavailable',
+            beatWaveformRequestId: 0,
             mediaImageBlob: null,
             mediaVideoBlob: null,
             mediaAssets: [],
             mediaSequenceInterval: 4,
             timelinePixelsPerSecond: 20,
             timelineDrag: null,
-            productionTrimTimer: null,
+            timelineTrimDrag: null,
             timelineOffsets: { media: 0, beat: 0, text: 0 },
             timelineTrims: { productionStart: 0, productionEnd: 0, beatStart: 0, beatEnd: 0, mediaStart: 0, mediaEnd: 0 },
             activeMediaIndex: 0,
@@ -715,8 +676,8 @@
                 caption: document.getElementById('captionInput').value,
                 mediaImageBlob: studioApp.mediaImageBlob,
                 mediaVideoBlob: studioApp.mediaVideoBlob,
-                mediaAssets: studioApp.mediaAssets.map(({ type, name, blob, offset, duration }) => ({
-                    type, name, blob, offset, duration
+                mediaAssets: studioApp.mediaAssets.map(({ type, name, blob, offset, duration, trimStart, trimEnd }) => ({
+                    type, name, blob, offset, duration, trimStart, trimEnd
                 })),
                 timelineOffsets: { ...studioApp.timelineOffsets },
                 timelineTrims: { ...studioApp.timelineTrims },
@@ -820,6 +781,7 @@
                 studioApp.recordedFiles = (Array.isArray(project.recordedFiles) ? project.recordedFiles : [])
                     .filter((take) => take.blob instanceof Blob)
                     .map((take) => ({ ...take, url: URL.createObjectURL(take.blob) }));
+                studioApp.recordedFiles.forEach(loadTakeWaveform);
                 updateProjectLengthUI();
                 updateTimelineTrimUI();
                 studioApp.selectedTakeId = studioApp.recordedFiles.some((take) => take.id === project.selectedTakeId)
@@ -845,7 +807,9 @@
                         name: asset.name || 'Project media',
                         type: asset.type || asset.blob.type,
                         offset: asset.offset,
-                        duration: asset.duration
+                        duration: asset.duration,
+                        trimStart: asset.trimStart,
+                        trimEnd: asset.trimEnd
                     })));
                 } else if (project.mediaImageBlob instanceof Blob) applyPhotoFile(project.mediaImageBlob);
                 else if (project.mediaVideoBlob instanceof Blob) applyVideoFile(project.mediaVideoBlob);
@@ -923,14 +887,14 @@
                 const offset = Number.isFinite(asset.offset)
                     ? asset.offset
                     : (studioApp.timelineOffsets.media || 0) + index * studioApp.mediaSequenceInterval;
-                return Math.max(end, offset + (Number(asset.duration) || studioApp.mediaSequenceInterval));
+                return Math.max(end, offset + getTimelineClipDuration('media', index));
             }, 0);
             const textEnd = (studioApp.timelineOffsets.text || 0) + 1;
             return Math.min(600, Math.max(30, studioApp.songDuration || 0, beatEnd, vocalEnd, mediaEnd, textEnd));
         }
 
         function updateTimelineOffsetsUI() {
-            ['media', 'beat', 'text'].forEach((track) => {
+            ['media', 'beat'].forEach((track) => {
                 const label = document.getElementById(`${track}TrackOffset`);
                 if (label) label.textContent = formatTrackTime(studioApp.timelineOffsets[track] || 0);
             });
@@ -941,21 +905,152 @@
             if (!ruler) return;
             ruler.replaceChildren();
             const duration = getTimelineDuration();
+            ruler.onpointerdown = seekTimelineFromRuler;
+            const selectedRange = document.createElement('div');
+            selectedRange.id = 'timelineProductionTrimRange';
+            selectedRange.className = 'pointer-events-none absolute inset-y-0 border-y border-cyan-400/50 bg-cyan-400/10';
+            ruler.append(selectedRange);
             const marks = new Set([0, duration]);
             for (let second = 10; second < duration; second += 10) marks.add(second);
             marks.forEach((second) => {
                 const mark = document.createElement('span');
-                mark.className = 'absolute top-0 -translate-x-1/2 border-l border-zinc-700 pl-1 font-mono text-[8px] text-zinc-500';
+                mark.className = 'pointer-events-none absolute top-0 z-10 -translate-x-1/2 border-l border-zinc-700 pl-1 font-mono text-[8px] text-zinc-500';
                 mark.style.left = `${second * studioApp.timelinePixelsPerSecond}px`;
                 mark.textContent = formatTrackTime(second);
                 ruler.append(mark);
             });
+            ['start', 'end'].forEach((edge) => {
+                const handle = document.createElement('button');
+                handle.type = 'button';
+                handle.id = `timelineProductionTrim${edge === 'start' ? 'Start' : 'End'}Handle`;
+                handle.className = 'absolute inset-y-0 z-30 w-4 -translate-x-1/2 touch-none cursor-ew-resize bg-cyan-400/30';
+                handle.setAttribute('role', 'slider');
+                handle.tabIndex = 0;
+                handle.setAttribute('aria-label', `Trim final video ${edge}`);
+                handle.title = `Drag to set final video ${edge}`;
+                handle.dataset.productionTrimEdge = edge;
+                handle.addEventListener('pointerdown', startProductionTrimDrag);
+                handle.addEventListener('pointermove', moveProductionTrimDrag);
+                handle.addEventListener('pointerup', endProductionTrimDrag);
+                handle.addEventListener('pointercancel', endProductionTrimDrag);
+                handle.addEventListener('keydown', adjustProductionTrimByKeyboard);
+                ruler.append(handle);
+            });
+            updateProductionTrimRuler(duration);
+        }
+
+        function updateProductionTrimRuler(duration = getTimelineDuration()) {
+            const bounds = getProductionTrimBounds(duration);
+            const range = document.getElementById('timelineProductionTrimRange');
+            const startHandle = document.getElementById('timelineProductionTrimStartHandle');
+            const endHandle = document.getElementById('timelineProductionTrimEndHandle');
+            if (range) {
+                range.style.left = `${bounds.start * studioApp.timelinePixelsPerSecond}px`;
+                range.style.width = `${(bounds.end - bounds.start) * studioApp.timelinePixelsPerSecond}px`;
+            }
+            if (startHandle) startHandle.style.left = `${bounds.start * studioApp.timelinePixelsPerSecond}px`;
+            if (endHandle) endHandle.style.left = `${bounds.end * studioApp.timelinePixelsPerSecond}px`;
+            if (startHandle) {
+                startHandle.setAttribute('aria-valuemin', '0');
+                startHandle.setAttribute('aria-valuemax', String(Math.max(0, bounds.end - 1)));
+                startHandle.setAttribute('aria-valuenow', String(bounds.start));
+                startHandle.title = `Final video starts at ${formatTrackTime(bounds.start)}. Drag or use arrow keys to trim.`;
+            }
+            if (endHandle) {
+                endHandle.setAttribute('aria-valuemin', String(bounds.start + 1));
+                endHandle.setAttribute('aria-valuemax', String(duration));
+                endHandle.setAttribute('aria-valuenow', String(bounds.end));
+                endHandle.title = `Final video ends at ${formatTrackTime(bounds.end)}. Drag or use arrow keys to trim.`;
+            }
+        }
+
+        function seekTimelineFromRuler(event) {
+            if (event.target.closest('[data-production-trim-edge]')) return;
+            const viewport = document.getElementById('timelineTracksViewport');
+            const bounds = viewport.getBoundingClientRect();
+            const time = Math.max(0, Math.min(
+                (event.clientX - bounds.left + viewport.scrollLeft) / studioApp.timelinePixelsPerSecond,
+                getTimelineDuration()
+            ));
+            if (studioApp.isMixPreview) {
+                mixPreviewElement.currentTime = Math.max(0, Math.min(
+                    time - studioApp.mixTimelineStart,
+                    mixPreviewElement.duration || 0
+                ));
+            } else if (Number.isFinite(audioElement.duration)) {
+                audioElement.currentTime = Math.min(time, audioElement.duration);
+            }
+            if (!studioApp.isMixPreview) previewTimelineMediaAtTime(time);
+            updatePlaybackTimeUI();
         }
 
         function styleTimelineLaneGrid(lane) {
             const gridInterval = studioApp.timelinePixelsPerSecond * 5;
             lane.style.backgroundImage = 'linear-gradient(to right, rgb(161 161 170 / 0.13) 1px, transparent 1px)';
             lane.style.backgroundSize = `${gridInterval}px 100%`;
+        }
+
+        function createTimelineWaveform(peaks, color) {
+            if (!Array.isArray(peaks) || !peaks.length) return null;
+            const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+            svg.setAttribute('viewBox', '0 0 96 24');
+            svg.setAttribute('preserveAspectRatio', 'none');
+            svg.setAttribute('aria-hidden', 'true');
+            svg.classList.add('pointer-events-none', 'absolute', 'inset-0', 'h-full', 'w-full', 'opacity-75');
+            const barCount = 96;
+            for (let index = 0; index < barCount; index += 1) {
+                const peakIndex = Math.floor(index * peaks.length / barCount);
+                const amplitude = Math.max(0.08, Math.min(1, Number(peaks[peakIndex]) || 0));
+                const height = Math.max(2, amplitude * 19);
+                const bar = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+                bar.setAttribute('x', String(index + 0.2));
+                bar.setAttribute('y', String((24 - height) / 2));
+                bar.setAttribute('width', '0.55');
+                bar.setAttribute('height', String(height));
+                bar.setAttribute('rx', '0.25');
+                bar.setAttribute('fill', color);
+                svg.append(bar);
+            }
+            [24, 48, 72].forEach((position) => {
+                const barLine = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+                barLine.setAttribute('x1', String(position));
+                barLine.setAttribute('x2', String(position));
+                barLine.setAttribute('y1', '1');
+                barLine.setAttribute('y2', '23');
+                barLine.setAttribute('stroke', '#fff');
+                barLine.setAttribute('stroke-opacity', '0.55');
+                barLine.setAttribute('stroke-width', '0.5');
+                svg.append(barLine);
+            });
+            return svg;
+        }
+
+        function setTimelineClipWaveform(clip, peaks, label, color) {
+            const waveform = createTimelineWaveform(peaks, color);
+            if (!waveform) return;
+            clip.replaceChildren(waveform);
+            const labelElement = document.createElement('span');
+            labelElement.className = 'relative z-10 truncate rounded bg-black/55 px-1';
+            labelElement.textContent = label;
+            clip.append(labelElement);
+        }
+
+        function appendTimelineClipTrimHandles(clip) {
+            ['start', 'end'].forEach((edge) => {
+                const handle = document.createElement('span');
+                handle.className = `absolute inset-y-0 z-30 flex w-3 touch-none items-center justify-center bg-white/80 shadow ${edge === 'start' ? 'left-0 rounded-l' : 'right-0 rounded-r'}`;
+                handle.dataset.timelineTrimEdge = edge;
+                handle.setAttribute('role', 'separator');
+                handle.setAttribute('aria-orientation', 'vertical');
+                handle.setAttribute('aria-label', `Trim clip ${edge}`);
+                handle.tabIndex = 0;
+                handle.addEventListener('pointerdown', startTimelineClipTrim);
+                handle.addEventListener('pointermove', moveTimelineClipTrim);
+                handle.addEventListener('pointerup', endTimelineClipTrim);
+                handle.addEventListener('pointercancel', endTimelineClipTrim);
+                handle.addEventListener('keydown', adjustTimelineClipTrimByKeyboard);
+                clip.append(handle);
+            });
         }
 
         function adjustTimelineZoom(direction) {
@@ -994,21 +1089,6 @@
         function renderTimelineTracks() {
             const duration = getTimelineDuration();
             const pixelsPerSecond = studioApp.timelinePixelsPerSecond;
-            const captionLane = document.getElementById('timelineCaptionLane');
-            captionLane.replaceChildren();
-            captionLane.style.width = `${Math.max(240, duration * pixelsPerSecond)}px`;
-            styleTimelineLaneGrid(captionLane);
-            const captionClip = createDraggableTimelineClip(
-                'text',
-                '',
-                document.getElementById('captionInput').value.trim() || 'Caption',
-                studioApp.timelineOffsets.text || 0,
-                Math.max(1, duration - (studioApp.timelineOffsets.text || 0)),
-                'border-amber-300/70 bg-amber-600/90'
-            );
-            captionClip.title = 'Drag to move the caption timing';
-            captionLane.append(captionClip);
-
             const beatLane = document.getElementById('timelineBeatLane');
             beatLane.replaceChildren();
             beatLane.style.width = `${Math.max(240, duration * pixelsPerSecond)}px`;
@@ -1019,14 +1099,29 @@
                 ? createDraggableTimelineClip('beat', '', studioApp.songName, studioApp.timelineOffsets.beat || 0, beatLength, 'border-pink-300/70 bg-pink-600/90')
                 : null;
             if (beatClip) {
-                beatClip.title = 'Drag to move the beat';
+                beatClip.title = studioApp.beatWaveform.length
+                    ? 'Beat waveform with four visual sections. Drag to move the beat.'
+                    : 'Drag to move the beat. Waveform preview is unavailable for this source.';
+                setTimelineClipWaveform(beatClip, studioApp.beatWaveform, studioApp.songName, '#f9a8d4');
+                appendTimelineClipTrimHandles(beatClip);
                 beatLane.append(beatClip);
             } else {
                 beatLane.textContent = 'Load a beat to place it on the timeline';
                 beatLane.classList.add('flex', 'items-center', 'px-2', 'text-[9px]', 'text-zinc-600');
             }
+            const waveformNote = document.getElementById('timelineBeatWaveformNote');
+            if (waveformNote) {
+                waveformNote.textContent = studioApp.beatWaveformStatus === 'loading'
+                    ? 'Loading beat waveform...'
+                    : studioApp.beatWaveformStatus === 'ready'
+                        ? 'Beat waveform · four visual sections'
+                        : studioApp.songName
+                            ? 'Waveform preview is unavailable for this beat source; the beat clip is still draggable.'
+                            : 'Load a beat to see its waveform here.';
+            }
 
             renderMainCapCutTimelineClips();
+            renderTimelineMediaLibrary();
             renderMediaSequenceStrip();
             renderTimelinePlayhead();
         }
@@ -1068,7 +1163,11 @@
                 return Math.max(0.1, (trimEnd - trimStart) / playbackRate);
             }
             const asset = studioApp.mediaAssets[Number(id)];
-            return Math.max(0.1, Number(asset?.duration) || studioApp.mediaSequenceInterval);
+            if (!asset) return studioApp.mediaSequenceInterval;
+            const sourceDuration = Number(asset.duration) || studioApp.mediaSequenceInterval;
+            const trimStart = Math.max(0, Math.min(Number(asset.trimStart) || 0, sourceDuration - 0.1));
+            const trimEnd = asset.trimEnd > trimStart ? Math.min(asset.trimEnd, sourceDuration) : sourceDuration;
+            return Math.max(0.1, trimEnd - trimStart);
         }
 
         function startTimelineClipDrag(event) {
@@ -1127,11 +1226,10 @@
             }
             drag.clip.style.left = `${snappedOffset * studioApp.timelinePixelsPerSecond}px`;
             updateTimelineCanvasWidth();
-            if (drag.kind === 'text') {
-                drag.clip.style.width = `${Math.max(28, (getTimelineDuration() - snappedOffset) * studioApp.timelinePixelsPerSecond)}px`;
-            }
             if (drag.kind === 'beat') document.getElementById('beatTrackOffset').textContent = formatTrackTime(snappedOffset);
-            if (drag.kind === 'text') document.getElementById('textTrackOffset').textContent = formatTrackTime(snappedOffset);
+            if (drag.kind === 'media') {
+                studioApp.timelineOffsets.media = Math.min(...studioApp.mediaAssets.map((asset) => Number(asset.offset) || 0));
+            }
         }
 
         function endTimelineClipDrag(event) {
@@ -1147,7 +1245,7 @@
                 if (drag.kind === 'vocal') selectTakeFileBox(drag.id);
                 return;
             }
-            if (drag.kind === 'beat' || drag.kind === 'vocal') invalidateMixPreview();
+            invalidateMixPreview();
             clampTimelineOffsets();
             updateProjectLengthUI();
             updateTimelineTrimUI();
@@ -1155,57 +1253,242 @@
             scheduleProjectSave();
         }
 
+        function startTimelineClipTrim(event) {
+            if (event.button !== 0 && event.pointerType === 'mouse') return;
+            event.preventDefault();
+            event.stopPropagation();
+            invalidateMixPreview();
+            const handle = event.currentTarget;
+            const clip = handle.closest('[data-timeline-kind]');
+            const kind = clip.dataset.timelineKind;
+            const id = clip.dataset.timelineId;
+            const edge = handle.dataset.timelineTrimEdge;
+            const offset = getTimelineClipOffset(kind, id);
+            let trimStart;
+            let trimEnd;
+            let playbackRate = 1;
+            if (kind === 'beat') {
+                trimStart = studioApp.timelineTrims.beatStart || 0;
+                trimEnd = studioApp.timelineTrims.beatEnd || studioApp.songDuration;
+            } else if (kind === 'vocal') {
+                const take = studioApp.recordedFiles.find((item) => item.id === id);
+                if (!take) return;
+                trimStart = Number(take.trimStart) || 0;
+                trimEnd = take.trimEnd > trimStart ? take.trimEnd : getTakeDuration(take);
+                playbackRate = Math.pow(2, Math.max(-12, Math.min(12, Number(take.pitch) || 0)) / 12);
+            } else {
+                const asset = studioApp.mediaAssets[Number(id)];
+                if (!asset) return;
+                trimStart = Number(asset.trimStart) || 0;
+                trimEnd = asset.trimEnd > trimStart ? asset.trimEnd : Number(asset.duration) || studioApp.mediaSequenceInterval;
+            }
+            studioApp.timelineTrimDrag = {
+                handle,
+                clip,
+                kind,
+                id,
+                edge,
+                pointerId: event.pointerId,
+                startX: event.clientX,
+                startOffset: offset,
+                startTrimStart: trimStart,
+                startTrimEnd: trimEnd,
+                playbackRate,
+                moved: false
+            };
+            if (event.pointerId >= 0) handle.setPointerCapture(event.pointerId);
+        }
+
+        function applyTimelineClipTrimDelta(drag, delta) {
+            const minimumLength = 0.25;
+            const startEdge = drag.edge === 'start';
+            const sourceDelta = drag.kind === 'vocal' ? delta * drag.playbackRate : delta;
+            if (drag.kind === 'beat') {
+                const duration = studioApp.songDuration || drag.startTrimEnd;
+                const trimStart = startEdge
+                    ? Math.max(0, Math.min(drag.startTrimStart + sourceDelta, drag.startTrimEnd - minimumLength))
+                    : drag.startTrimStart;
+                const trimEnd = startEdge
+                    ? drag.startTrimEnd
+                    : Math.max(drag.startTrimStart + minimumLength, Math.min(drag.startTrimEnd + sourceDelta, duration));
+                studioApp.timelineTrims.beatStart = trimStart;
+                studioApp.timelineTrims.beatEnd = trimEnd >= duration ? 0 : trimEnd;
+                if (startEdge) studioApp.timelineOffsets.beat = drag.startOffset + trimStart - drag.startTrimStart;
+            } else if (drag.kind === 'vocal') {
+                const take = studioApp.recordedFiles.find((item) => item.id === drag.id);
+                if (!take) return;
+                const duration = getTakeDuration(take);
+                const trimStart = startEdge
+                    ? Math.max(0, Math.min(drag.startTrimStart + sourceDelta, drag.startTrimEnd - minimumLength))
+                    : drag.startTrimStart;
+                const trimEnd = startEdge
+                    ? drag.startTrimEnd
+                    : Math.max(drag.startTrimStart + minimumLength, Math.min(drag.startTrimEnd + sourceDelta, duration));
+                take.trimStart = trimStart;
+                take.trimEnd = trimEnd >= duration ? 0 : trimEnd;
+                if (startEdge) {
+                    take.offset = drag.startOffset + (trimStart - drag.startTrimStart) / drag.playbackRate;
+                    take.isPlaced = true;
+                }
+            } else {
+                const asset = studioApp.mediaAssets[Number(drag.id)];
+                if (!asset) return;
+                const duration = Number(asset.duration) || studioApp.mediaSequenceInterval;
+                const trimStart = startEdge
+                    ? Math.max(0, Math.min(drag.startTrimStart + sourceDelta, drag.startTrimEnd - minimumLength))
+                    : drag.startTrimStart;
+                const trimEnd = startEdge
+                    ? drag.startTrimEnd
+                    : Math.max(drag.startTrimStart + minimumLength, Math.min(drag.startTrimEnd + sourceDelta, duration));
+                asset.trimStart = trimStart;
+                asset.trimEnd = trimEnd >= duration ? 0 : trimEnd;
+                if (startEdge) asset.offset = drag.startOffset + trimStart - drag.startTrimStart;
+            }
+            drag.moved = true;
+            drag.clip.style.left = `${getTimelineClipOffset(drag.kind, drag.id) * studioApp.timelinePixelsPerSecond}px`;
+            drag.clip.style.width = `${Math.max(44, getTimelineClipDuration(drag.kind, drag.id) * studioApp.timelinePixelsPerSecond)}px`;
+            updateTimelineCanvasWidth();
+            updateProjectLengthUI();
+        }
+
+        function moveTimelineClipTrim(event) {
+            const drag = studioApp.timelineTrimDrag;
+            if (!drag || drag.pointerId !== event.pointerId) return;
+            const delta = (event.clientX - drag.startX) / studioApp.timelinePixelsPerSecond;
+            if (Math.abs(delta) < 0.1) return;
+            applyTimelineClipTrimDelta(drag, Math.round(delta * 4) / 4);
+        }
+
+        function finishTimelineClipTrim(drag) {
+            studioApp.timelineTrimDrag = null;
+            if (!drag.moved) return;
+            invalidateMixPreview();
+            if (drag.kind === 'media') {
+                studioApp.timelineOffsets.media = Math.min(...studioApp.mediaAssets.map((asset) => Number(asset.offset) || 0));
+            }
+            clampTimelineOffsets();
+            updateTimelineTrimUI();
+            updateTimelineOffsetsUI();
+            scheduleProjectSave();
+        }
+
+        function endTimelineClipTrim(event) {
+            const drag = studioApp.timelineTrimDrag;
+            if (!drag || drag.pointerId !== event.pointerId) return;
+            finishTimelineClipTrim(drag);
+        }
+
+        function adjustTimelineClipTrimByKeyboard(event) {
+            if (event.key !== 'ArrowLeft' && event.key !== 'ArrowRight') return;
+            event.preventDefault();
+            event.stopPropagation();
+            const handle = event.currentTarget;
+            const pointerEvent = {
+                button: 0,
+                pointerType: 'keyboard',
+                pointerId: -1,
+                clientX: 0,
+                currentTarget: handle,
+                preventDefault() {},
+                stopPropagation() {}
+            };
+            startTimelineClipTrim(pointerEvent);
+            if (!studioApp.timelineTrimDrag) return;
+            applyTimelineClipTrimDelta(studioApp.timelineTrimDrag, (event.key === 'ArrowRight' ? 0.25 : -0.25));
+            finishTimelineClipTrim(studioApp.timelineTrimDrag);
+        }
+
+        function startProductionTrimDrag(event) {
+            if (event.button !== 0 && event.pointerType === 'mouse') return;
+            event.preventDefault();
+            event.stopPropagation();
+            invalidateMixPreview();
+            const edge = event.currentTarget.dataset.productionTrimEdge;
+            const bounds = getProductionTrimBounds();
+            studioApp.timelineTrimDrag = {
+                kind: 'production',
+                edge,
+                pointerId: event.pointerId,
+                startX: event.clientX,
+                startValue: edge === 'start' ? bounds.start : bounds.end,
+                moved: false
+            };
+            if (event.pointerId >= 0) event.currentTarget.setPointerCapture(event.pointerId);
+        }
+
+        function moveProductionTrimDrag(event) {
+            const drag = studioApp.timelineTrimDrag;
+            if (!drag || drag.kind !== 'production' || drag.pointerId !== event.pointerId) return;
+            const duration = getTimelineDuration();
+            const delta = (event.clientX - drag.startX) / studioApp.timelinePixelsPerSecond;
+            if (Math.abs(delta) < 0.1) return;
+            const seconds = Math.max(0, Math.min(duration, drag.startValue + delta));
+            const bounds = getProductionTrimBounds(duration);
+            if (drag.edge === 'start') {
+                studioApp.timelineTrims.productionStart = Math.max(0, Math.min(seconds, bounds.end - 1));
+            } else {
+                const end = Math.max(seconds, bounds.start + 1);
+                studioApp.timelineTrims.productionEnd = end >= duration ? 0 : end;
+            }
+            drag.moved = true;
+            updateProductionTrimRuler(duration);
+            updateProjectLengthUI();
+        }
+
+        function endProductionTrimDrag(event) {
+            const drag = studioApp.timelineTrimDrag;
+            if (!drag || drag.kind !== 'production' || drag.pointerId !== event.pointerId) return;
+            studioApp.timelineTrimDrag = null;
+            if (!drag.moved) return;
+            invalidateMixPreview();
+            updateTimelineTrimUI();
+            scheduleProjectSave();
+        }
+
+        function adjustProductionTrimByKeyboard(event) {
+            if (!['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(event.key)) return;
+            event.preventDefault();
+            event.stopPropagation();
+            const edge = event.currentTarget.dataset.productionTrimEdge;
+            const duration = getTimelineDuration();
+            const bounds = getProductionTrimBounds(duration);
+            const currentValue = edge === 'start' ? bounds.start : bounds.end;
+            const target = event.key === 'Home'
+                ? (edge === 'start' ? 0 : bounds.start + 1)
+                : event.key === 'End'
+                    ? (edge === 'start' ? bounds.end - 1 : duration)
+                    : currentValue + (event.key === 'ArrowRight' ? 1 : -1);
+            const seconds = edge === 'start'
+                ? Math.max(0, Math.min(target, bounds.end - 1))
+                : Math.max(bounds.start + 1, Math.min(target, duration));
+            const currentEvent = {
+                button: 0,
+                pointerType: 'keyboard',
+                pointerId: -1,
+                clientX: 0,
+                currentTarget: event.currentTarget,
+                preventDefault() {},
+                stopPropagation() {}
+            };
+            startProductionTrimDrag(currentEvent);
+            if (!studioApp.timelineTrimDrag) return;
+            studioApp.timelineTrims[edge === 'start' ? 'productionStart' : 'productionEnd'] =
+                edge === 'end' && seconds >= duration ? 0 : seconds;
+            studioApp.timelineTrimDrag.moved = true;
+            updateProductionTrimRuler(duration);
+            updateProjectLengthUI();
+            endProductionTrimDrag({ pointerId: -1 });
+        }
+
         function updateTimelineTrimUI() {
             const duration = getTimelineDuration();
-            const productionBounds = getProductionTrimBounds(duration);
-            [
-                {
-                    start: document.getElementById('productionTrimStart'),
-                    end: document.getElementById('productionTrimEnd'),
-                    startLabel: document.getElementById('productionTrimStartLabel'),
-                    endLabel: document.getElementById('productionTrimEndLabel')
-                },
-                {
-                    start: document.getElementById('arrangementProductionTrimStart'),
-                    end: document.getElementById('arrangementProductionTrimEnd'),
-                    startLabel: document.getElementById('arrangementTrimStartLabel'),
-                    endLabel: document.getElementById('arrangementTrimEndLabel')
-                }
-            ].forEach((controls) => {
-                if (!controls.start || !controls.end) return;
-                controls.start.max = String(Math.max(0, duration - 1));
-                controls.end.min = String(productionBounds.start + 1);
-                controls.end.max = String(duration);
-                controls.start.value = String(productionBounds.start);
-                controls.end.value = String(productionBounds.end);
-                controls.startLabel.textContent = formatTrackTime(productionBounds.start);
-                controls.endLabel.textContent = formatTrackTime(productionBounds.end);
-            });
-            const finalTrimDuration = document.getElementById('finalTrimDurationLabel');
-            if (finalTrimDuration) {
-                finalTrimDuration.textContent = formatTrackTime(productionBounds.end - productionBounds.start);
-            }
-            const arrangementTrimDuration = document.getElementById('arrangementTrimDurationLabel');
-            if (arrangementTrimDuration) arrangementTrimDuration.textContent = formatTrackTime(productionBounds.end - productionBounds.start);
-
             const beatDuration = Math.max(0, studioApp.songDuration || 0);
-            const beatStart = document.getElementById('beatTrimStart');
-            const beatEnd = document.getElementById('beatTrimEnd');
-            beatStart.max = String(beatDuration);
-            beatEnd.max = String(beatDuration);
             if (studioApp.timelineTrims.beatStart > beatDuration) studioApp.timelineTrims.beatStart = 0;
             if (studioApp.timelineTrims.beatEnd > beatDuration) studioApp.timelineTrims.beatEnd = 0;
             if (studioApp.timelineTrims.beatEnd && studioApp.timelineTrims.beatEnd <= studioApp.timelineTrims.beatStart) {
                 studioApp.timelineTrims.beatStart = 0;
                 studioApp.timelineTrims.beatEnd = 0;
             }
-            beatStart.value = String(studioApp.timelineTrims.beatStart);
-            beatEnd.value = String(studioApp.timelineTrims.beatEnd || beatDuration);
-            document.getElementById('beatTrimStartLabel').textContent = formatTrackTime(studioApp.timelineTrims.beatStart);
-            document.getElementById('beatTrimEndLabel').textContent = studioApp.timelineTrims.beatEnd
-                ? formatTrackTime(studioApp.timelineTrims.beatEnd)
-                : beatDuration ? `${formatTrackTime(beatDuration)} (full)` : 'Full';
-
             studioApp.timelineTrims.mediaStart = Math.min(studioApp.timelineTrims.mediaStart, duration - 1);
             updateTimelineCanvasWidth(duration);
             renderTimelineRuler();
@@ -1216,7 +1499,6 @@
             const width = `${Math.max(240, duration * studioApp.timelinePixelsPerSecond)}px`;
             document.getElementById('timelineTrackCanvas').style.width = width;
             document.getElementById('timelineRuler').style.width = width;
-            document.getElementById('timelineCaptionLane').style.width = width;
             document.getElementById('timelineBeatLane').style.width = width;
             const vocalLanes = document.getElementById('timelineVocalPlacedStack');
             vocalLanes.style.width = width;
@@ -1235,44 +1517,6 @@
             };
         }
 
-        function updateProductionTrim(edge, value) {
-            const duration = getTimelineDuration();
-            const seconds = Math.max(0, Math.min(duration, Number(value) || 0));
-            const currentBounds = getProductionTrimBounds(duration);
-            studioApp.timelineTrims.productionStart = currentBounds.start;
-            if (edge === 'start') {
-                studioApp.timelineTrims.productionStart = Math.min(seconds, currentBounds.end - 1);
-            } else {
-                const end = Math.max(seconds, currentBounds.start + 1);
-                studioApp.timelineTrims.productionEnd = end >= duration ? 0 : end;
-            }
-            invalidateMixPreview();
-            updateProjectLengthUI();
-            updateTimelineTrimUI();
-            updatePlaybackTimeUI();
-            scheduleProjectSave();
-            clearTimeout(studioApp.productionTrimTimer);
-            if (!document.getElementById('exportModal').classList.contains('hidden')) {
-                studioApp.productionTrimTimer = setTimeout(() => {
-                    prepareMasterExport();
-                }, 350);
-            }
-        }
-
-        function updateBeatTrim(edge, value) {
-            const max = studioApp.songDuration || 0;
-            const seconds = Math.max(0, Math.min(max, Number(value) || 0));
-            const minimumLength = Math.min(0.5, max);
-            if (edge === 'start') {
-                studioApp.timelineTrims.beatStart = Math.min(seconds, Math.max(0, (studioApp.timelineTrims.beatEnd || max) - minimumLength));
-            } else {
-                studioApp.timelineTrims.beatEnd = seconds >= max ? 0 : Math.max(seconds, studioApp.timelineTrims.beatStart + minimumLength);
-            }
-            invalidateMixPreview();
-            updateTimelineTrimUI();
-            scheduleProjectSave();
-        }
-
         function formatTrackTime(seconds) {
             const safeSeconds = Number.isFinite(seconds) ? Math.max(0, Math.floor(seconds)) : 0;
             return `${String(Math.floor(safeSeconds / 60)).padStart(2, '0')}:${String(safeSeconds % 60).padStart(2, '0')}`;
@@ -1285,6 +1529,84 @@
             updateProjectLengthUI();
             updateTimelineTrimUI();
             scheduleProjectSave();
+        }
+
+        async function extractAudioWaveform(source) {
+            const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+            if (!AudioContextClass) throw new Error('Audio waveform preview is not supported in this browser.');
+            const context = new AudioContextClass();
+            try {
+                let audioData;
+                if (source instanceof Blob) {
+                    audioData = await source.arrayBuffer();
+                } else {
+                    const response = await fetch(source);
+                    if (!response.ok) throw new Error(`Could not load the beat waveform (HTTP ${response.status}).`);
+                    audioData = await response.arrayBuffer();
+                }
+                const buffer = await context.decodeAudioData(audioData);
+                const peaks = [];
+                const bucketCount = 128;
+                for (let bucket = 0; bucket < bucketCount; bucket += 1) {
+                    const start = Math.floor(bucket * buffer.length / bucketCount);
+                    const end = Math.max(start + 1, Math.floor((bucket + 1) * buffer.length / bucketCount));
+                    const sampleStep = Math.max(1, Math.floor((end - start) / 256));
+                    let peak = 0;
+                    for (let channel = 0; channel < buffer.numberOfChannels; channel += 1) {
+                        const samples = buffer.getChannelData(channel);
+                        for (let sample = start; sample < end; sample += sampleStep) {
+                            peak = Math.max(peak, Math.abs(samples[sample] || 0));
+                        }
+                    }
+                    peaks.push(peak);
+                }
+                return peaks;
+            } finally {
+                await context.close();
+            }
+        }
+
+        async function loadBeatWaveform() {
+            const requestId = ++studioApp.beatWaveformRequestId;
+            studioApp.beatWaveform = [];
+            const source = studioApp.audioBlob instanceof Blob
+                ? studioApp.audioBlob
+                : audioElement.currentSrc || audioElement.src;
+            if (!source) {
+                studioApp.beatWaveformStatus = 'unavailable';
+                renderTimelineTracks();
+                return;
+            }
+            studioApp.beatWaveformStatus = 'loading';
+            renderTimelineTracks();
+            try {
+                const peaks = await extractAudioWaveform(source);
+                if (requestId !== studioApp.beatWaveformRequestId) return;
+                studioApp.beatWaveform = peaks;
+                studioApp.beatWaveformStatus = 'ready';
+            } catch (error) {
+                if (requestId !== studioApp.beatWaveformRequestId) return;
+                console.warn('Could not create the beat waveform preview:', error);
+                studioApp.beatWaveformStatus = 'unavailable';
+            }
+            if (requestId === studioApp.beatWaveformRequestId) renderTimelineTracks();
+        }
+
+        function loadTakeWaveform(take) {
+            if (take.waveform?.length || take.waveformStatus === 'loading' || !(take.blob instanceof Blob)) return;
+            take.waveformStatus = 'loading';
+            extractAudioWaveform(take.blob).then((peaks) => {
+                if (!studioApp.recordedFiles.includes(take)) return;
+                take.waveform = peaks;
+                take.waveformStatus = 'ready';
+                renderMainCapCutTimelineClips();
+                scheduleProjectSave();
+            }).catch((error) => {
+                if (!studioApp.recordedFiles.includes(take)) return;
+                console.warn(`Could not create a waveform preview for ${take.label}:`, error);
+                take.waveformStatus = 'unavailable';
+                renderMainCapCutTimelineClips();
+            });
         }
 
         function updatePlaybackTimeUI() {
@@ -1300,10 +1622,8 @@
                 'invisible',
                 studioApp.isMixPreview && timelineTime < studioApp.timelineOffsets.text
             );
-            if (studioApp.isMixPreview && studioApp.mediaAssets.length) {
-                const mediaIndex = findMediaAssetIndexAtTime(timelineTime);
-                if (mediaIndex >= 0 && mediaIndex !== studioApp.activeMediaIndex) showMediaAsset(mediaIndex);
-                if (mediaIndex < 0 && studioApp.activeMediaIndex !== -1) clearMediaPreview();
+            if (studioApp.mediaAssets.length && (studioApp.isMixPreview || !playbackElement.paused)) {
+                previewTimelineMediaAtTime(timelineTime);
             }
             renderTimelinePlayhead();
         }
@@ -1315,13 +1635,37 @@
                 const offset = Number.isFinite(asset.offset)
                     ? asset.offset
                     : (studioApp.timelineOffsets.media || 0) + index * studioApp.mediaSequenceInterval;
-                const duration = Number(asset.duration) || studioApp.mediaSequenceInterval;
+                const duration = getTimelineClipDuration('media', index);
                 if (time >= offset && time < offset + duration && offset >= activeOffset) {
                     activeIndex = index;
                     activeOffset = offset;
                 }
             });
             return activeIndex;
+        }
+
+        function previewTimelineMediaAtTime(timelineTime) {
+            const mediaIndex = findMediaAssetIndexAtTime(timelineTime);
+            if (mediaIndex >= 0) {
+                if (mediaIndex !== studioApp.activeMediaIndex) showMediaAsset(mediaIndex);
+                syncTimelineMediaPreview(mediaIndex, timelineTime);
+            } else if (studioApp.activeMediaIndex !== -1) {
+                clearMediaPreview();
+            }
+        }
+
+        function syncTimelineMediaPreview(index, timelineTime) {
+            const asset = studioApp.mediaAssets[index];
+            const video = document.getElementById('canvasVideoElement');
+            if (!asset?.type.startsWith('video/') || video.readyState < 1) return;
+            const sourceTime = Math.max(
+                Number(asset.trimStart) || 0,
+                Math.min(
+                    (Number(asset.trimStart) || 0) + timelineTime - asset.offset,
+                    (Number(asset.trimStart) || 0) + getTimelineClipDuration('media', index) - 0.05
+                )
+            );
+            if (Math.abs(video.currentTime - sourceTime) > 0.4) video.currentTime = sourceTime;
         }
 
         function clearMediaPreview() {
@@ -1335,6 +1679,7 @@
             document.getElementById('videoCanvasContainer').style.backgroundImage = '';
             studioApp.activeMediaIndex = -1;
             renderMediaSequenceStrip();
+            renderTimelineMediaLibrary();
         }
 
         function updatePlayButtonUI() {
@@ -1548,24 +1893,11 @@
             emptyState.classList.add('hidden');
 
             document.getElementById('activeFXTakeTitle').innerText = `Selected: ${take.label} (${take.tag})`;
-            document.getElementById('sliderPositionOffset').value = take.offset;
-            document.getElementById('valPositionText').innerText = `+${take.offset.toFixed(1)}s`;
             const takeDuration = getTakeDuration(take);
-            document.getElementById('sliderPositionOffset').max = String(getTimelineDuration());
-            const vocalTrimStart = document.getElementById('vocalTrimStart');
-            const vocalTrimEnd = document.getElementById('vocalTrimEnd');
-            vocalTrimStart.max = String(takeDuration);
-            vocalTrimEnd.max = String(takeDuration);
             take.trimStart = Math.max(0, Math.min(Number(take.trimStart) || 0, takeDuration - 0.1));
             take.trimEnd = take.trimEnd > 0
                 ? Math.max(take.trimStart + 0.1, Math.min(take.trimEnd, takeDuration))
-                : takeDuration;
-            vocalTrimStart.value = String(take.trimStart);
-            vocalTrimEnd.value = String(take.trimEnd);
-            document.getElementById('vocalTrimStartLabel').textContent = formatTrackTime(take.trimStart);
-            document.getElementById('vocalTrimEndLabel').textContent = take.trimEnd >= takeDuration
-                ? `${formatTrackTime(takeDuration)} (full)`
-                : formatTrackTime(take.trimEnd);
+                : 0;
 
             document.getElementById('sliderReverb').value = take.reverb;
             document.getElementById('valReverbText').innerText = `${take.reverb}%`;
@@ -1595,24 +1927,6 @@
             return Math.max(1, minutes * 60 + seconds);
         }
 
-        function updateVocalTrim(edge, value) {
-            const take = studioApp.recordedFiles.find((file) => file.id === studioApp.selectedTakeId);
-            if (!take) return;
-            const duration = getTakeDuration(take);
-            const seconds = Math.max(0, Math.min(duration, Number(value) || 0));
-            if (edge === 'start') {
-                take.trimStart = Math.min(seconds, Math.max(0, (take.trimEnd || duration) - 0.1));
-            } else {
-                take.trimEnd = Math.max(seconds, take.trimStart + 0.1);
-            }
-            if (take.trimEnd >= duration) take.trimEnd = 0;
-            invalidateMixPreview();
-            renderActiveTakeFXCard();
-            updateProjectLengthUI();
-            updateTimelineTrimUI();
-            scheduleProjectSave();
-        }
-
         function updateActiveTakeParam(param, val) {
             const take = studioApp.recordedFiles.find(f => f.id === studioApp.selectedTakeId);
             if (!take) return;
@@ -1621,7 +1935,6 @@
             const numVal = parseFloat(val);
             take[param] = numVal;
 
-            if (param === 'offset') document.getElementById('valPositionText').innerText = `+${numVal.toFixed(1)}s`;
             if (param === 'reverb') document.getElementById('valReverbText').innerText = `${numVal}%`;
             if (param === 'delay') document.getElementById('valDelayText').innerText = `${numVal}%`;
             if (param === 'pitch') document.getElementById('valPitchText').innerText = `${numVal} st`;
@@ -1669,6 +1982,10 @@
             const take = studioApp.recordedFiles.find(f => f.id === studioApp.selectedTakeId);
             if (take) {
                 invalidateMixPreview();
+                take.offset = Math.max(0, Math.min(
+                    audioElement.currentTime || 0,
+                    600 - getTimelineClipDuration('vocal', take.id)
+                ));
                 take.isPlaced = true;
                 renderFileBoxList();
                 updateProjectLengthUI();
@@ -1707,7 +2024,7 @@
             const laneWidth = Math.max(240, getTimelineDuration() * studioApp.timelinePixelsPerSecond);
             container.replaceChildren();
             container.style.width = `${laneWidth}px`;
-            Array.from({ length: Math.max(4, takes.length) }, (_, index) => takes[index] || null)
+            Array.from({ length: 4 }, (_, index) => takes[index] || null)
                 .forEach((take, index) => {
                     const lane = document.createElement('div');
                     lane.className = 'relative h-12 rounded-md border border-zinc-800 bg-black/60';
@@ -1730,9 +2047,11 @@
                             ? 'border-cyan-300/70 bg-cyan-600/90'
                             : 'border-dashed border-amber-300/70 bg-amber-900/90'
                     );
-                    clip.title = take.isPlaced
-                        ? 'Drag to move this vocal take. Tap to select and edit it.'
-                        : 'This take is not in the mix yet. Drag it to place it on the timeline.';
+                    setTimelineClipWaveform(clip, take.waveform, label, '#67e8f9');
+                    appendTimelineClipTrimHandles(clip);
+                    clip.title = `${take.isPlaced
+                        ? 'Drag to move this vocal take. Its Chorus/Ad-lib tag is shown on the clip.'
+                        : 'This take is not in the mix yet. Drag it to place it on the timeline.'}${take.waveformStatus === 'unavailable' ? ' Waveform preview is unavailable.' : ''}`;
                     if (take.id === studioApp.selectedTakeId) clip.classList.add('ring-1', 'ring-white');
                     lane.append(clip);
                     container.append(lane);
@@ -1744,6 +2063,10 @@
             const statusBadge = document.getElementById('vocalRecStatusBadge');
 
             if (!isRecordingNow) {
+                if (studioApp.recordedFiles.length >= 4) {
+                    showToast('All four vocal tracks are full. Delete a take before recording another.', 'fa-triangle-exclamation', 'text-rose-400');
+                    return;
+                }
                 let stream;
                 try {
                     stream = await navigator.mediaDevices.getUserMedia({ audio: true });
@@ -1766,7 +2089,7 @@
                         const newTakeNum = studioApp.recordedFiles.length + 1;
                         const newId = `rec_${Date.now()}`;
 
-                        studioApp.recordedFiles.push({
+                        const newTake = {
                             id: newId,
                             label: `Vocal ${newTakeNum}`,
                             tag: studioApp.activeTag,
@@ -1783,7 +2106,9 @@
                             voicePreset: 'normal',
                             url: audioUrl,
                             blob
-                        });
+                        };
+                        studioApp.recordedFiles.push(newTake);
+                        loadTakeWaveform(newTake);
 
                         invalidateMixPreview();
                         studioApp.selectedTakeId = newId;
@@ -1898,6 +2223,22 @@
         }
         function triggerGalleryImport() {
             document.getElementById('mediaImportInput').click();
+        }
+        function placeMediaAssetAtPlayhead(index) {
+            const asset = studioApp.mediaAssets[index];
+            if (!asset) return;
+            const timelineTime = studioApp.isMixPreview
+                ? mixPreviewElement.currentTime + studioApp.mixTimelineStart
+                : audioElement.currentTime || 0;
+            asset.offset = Math.max(0, Math.min(timelineTime, 600 - (Number(asset.duration) || studioApp.mediaSequenceInterval)));
+            studioApp.timelineOffsets.media = Math.min(...studioApp.mediaAssets.map((item) => Number(item.offset) || 0));
+            invalidateMixPreview();
+            showMediaAsset(index);
+            updateProjectLengthUI();
+            updateTimelineTrimUI();
+            updateTimelineOffsetsUI();
+            scheduleProjectSave();
+            showToast(`${asset.name} moved to ${formatTrackTime(asset.offset)}`, 'fa-photo-film', 'text-purple-400');
         }
         async function initializeIntegrations() {
             try {
@@ -2168,11 +2509,11 @@
             event.target.value = '';
         }
         function applyPhotoFile(file) {
-            setMediaSequence([file]);
-            showToast('Cover photo uploaded', 'fa-image', 'text-purple-400');
+            setMediaSequence([file], studioApp.mediaAssets.length > 0);
+            showToast('Photo added to the timeline', 'fa-image', 'text-purple-400');
         }
         function applyVideoFile(file) {
-            setMediaSequence([file]);
+            setMediaSequence([file], studioApp.mediaAssets.length > 0);
         }
         function setMediaSequence(files, append = false) {
             if (studioApp.mediaAssets.length + files.length > 20 && append) {
@@ -2185,7 +2526,7 @@
             video.load();
             if (!append) studioApp.mediaAssets.forEach((asset) => URL.revokeObjectURL(asset.url));
             const appendOffset = append
-                ? studioApp.mediaAssets.reduce((end, asset) => Math.max(end, (asset.offset || 0) + (asset.duration || studioApp.mediaSequenceInterval)), 0)
+                ? studioApp.mediaAssets.reduce((end, asset, index) => Math.max(end, (asset.offset || 0) + getTimelineClipDuration('media', index)), 0)
                 : 0;
             const newAssets = files.map((item, index) => {
                 const blob = item.blob instanceof Blob ? item.blob : item;
@@ -2197,14 +2538,20 @@
                     duration: Number.isFinite(item.duration)
                         ? Math.max(1, Math.min(600, item.duration))
                         : studioApp.mediaSequenceInterval,
+                    trimStart: Math.max(0, Number(item.trimStart) || 0),
+                    trimEnd: Math.max(0, Number(item.trimEnd) || 0),
                     url: URL.createObjectURL(blob)
                 };
             });
+            const firstNewAssetIndex = append ? studioApp.mediaAssets.length : 0;
             studioApp.mediaAssets = append ? [...studioApp.mediaAssets, ...newAssets] : newAssets;
             newAssets.forEach((asset) => {
-                if (asset.type.startsWith('video/')) loadMediaVideoDuration(asset);
+                if (asset.type.startsWith('video/')) {
+                    loadMediaVideoDuration(asset);
+                    loadMediaVideoThumbnail(asset);
+                }
             });
-            if (!append) studioApp.activeMediaIndex = 0;
+            studioApp.activeMediaIndex = firstNewAssetIndex;
             studioApp.timelineOffsets.media = studioApp.mediaAssets.length
                 ? Math.min(...studioApp.mediaAssets.map((asset) => asset.offset))
                 : 0;
@@ -2212,6 +2559,12 @@
             showMediaAsset(studioApp.activeMediaIndex);
             updateProjectLengthUI();
             updateTimelineTrimUI();
+            const viewport = document.getElementById('timelineTracksViewport');
+            const firstAddedAsset = studioApp.mediaAssets[firstNewAssetIndex];
+            viewport.scrollLeft = Math.max(
+                0,
+                (Number(firstAddedAsset?.offset) || 0) * studioApp.timelinePixelsPerSecond - viewport.clientWidth / 3
+            );
             scheduleProjectSave();
             if (studioApp.mediaAssets.length > 1) {
                 showToast(`${studioApp.mediaAssets.length} photos/videos added to the sequence`, 'fa-photo-film', 'text-purple-400');
@@ -2235,6 +2588,8 @@
                     return;
                 }
                 asset.duration = Math.min(600, duration);
+                asset.trimStart = Math.min(Number(asset.trimStart) || 0, asset.duration - 0.1);
+                if (asset.trimEnd > asset.duration) asset.trimEnd = 0;
                 updateProjectLengthUI();
                 updateTimelineTrimUI();
                 scheduleProjectSave();
@@ -2246,6 +2601,59 @@
                 metadataVideo.load();
                 if (!studioApp.mediaAssets.includes(asset)) return;
                 showToast(`Could not read the selected video "${asset.name}". Try another video.`, 'fa-triangle-exclamation', 'text-rose-400');
+            }, { once: true });
+        }
+
+        function loadMediaVideoThumbnail(asset) {
+            const preview = document.createElement('video');
+            let settled = false;
+            const releasePreview = () => {
+                if (settled) return;
+                settled = true;
+                preview.pause();
+                preview.removeAttribute('src');
+                preview.load();
+            };
+            preview.preload = 'auto';
+            preview.muted = true;
+            preview.playsInline = true;
+            preview.src = asset.url;
+            const capture = () => {
+                if (settled) return;
+                if (!studioApp.mediaAssets.includes(asset) || preview.readyState < 2) {
+                    releasePreview();
+                    return;
+                }
+                const canvas = document.createElement('canvas');
+                canvas.width = 144;
+                canvas.height = 80;
+                const context = canvas.getContext('2d');
+                if (!context) {
+                    console.warn(`Could not create a thumbnail for "${asset.name}".`);
+                    releasePreview();
+                    return;
+                }
+                drawCoverImage(context, preview, canvas.width, canvas.height);
+                asset.thumbnailUrl = canvas.toDataURL('image/jpeg', 0.65);
+                renderTimelineMediaLibrary();
+                renderMediaSequenceStrip();
+                releasePreview();
+            };
+            preview.addEventListener('loadeddata', () => {
+                const trimStart = Math.max(0, Math.min(
+                    Number(asset.trimStart) || 0,
+                    Math.max(0, Number(preview.duration) - 0.1)
+                ));
+                if (trimStart > 0 && Math.abs(preview.currentTime - trimStart) > 0.05) {
+                    preview.addEventListener('seeked', capture, { once: true });
+                    preview.currentTime = trimStart;
+                } else {
+                    capture();
+                }
+            }, { once: true });
+            preview.addEventListener('error', () => {
+                console.warn(`Could not load a thumbnail preview for "${asset.name}".`);
+                releasePreview();
             }, { once: true });
         }
 
@@ -2265,8 +2673,9 @@
                 studioApp.mediaImageBlob = null;
                 canvas.style.backgroundImage = '';
                 video.src = asset.url;
-                video.loop = true;
+                video.loop = false;
                 video.classList.remove('hidden');
+                video.addEventListener('loadedmetadata', () => syncTimelineMediaPreview(studioApp.activeMediaIndex, audioElement.currentTime || 0), { once: true });
                 video.play().catch((error) => {
                     console.error(error);
                     showToast('Video preview could not start. It may still be used in export.', 'fa-triangle-exclamation', 'text-rose-400');
@@ -2280,6 +2689,54 @@
                 canvas.style.backgroundImage = `url('${asset.url}')`;
             }
             renderMediaSequenceStrip();
+            renderTimelineMediaLibrary();
+        }
+        function renderTimelineMediaLibrary() {
+            const library = document.getElementById('timelineMediaLibrary');
+            if (!library) return;
+            library.replaceChildren();
+            const count = document.getElementById('timelineMediaCount');
+            if (count) count.textContent = `${studioApp.mediaAssets.length} / 20`;
+            if (!studioApp.mediaAssets.length) {
+                const empty = document.createElement('p');
+                empty.className = 'flex min-h-14 items-center px-1 text-[10px] text-zinc-600';
+                empty.textContent = 'Your imported pictures and videos will appear here.';
+                library.append(empty);
+                return;
+            }
+            studioApp.mediaAssets.forEach((asset, index) => {
+                const card = document.createElement('div');
+                card.className = `w-24 shrink-0 rounded-lg border p-1.5 ${index === studioApp.activeMediaIndex ? 'border-purple-400 bg-purple-950/60' : 'border-zinc-800 bg-zinc-900/80'}`;
+                const preview = document.createElement('button');
+                preview.type = 'button';
+                preview.className = 'relative mb-1 flex h-12 w-full items-center justify-center overflow-hidden rounded bg-zinc-800 text-white';
+                preview.title = `Preview ${asset.name}`;
+                preview.setAttribute('aria-label', `Preview ${asset.name}`);
+                if (asset.type.startsWith('image/') || asset.thumbnailUrl) {
+                    const image = document.createElement('img');
+                    image.src = asset.type.startsWith('image/') ? asset.url : asset.thumbnailUrl;
+                    image.alt = '';
+                    image.className = 'h-full w-full object-cover';
+                    preview.append(image);
+                } else {
+                    const videoIcon = document.createElement('i');
+                    videoIcon.className = 'fa-solid fa-video text-purple-300';
+                    preview.append(videoIcon);
+                }
+                preview.addEventListener('click', () => showMediaAsset(index));
+                const title = document.createElement('span');
+                title.className = 'block truncate px-0.5 text-[9px] text-zinc-300';
+                title.textContent = asset.name;
+                title.title = asset.name;
+                const place = document.createElement('button');
+                place.type = 'button';
+                place.className = 'mt-1 w-full rounded bg-purple-700/80 px-1 py-1 text-[8px] font-bold text-white';
+                place.textContent = 'Place at playhead';
+                place.title = `Move ${asset.name} to the current playhead position`;
+                place.addEventListener('click', () => placeMediaAssetAtPlayhead(index));
+                card.append(preview, title, place);
+                library.append(card);
+            });
         }
         function renderMediaSequenceStrip() {
             const strip = document.getElementById('mediaStripBar');
@@ -2303,27 +2760,28 @@
                 thumbnail.type = 'button';
                 thumbnail.className = `absolute top-1 flex h-12 items-center overflow-hidden rounded border px-1.5 text-left text-[10px] font-bold text-white shadow touch-none select-none ${index === studioApp.activeMediaIndex ? 'border-purple-300 ring-1 ring-purple-300' : 'border-purple-400/60'} bg-purple-900`;
                 thumbnail.style.left = `${(Number(asset.offset) || 0) * studioApp.timelinePixelsPerSecond}px`;
-                thumbnail.style.width = `${Math.max(44, (Number(asset.duration) || studioApp.mediaSequenceInterval) * studioApp.timelinePixelsPerSecond)}px`;
+                thumbnail.style.width = `${Math.max(44, getTimelineClipDuration('media', index) * studioApp.timelinePixelsPerSecond)}px`;
                 thumbnail.style.cursor = 'grab';
                 thumbnail.dataset.timelineKind = 'media';
                 thumbnail.dataset.timelineId = String(index);
                 const mediaLabel = `${asset.type.startsWith('video/') ? 'Video' : 'Picture'} ${index + 1}`;
                 thumbnail.title = `Drag to position ${mediaLabel.toLowerCase()} ${asset.name}`;
                 thumbnail.setAttribute('aria-label', `Move ${asset.type.startsWith('video/') ? 'video' : 'photo'} ${index + 1}, ${asset.name}`);
-                if (asset.type.startsWith('video/')) {
+                if (asset.type.startsWith('video/') && !asset.thumbnailUrl) {
                     const icon = document.createElement('i');
                     icon.className = 'fa-solid fa-video mr-1 flex-shrink-0 text-purple-200';
                     thumbnail.append(icon);
                 } else {
-                    thumbnail.style.backgroundImage = `url("${asset.url}")`;
-                    thumbnail.style.backgroundSize = 'cover';
+                    thumbnail.style.backgroundImage = `url("${asset.type.startsWith('video/') ? asset.thumbnailUrl : asset.url}")`;
+                    thumbnail.style.backgroundSize = '48px 100%';
+                    thumbnail.style.backgroundRepeat = 'repeat-x';
                     thumbnail.style.backgroundPosition = 'center';
-                    thumbnail.style.backgroundBlendMode = 'multiply';
                 }
                 const title = document.createElement('span');
                 title.className = 'truncate rounded bg-black/55 px-1';
                 title.textContent = `${mediaLabel} · ${asset.name}`;
                 thumbnail.append(title);
+                appendTimelineClipTrimHandles(thumbnail);
                 thumbnail.addEventListener('pointerdown', startTimelineClipDrag);
                 thumbnail.addEventListener('pointermove', moveTimelineClipDrag);
                 thumbnail.addEventListener('pointerup', endTimelineClipDrag);
@@ -2604,6 +3062,7 @@
             if (studioApp.audioUrl) URL.revokeObjectURL(studioApp.audioUrl);
             studioApp.audioUrl = ownedUrl;
             studioApp.audioBlob = audioBlob;
+            studioApp.beatWaveform = [];
             studioApp.songName = name;
             studioApp.songDuration = 0;
             studioApp.timelineTrims.beatStart = 0;
@@ -2621,6 +3080,7 @@
             document.getElementById('currentTimeDisplay').textContent = '00:00';
             updateProjectLengthUI();
             updatePlaybackTimeUI();
+            loadBeatWaveform();
             scheduleProjectSave();
         }
 
@@ -3096,7 +3556,7 @@
                         const mediaVideo = document.createElement('video');
                         mediaVideo.muted = true;
                         mediaVideo.playsInline = true;
-                        mediaVideo.loop = true;
+                        mediaVideo.loop = false;
                         mediaVideo.preload = 'auto';
                         mediaVideo.src = asset.url;
                         if (mediaVideo.readyState < 2) {
@@ -3192,10 +3652,20 @@
                                 }
                                 activeMediaFrame = mediaIndex;
                                 if (frame.type === 'video') {
+                                    if (studioApp.mediaAssets[mediaIndex]) {
+                                        frame.source.currentTime = Number(studioApp.mediaAssets[mediaIndex].trimStart) || 0;
+                                    }
                                     frame.source.play().catch((error) => console.error('Could not play a video in the media sequence:', error));
                                 }
                             }
                             if (frame.type === 'video' && frame.source.readyState >= 2) {
+                                const asset = studioApp.mediaAssets[mediaIndex];
+                                if (asset) {
+                                    const sourceTime = (Number(asset.trimStart) || 0) + timelineTime - asset.offset;
+                                    if (Math.abs(frame.source.currentTime - sourceTime) > 0.4) {
+                                        frame.source.currentTime = sourceTime;
+                                    }
+                                }
                                 drawCoverImage(context, frame.source, width, height);
                             } else if (frame.type === 'image') {
                                 drawCoverImage(context, frame.source, width, height);
