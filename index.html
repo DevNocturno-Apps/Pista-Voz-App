@@ -118,7 +118,6 @@
                 </button>
                 <div class="flex items-center space-x-2">
                     <span id="projectDurationTypeBadge" class="text-[10px] font-mono font-bold text-amber-400 bg-amber-500/10 px-2 py-0.5 rounded border border-amber-500/30">Picture: 30s</span>
-                    <button onclick="openExportModal()" class="px-3.5 py-1 bg-white text-black text-xs font-bold rounded-full hover:bg-zinc-200 transition">Next &gt;</button>
                 </div>
             </div>
 
@@ -192,6 +191,10 @@
                     <button type="button" onclick="triggerPhotoImport()" aria-label="Add a photo or video" class="flex h-full w-8 flex-shrink-0 items-center justify-center rounded bg-zinc-800 text-xs font-bold text-zinc-400 hover:text-white">+</button>
                 </div>
             </div>
+
+            <button type="button" onclick="saveMasterToDevice()" class="w-full rounded-xl bg-gradient-to-r from-purple-600 via-pink-600 to-amber-500 py-3 text-xs font-bold text-white shadow-lg transition hover:opacity-90">
+                <i class="fa-solid fa-download mr-2"></i>Save Master to Device
+            </button>
 
         </div>
 
@@ -481,11 +484,7 @@
         </button>
         <button type="button" onclick="navigateStudioStep('timeline')" data-studio-step="timeline" aria-current="step" class="studio-step flex min-w-0 flex-col items-center space-y-1 px-2 py-1 text-purple-400 transition">
             <i class="fa-solid fa-layer-group text-sm"></i>
-            <span class="text-[10px] font-medium">3. Timeline</span>
-        </button>
-        <button type="button" onclick="navigateStudioStep('export')" data-studio-step="export" aria-current="false" class="studio-step flex min-w-0 flex-col items-center space-y-1 px-2 py-1 text-zinc-500 transition hover:text-zinc-200">
-            <i class="fa-solid fa-share-nodes text-sm"></i>
-            <span class="text-[10px] font-medium">4. Export</span>
+            <span class="text-[10px] font-medium">3. Arrange &amp; Save</span>
         </button>
     </nav>
 
@@ -823,8 +822,8 @@
             const stepDetails = {
                 beat: { label: 'Step 1: Select Beat', next: 'Next', nextStep: 'vocals' },
                 vocals: { label: 'Step 2: Record Vocals', next: 'Next', nextStep: 'timeline' },
-                timeline: { label: 'Step 3: Arrange & Timeline', next: 'Next', nextStep: 'export' },
-                export: { label: 'Step 4: Export & Save', next: 'Timeline', nextStep: 'timeline' }
+                timeline: { label: 'Step 3: Arrange & Save', next: 'Save', nextStep: 'timeline' },
+                export: { label: 'Step 3: Arrange & Save', next: 'Timeline', nextStep: 'timeline' }
             };
             const details = stepDetails[step] || stepDetails.timeline;
 
@@ -836,17 +835,20 @@
             });
             document.getElementById('currentStepIndicator').textContent = details.label;
             const nextButton = document.getElementById('headerNextBtn');
-            nextButton.innerHTML = `${details.next} <i class="fa-solid ${step === 'export' ? 'fa-arrow-left' : 'fa-arrow-right'} ml-1"></i>`;
-            nextButton.setAttribute('aria-label', `${details.next}: ${stepDetails[details.nextStep].label}`);
+            nextButton.innerHTML = `${details.next} <i class="fa-solid ${step === 'timeline' ? 'fa-download' : 'fa-arrow-right'} ml-1"></i>`;
+            nextButton.setAttribute('aria-label', step === 'timeline' ? 'Save audio mix to your device' : `${details.next}: ${stepDetails[details.nextStep].label}`);
         }
 
         function advanceStudioStep() {
             const activeStep = document.querySelector('.studio-step[aria-current="step"]')?.dataset.studioStep || 'timeline';
+            if (activeStep === 'timeline') {
+                saveMasterToDevice();
+                return;
+            }
             const nextSteps = {
                 beat: 'vocals',
                 vocals: 'timeline',
-                timeline: 'export',
-                export: 'timeline'
+                timeline: 'timeline'
             };
             navigateStudioStep(nextSteps[activeStep] || 'timeline');
         }
@@ -2074,11 +2076,13 @@
                 studioApp.exportName = `${safeName}.wav`;
                 status.textContent = `Mix ready (${(blob.size / (1024 * 1024)).toFixed(1)} MB WAV).`;
                 setExportButtonsEnabled(true);
+                return blob;
             } catch (error) {
                 if (requestId !== studioApp.exportRequestId) return;
                 console.error(error);
                 status.textContent = error.message || 'Could not prepare the audio mix.';
                 showToast(error.message || 'Could not prepare the audio mix.', 'fa-triangle-exclamation', 'text-rose-400');
+                return null;
             }
         }
 
@@ -2098,6 +2102,12 @@
         function downloadMaster() {
             if (!downloadPreparedMix()) return;
             showToast('Audio mix saved to your device.', 'fa-download', 'text-cyan-400');
+        }
+
+        async function saveMasterToDevice() {
+            const mix = studioApp.exportBlob || await prepareMasterExport();
+            if (!mix) return;
+            downloadMaster();
         }
 
         async function shareMaster() {
