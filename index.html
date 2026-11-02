@@ -394,7 +394,8 @@
             </div>
             <p class="text-[10px] italic text-zinc-500"><i class="fa-solid fa-circle-info mr-1 text-pink-400"></i>Preview a track before selecting it.</p>
             <p id="audiusSearchStatus" class="text-xs text-zinc-400" role="status" aria-live="polite">Loading popular tracks...</p>
-            <div id="audiusTrackList" class="space-y-2"></div>
+            <div id="audiusTrackList" class="max-h-[55vh] space-y-2 overflow-y-auto rounded-2xl border border-zinc-900 bg-zinc-950/40 p-2"></div>
+            <button id="audiusLoadMoreButton" type="button" onclick="loadMoreAudiusTracks()" class="hidden w-full rounded-xl border border-zinc-800 bg-zinc-900 py-2.5 text-xs font-semibold text-zinc-200 hover:border-pink-500/50 disabled:opacity-50">Load more tracks</button>
         </div>
     </div>
 
@@ -493,6 +494,9 @@
             audiusSearchTimer: null,
             audiusLoading: false,
             audiusGenre: '',
+            audiusOffset: 0,
+            audiusHasMore: false,
+            audiusTracks: [],
             audiusPreview: null,
             audiusPreviewTrackId: '',
             audiusPreviewTimer: null,
@@ -1290,18 +1294,27 @@
             searchAudiusCatalog();
         }
 
-        async function searchAudiusCatalog() {
+        async function searchAudiusCatalog(append = false) {
             stopAudiusPreview();
             const requestId = ++studioApp.audiusRequestId;
             const query = document.getElementById('audiusSearchInput').value.trim();
             const status = document.getElementById('audiusSearchStatus');
             const list = document.getElementById('audiusTrackList');
-            status.textContent = 'Searching Audius...';
-            list.replaceChildren();
+            const loadMoreButton = document.getElementById('audiusLoadMoreButton');
+            if (!append) {
+                studioApp.audiusOffset = 0;
+                studioApp.audiusTracks = [];
+                studioApp.audiusHasMore = false;
+                list.replaceChildren();
+                loadMoreButton.classList.add('hidden');
+            }
+            loadMoreButton.disabled = true;
+            status.textContent = append ? 'Loading more Audius tracks...' : 'Searching Audius...';
 
             const endpoint = new URL(query ? '/v1/tracks/search' : '/v1/tracks/trending', AUDIUS_API);
             endpoint.searchParams.set('app_name', AUDIUS_APP_NAME);
-            endpoint.searchParams.set('limit', '15');
+            endpoint.searchParams.set('limit', '100');
+            endpoint.searchParams.set('offset', String(studioApp.audiusOffset));
             if (query) endpoint.searchParams.set('query', query);
             if (studioApp.audiusGenre) endpoint.searchParams.set('genre', studioApp.audiusGenre);
 
@@ -1311,25 +1324,44 @@
                 const payload = await response.json();
                 if (!Array.isArray(payload.data)) throw new Error('Audius returned an unexpected catalog response.');
                 if (requestId !== studioApp.audiusRequestId) return;
-                renderAudiusTracks(payload.data);
+                studioApp.audiusOffset += payload.data.length;
+                studioApp.audiusHasMore = payload.data.length === 100;
+                const seenTrackIds = new Set(studioApp.audiusTracks.map((track) => String(track.id)));
+                const newTracks = payload.data.filter((track) => !seenTrackIds.has(String(track.id)));
+                studioApp.audiusTracks.push(...newTracks);
+                renderAudiusTracks(newTracks, append);
             } catch (error) {
                 if (requestId !== studioApp.audiusRequestId) return;
                 console.error(error);
-                status.textContent = 'Audius tracks could not be loaded. Check your connection and try again.';
+                status.textContent = append && studioApp.audiusTracks.length
+                    ? 'More tracks could not be loaded. Your current results are still available.'
+                    : 'Audius tracks could not be loaded. Check your connection and try again.';
                 showToast(error.message || 'Could not load Audius tracks.', 'fa-triangle-exclamation', 'text-rose-400');
+            } finally {
+                if (requestId === studioApp.audiusRequestId) {
+                    loadMoreButton.disabled = false;
+                    loadMoreButton.classList.toggle('hidden', !studioApp.audiusHasMore);
+                }
             }
         }
 
-        function renderAudiusTracks(tracks) {
+        function loadMoreAudiusTracks() {
+            if (studioApp.audiusHasMore) return searchAudiusCatalog(true);
+            return Promise.resolve();
+        }
+
+        function renderAudiusTracks(tracks, append = false) {
             const list = document.getElementById('audiusTrackList');
             const status = document.getElementById('audiusSearchStatus');
             const playableTracks = tracks.filter(isAudiusTrackPlayable);
-            list.replaceChildren();
-            if (!playableTracks.length) {
+            if (!append) list.replaceChildren();
+            if (!studioApp.audiusTracks.some(isAudiusTrackPlayable)) {
                 status.textContent = 'No playable tracks found. Try another search.';
                 return;
             }
-            status.textContent = `${playableTracks.length} playable ${studioApp.audiusGenre ? `${studioApp.audiusGenre} ` : ''}tracks`;
+            const playableCount = studioApp.audiusTracks.filter(isAudiusTrackPlayable).length;
+            const genreLabel = studioApp.audiusGenre ? `${studioApp.audiusGenre} ` : '';
+            status.textContent = `${playableCount} playable ${genreLabel}tracks loaded${studioApp.audiusHasMore ? ' · load more to see additional results' : ''}`;
 
             playableTracks.forEach((track) => {
                 const row = document.createElement('div');
