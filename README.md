@@ -2,7 +2,7 @@
 
 A browser-based audio and video studio. The Node server provides Google Photos Picker configuration and secure Instagram account authorization/publishing. The app can still be used locally without provider credentials; those integrations remain disabled until configured.
 
-The mobile studio is organized as four steps: select a beat, record and process vocals, arrange the timeline and caption, then export or publish. Playback and WAV export use the same full arrangement, including placed vocal takes, pitch, voice filters, reverb, delay, and volume. Video export can use an imported photo or video, or a built-in branded backdrop.
+The mobile studio is organized as four steps: select a beat, record and process vocals, arrange the timeline and caption, then export or publish. Playback and WAV export use the same full arrangement, including placed vocal takes, pitch, voice filters, reverb, delay, and volume. Import a photo or video from the device gallery, or choose a photo through the optional Google Photos Picker. Video export can also use a built-in branded backdrop.
 
 The beat picker searches Audius's live catalog and supports genre filters. Preview a result before selecting it to load the track and move into Vocal Studio, or load an audio file from your device.
 

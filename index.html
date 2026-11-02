@@ -2,7 +2,10 @@
 <html lang="en" class="dark">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Pista &amp; Voz">
     <title>Pista & Voz - Mobile Studio Editor</title>
     <!-- Favicon & Mobile App Icons -->
     <link rel="icon" type="image/jpeg" href="https://devnocturno-apps.github.io/Pista-Voz-App/logo.jpg">
@@ -36,6 +39,7 @@
             color: #f4f4f5;
             overflow-x: hidden;
             touch-action: manipulation;
+            -webkit-tap-highlight-color: transparent;
         }
         ::-webkit-scrollbar {
             width: 4px;
@@ -109,7 +113,7 @@
                     <span id="subtitleOverlay" class="text-sm font-medium text-white italic drop-shadow-md">Back in the day .</span>
                     <div class="flex space-x-1">
                         <button onclick="triggerPhotoImport()" class="px-2 py-1 bg-black/60 text-[10px] text-white rounded-md border border-white/20"><i class="fa-solid fa-image text-purple-400"></i> Photo</button>
-                        <button onclick="triggerVideoImport()" class="px-2 py-1 bg-black/60 text-[10px] text-white rounded-md border border-white/20"><i class="fa-solid fa-video text-rose-400"></i> Video</button>
+                        <button onclick="triggerGalleryImport()" class="px-2 py-1 bg-black/60 text-[10px] text-white rounded-md border border-white/20"><i class="fa-solid fa-photo-film text-rose-400"></i> Gallery</button>
                     </div>
                 </div>
 
@@ -322,6 +326,7 @@
     <!-- Hidden File Inputs -->
     <input type="file" id="photoImportInput" accept="image/*" onchange="handlePhotoImport(event)" class="hidden">
     <input type="file" id="videoImportInput" accept="video/*" onchange="handleVideoImport(event)" class="hidden">
+    <input type="file" id="mediaImportInput" accept="image/*,video/*" onchange="handleMediaImport(event)" class="hidden">
 
     <!-- Photo source chooser -->
     <div id="photoSourceModal" class="fixed inset-0 bg-black/80 backdrop-blur-md z-[60] hidden items-end sm:items-center justify-center p-4">
@@ -943,6 +948,9 @@
             closePhotoSourceModal();
             document.getElementById('photoImportInput').click();
         }
+        function triggerGalleryImport() {
+            document.getElementById('mediaImportInput').click();
+        }
         async function initializeIntegrations() {
             try {
                 const configResponse = await fetch('/api/config', { cache: 'no-store' });
@@ -1182,6 +1190,18 @@
             throw new Error('Google Photos selection timed out. Please try again.');
         }
         function triggerVideoImport() { document.getElementById('videoImportInput').click(); }
+        function handleMediaImport(event) {
+            const file = event.target.files?.[0];
+            if (!file) return;
+            if (file.type.startsWith('image/')) {
+                applyPhotoFile(file);
+            } else if (file.type.startsWith('video/')) {
+                applyVideoFile(file);
+            } else {
+                showToast('Choose a supported photo or video file.', 'fa-triangle-exclamation', 'text-rose-400');
+            }
+            event.target.value = '';
+        }
         function handlePhotoImport(e) {
             const file = e.target.files?.[0];
             if (file) {
@@ -1208,25 +1228,29 @@
         }
         function handleVideoImport(e) {
             const file = e.target.files?.[0];
-            if (file) {
-                const video = document.getElementById('canvasVideoElement');
-                if (studioApp.mediaVideoUrl) URL.revokeObjectURL(studioApp.mediaVideoUrl);
-                if (studioApp.mediaImageUrl) URL.revokeObjectURL(studioApp.mediaImageUrl);
-                studioApp.mediaImageUrl = '';
-                studioApp.mediaVideoUrl = URL.createObjectURL(file);
-                video.src = studioApp.mediaVideoUrl;
-                video.loop = true;
-                video.classList.remove('hidden');
-                document.getElementById('mediaStripThumbnail').style.backgroundImage = '';
-                document.getElementById('mediaStripThumbnail').innerHTML = '<i class="fa-solid fa-video text-purple-300"></i>';
-                document.getElementById('mediaStripThumbnail').setAttribute('aria-label', `Selected video: ${file.name}`);
-                video.play().catch((error) => {
-                    console.error(error);
-                    showToast('Video preview could not start. It may still be used in export.', 'fa-triangle-exclamation', 'text-rose-400');
-                });
-                showToast("Video backdrop uploaded", "fa-video", "text-rose-400");
-            }
+            if (file) applyVideoFile(file);
             e.target.value = '';
+        }
+        function applyVideoFile(file) {
+            const video = document.getElementById('canvasVideoElement');
+            video.pause();
+            video.removeAttribute('src');
+            video.load();
+            if (studioApp.mediaVideoUrl) URL.revokeObjectURL(studioApp.mediaVideoUrl);
+            if (studioApp.mediaImageUrl) URL.revokeObjectURL(studioApp.mediaImageUrl);
+            studioApp.mediaImageUrl = '';
+            studioApp.mediaVideoUrl = URL.createObjectURL(file);
+            video.src = studioApp.mediaVideoUrl;
+            video.loop = true;
+            video.classList.remove('hidden');
+            document.getElementById('mediaStripThumbnail').style.backgroundImage = '';
+            document.getElementById('mediaStripThumbnail').innerHTML = '<i class="fa-solid fa-video text-purple-300"></i>';
+            document.getElementById('mediaStripThumbnail').setAttribute('aria-label', `Selected video: ${file.name}`);
+            video.play().catch((error) => {
+                console.error(error);
+                showToast('Video preview could not start. It may still be used in export.', 'fa-triangle-exclamation', 'text-rose-400');
+            });
+            showToast('Video backdrop uploaded', 'fa-video', 'text-rose-400');
         }
 
         function isAudiusTrackPlayable(track) {
